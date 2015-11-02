@@ -1,0 +1,9 @@
+{
+  "preset": "airbnb",
+  "requireSemicolons": false,
+  "disallowSemicolons": true,
+  "requireTrailingComma": false,
+  "disallowTrailingComma": true,
+  "validateQuoteMarks": "\"",
+  "maximumLineLength": 100
+}
