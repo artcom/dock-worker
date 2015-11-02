@@ -6,7 +6,7 @@ const fs = bluebird.promisifyAll(require("fs"))
 const status = require("./commands/status")
 
 const options = docopt(`
-  Usage:
+  usage:
     whale status <environment>
 `)
 
