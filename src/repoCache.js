@@ -12,7 +12,7 @@ export default class {
     this.user = user
   }
 
-  getRepo(service) {
+  getRepo(service, environment) {
     const localPath = path.join(this.cacheDir, service.name)
     const host = url.parse(service.repo).hostname
 
@@ -30,7 +30,13 @@ export default class {
       return nodegit.Repository.openBare(localPath).then(
         (repo) => repo.fetch("origin", fetchOpts).then(() => repo),
         () => nodegit.Clone.clone(service.repo, localPath, { bare: 1, fetchOpts })
-      )
+      ).then((repo) => {
+        const remoteUrl = `${environment.host}:${service.name}`
+        return nodegit.Remote.lookup(repo, environment.name).then(
+          () => nodegit.Remote.setUrl(repo, environment.name, remoteUrl),
+          () => nodegit.Remote.create(repo, environment.name, remoteUrl)
+        ).then(() => repo)
+      })
     })
   }
 }

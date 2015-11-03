@@ -26,7 +26,7 @@ export function determine(environment, services, repoCache) {
 
     function version(service) {
       if (service) {
-        return repoCache.getRepo(service)
+        return repoCache.getRepo(service, environment)
           .then((repo) => repo.getMasterCommit())
           .then((commit) => commit.sha())
       } else {
