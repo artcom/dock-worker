@@ -9,11 +9,10 @@ const statusColor = {
   additional: colors.gray
 }
 
-export default function(config, options, dokku, repoCache) {
-  const environment = options["<environment>"]
-  console.log(`status of ${environment} (${dokku.host})\n`)
+export default function(environment, services, repoCache) {
+  console.log(`status of ${environment.name} (${environment.host})\n`)
 
-  return status.determine(config, dokku, repoCache).then(function(apps) {
+  return status.determine(environment, services, repoCache).then(function(apps) {
     const rows = apps.map((app) => {
       return [app.name, formatStatus(app), formatVersion(app)]
     })

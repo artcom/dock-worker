@@ -1,8 +1,11 @@
 import _ from "lodash"
 
-export function determine(config, dokku, repoCache) {
+import Dokku from "./dokku"
+
+export function determine(environment, services, repoCache) {
+  const dokku = new Dokku(environment.host)
   return dokku.apps().then(function(available) {
-    const defined = _.map(config.services, "name")
+    const defined = _.map(services, "name")
 
     const apps = _.union(defined, available).sort()
     const deployed = _.intersection(defined, available)
@@ -32,7 +35,7 @@ export function determine(config, dokku, repoCache) {
     }
 
     return Promise.all(apps.map((app) => {
-      const service = _.find(config.services, "name", app)
+      const service = _.find(services, "name", app)
 
       return version(service).then((v) => ({
         name: app,
