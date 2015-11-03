@@ -26,9 +26,14 @@ function formatStatus(app) {
   return color(app.status)
 }
 
-function formatVersion(app) {
-  const actual = app.version
-  const expected = app.config ? app.config.version : ""
-  const color = actual === expected ? colors.green : colors.red
-  return color(actual)
+function formatVersion({expectedVersion, deployedVersion}) {
+  if (expectedVersion) {
+    if (expectedVersion === deployedVersion) {
+      return colors.green(deployedVersion)
+    } else {
+      return `${colors.red(deployedVersion)} (expected ${expectedVersion})`
+    }
+  } else {
+    return ""
+  }
 }

@@ -1,4 +1,5 @@
 import _ from "lodash"
+import nodegit from "nodegit"
 
 import Dokku from "./dokku"
 
@@ -24,24 +25,28 @@ export function determine(environment, services, repoCache) {
       }
     }
 
-    function version(service) {
+    function lookUpVersion(service) {
       if (service) {
         return repoCache.getRepo(service, environment)
-          .then((repo) => repo.getMasterCommit())
-          .then((commit) => commit.sha())
+          .then((repo) => {
+            return nodegit.Reference.lookup(repo, `refs/remotes/${environment.name}/master`)
+          })
+          .then((reference) => {
+            return reference.target().toString()
+          })
       } else {
-        return Promise.resolve("")
+        return Promise.resolve()
       }
     }
 
     return Promise.all(apps.map((app) => {
       const service = _.find(services, "name", app)
 
-      return version(service).then((v) => ({
+      return lookUpVersion(service).then((deployedVersion) => ({
         name: app,
-        config: service,
         status: status(app),
-        version: v
+        deployedVersion,
+        expectedVersion: service && service.version
       }))
     }))
   })
