@@ -3,14 +3,25 @@
   "version": "0.1.0",
   "private": true,
   "description": "Automated Dokku Deployment",
+  "bin": {
+    "whale": "dist/whale.js"
+  },
+  "scripts": {
+    "prepublish": "babel src --out-dir dist --source-maps",
+    "debug": "npm run prepublish && node-debug dist/whale.js",
+    "start": "npm run prepublish && node dist/whale.js"
+  },
   "dependencies": {
     "bluebird": "^3.0.5",
     "colors": "^1.1.2",
     "docopt": "^0.6.2",
+    "keychain": "0.0.4",
     "lodash": "^3.10.1",
+    "nodegit": "^0.5.0",
     "text-table": "^0.2.0"
   },
   "devDependencies": {
+    "babel": "^5.8.29",
     "eslint": "^1.8.0"
   }
 }
