@@ -1,6 +1,7 @@
 import colors from "colors/safe"
 import table from "text-table"
 
+import envCommand from "./envCommand"
 import * as status from "../status"
 
 const statusColor = {
@@ -9,7 +10,7 @@ const statusColor = {
   additional: colors.gray
 }
 
-export default function(environment, services, repoCache) {
+export default envCommand(function(environment, services, repoCache) {
   console.log(`status of ${environment.name} (${environment.host})\n`)
 
   return status.determine(environment, services, repoCache).then(function(apps) {
@@ -19,7 +20,7 @@ export default function(environment, services, repoCache) {
 
     console.log(table(rows))
   })
-}
+})
 
 function formatStatus(app) {
   const color = statusColor[app.status]

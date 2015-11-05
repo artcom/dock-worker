@@ -1,6 +1,7 @@
+import envCommand from "./envCommand"
 import * as status from "../status"
 
-export default function(config, options, dokku, repoCache) {
+export default envCommand(function(config, options, dokku, repoCache) {
   const environment = options["<environment>"]
   console.log(`deploying to ${environment} (${dokku.host})\n`)
 
@@ -11,4 +12,4 @@ export default function(config, options, dokku, repoCache) {
         console.log(action.description)
       })
     })
-}
+})

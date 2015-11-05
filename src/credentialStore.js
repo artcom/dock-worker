@@ -1,3 +1,4 @@
+import colors from "colors/safe"
 import keytar from "keytar"
 import lowdb from "lowdb"
 
@@ -13,13 +14,17 @@ export default class {
 
   getCredentials(host) {
     const account = this.getAccount(host)
-    const password = keytar.getPassword(host, account)
 
-    if (account && password) {
-      return { account, password }
-    } else {
-      throw new Error(`No credentials for '${host}'. Please run 'whale set-credentials ${host}.'`)
+    if (account) {
+      const password = keytar.getPassword(host, account)
+
+      if (password) {
+        return { account, password }
+      }
     }
+
+    const command = `whale set-credentials ${host}`
+    throw new Error(`Missing credentials, please run ${colors.bold(command)}`)
   }
 
   setCredentials(host, account, password) {
