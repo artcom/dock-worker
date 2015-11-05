@@ -24,7 +24,7 @@ describe("Repo Cache", function() {
     ])
   })
 
-  it("should throw when credentials are not found", function() {
+  it("should set origin and dokku remote", function() {
     const service = {
       name: "dokku-app",
       repo: `file://${this.repoDir}/source-code`
