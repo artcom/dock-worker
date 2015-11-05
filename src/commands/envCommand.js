@@ -5,7 +5,7 @@ export default function(callback) {
     const environment = _.find(environments, "name", options["<environment>"])
 
     return callback(
-      _.defaults(environment, { protocol: "ssh", username: "docker" }),
+      _.defaults(environment, { protocol: "ssh", username: "dokku" }),
       services.filter((service) => _.contains(service.environments, environment.name))
     )
   }
