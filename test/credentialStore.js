@@ -1,19 +1,17 @@
 /* eslint-env mocha */
 
+import bluebird from "bluebird"
 import {expect} from "chai"
 import tmp from "tmp"
 
 import CredentialStore from "../src/credentialStore"
 
-describe("Credential Store", function() {
-  beforeEach(function(done) {
-    tmp.file((error, path) => {
-      if (error) {
-        throw error
-      }
+const tmpFileAsync = bluebird.promisify(tmp.file)
 
+describe("Credential Store", function() {
+  beforeEach(function() {
+    return tmpFileAsync().then((path) => {
       this.store = new CredentialStore(path)
-      done()
     })
   })
 
