@@ -9,19 +9,24 @@
   "scripts": {
     "prepublish": "babel src --out-dir dist --source-maps",
     "debug": "npm run prepublish && node-debug dist/whale.js",
-    "start": "npm run prepublish && node dist/whale.js"
+    "start": "npm run prepublish && node dist/whale.js",
+    "test": "mocha --compilers js:babel/register"
   },
   "dependencies": {
     "bluebird": "^3.0.5",
     "colors": "^1.1.2",
     "docopt": "^0.6.2",
-    "keychain": "0.0.4",
+    "keytar": "^3.0.0",
     "lodash": "^3.10.1",
+    "lowdb": "^0.10.2",
     "nodegit": "^0.5.0",
     "text-table": "^0.2.0"
   },
   "devDependencies": {
     "babel": "^5.8.29",
-    "eslint": "^1.8.0"
+    "chai": "^3.4.0",
+    "eslint": "^1.8.0",
+    "mocha": "^2.3.3",
+    "tmp": "0.0.28"
   }
 }
