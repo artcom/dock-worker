@@ -38,8 +38,8 @@ export default class {
     ).then((repo) => {
       const remoteUrl = url.format({
         slashes: true,
-        protocol: environment.protocol || "ssh",
-        auth: "dokku",
+        protocol: environment.protocol,
+        auth: environment.username,
         host: environment.host,
         pathname: "/" + service.name
       })
