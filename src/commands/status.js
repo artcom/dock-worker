@@ -11,8 +11,6 @@ const statusColor = {
 }
 
 export default envCommand(function(environment, services, repoCache) {
-  console.log(`status of ${environment.name} (${environment.host})\n`)
-
   return status.determine(environment, services, repoCache).then(function(apps) {
     const rows = apps.map((app) => {
       return [app.name, formatStatus(app), formatVersion(app)]
