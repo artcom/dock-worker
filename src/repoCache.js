@@ -1,6 +1,7 @@
 import colors from "colors/safe"
 import nodegit from "nodegit"
 import path from "path"
+import readline from "readline"
 import url from "url"
 
 import CredentialStore from "./credentialStore"
@@ -37,8 +38,8 @@ export default class {
     const localPath = path.resolve(this.cacheDir, service.name)
 
     return nodegit.Repository.openBare(localPath).then(
-      (repo) => repo.fetch("origin", fetchOpts).then(() => repo),
-      () => nodegit.Clone.clone(service.repo, localPath, { bare: 1, fetchOpts })
+      (repo) => this.fetchRepo(service, repo),
+      () => this.cloneRepo(service, localPath)
     ).then((repo) => {
       const remoteUrl = url.format({
         slashes: true,
@@ -51,9 +52,28 @@ export default class {
       return nodegit.Remote.lookup(repo, environment.name).then(
         () => nodegit.Remote.setUrl(repo, environment.name, remoteUrl),
         () => nodegit.Remote.create(repo, environment.name, remoteUrl)
-      ).then(() => repo)
-    }).then((repo) =>
-      repo.fetch(environment.name, fetchOpts).then(() => repo)
-    )
+      ).then(() =>
+        repo.fetch(environment.name, fetchOpts)
+      ).then(() =>
+        repo
+      )
+    })
+  }
+
+  // PRIVATE
+
+  cloneRepo(service, localPath) {
+    readline.clearLine(process.stdout, 0)
+    process.stdout.write(colors.gray(`cloning ${colors.bold(service.name)}\r`))
+
+    return nodegit.Clone.clone(service.repo, localPath, { bare: 1, fetchOpts })
+  }
+
+  fetchRepo(service, repo) {
+    readline.clearLine(process.stdout, 0)
+    process.stdout.write(colors.gray(`fetching ${colors.bold(service.name)}\r`))
+
+    return repo.fetch("origin", fetchOpts)
+      .then(() => repo)
   }
 }

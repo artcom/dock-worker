@@ -13,12 +13,16 @@ const statusColor = {
 export default envCommand(function(environment, services) {
   return status.determine(environment, services).then(function(apps) {
     const rows = apps.map((app) => {
-      return [app.name, formatStatus(app), formatVersion(app)]
+      return [formatName(app), formatStatus(app), formatVersion(app)]
     })
 
     console.log(table(rows))
   })
 })
+
+function formatName(app) {
+  return colors.bold(app.name)
+}
 
 function formatStatus(app) {
   const color = statusColor[app.status]
