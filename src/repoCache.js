@@ -1,25 +1,29 @@
+import colors from "colors/safe"
 import nodegit from "nodegit"
 import path from "path"
 import url from "url"
 
 import CredentialStore from "./credentialStore"
 
-const sourceFetchOpts = {
+const fetchOpts = {
   callbacks: {
-    credentials: (repoUrl) => {
-      const host = url.parse(repoUrl).hostname
-      const credentialStore = new CredentialStore()
-      const { account, password } = credentialStore.getCredentials(host)
+    credentials: (repoUrl, username, allowedTypes) => {
+      if (allowedTypes & nodegit.Cred.TYPE.SSH_KEY) {
+        return nodegit.Cred.sshKeyFromAgent(username)
+      } else if (allowedTypes & nodegit.Cred.TYPE.USERPASS_PLAINTEXT) {
+        const host = url.parse(repoUrl).hostname
+        const credentialStore = new CredentialStore()
 
-      return nodegit.Cred.userpassPlaintextNew(account, password)
-    }
-  }
-}
-
-const dokkuFetchOpts = {
-  callbacks: {
-    credentials: (repoUrl, user) => {
-      return nodegit.Cred.sshKeyFromAgent(user)
+        if (credentialStore.hasCredentials(host)) {
+          const { account, password } = credentialStore.getCredentials(host)
+          return nodegit.Cred.userpassPlaintextNew(account, password)
+        } else {
+          const command = `whale set-credentials ${host}`
+          throw new Error(`Missing credentials, please run ${colors.bold(command)}`)
+        }
+      } else {
+        throw new Error("Unexpected credential type requested")
+      }
     }
   }
 }
@@ -33,8 +37,8 @@ export default class {
     const localPath = path.resolve(this.cacheDir, service.name)
 
     return nodegit.Repository.openBare(localPath).then(
-      (repo) => repo.fetch("origin", sourceFetchOpts).then(() => repo),
-      () => nodegit.Clone.clone(service.repo, localPath, { bare: 1, fetchOpts: sourceFetchOpts })
+      (repo) => repo.fetch("origin", fetchOpts).then(() => repo),
+      () => nodegit.Clone.clone(service.repo, localPath, { bare: 1, fetchOpts })
     ).then((repo) => {
       const remoteUrl = url.format({
         slashes: true,
@@ -49,7 +53,7 @@ export default class {
         () => nodegit.Remote.create(repo, environment.name, remoteUrl)
       ).then(() => repo)
     }).then((repo) =>
-      repo.fetch(environment.name, dokkuFetchOpts).then(() => repo)
+      repo.fetch(environment.name, fetchOpts).then(() => repo)
     )
   }
 }

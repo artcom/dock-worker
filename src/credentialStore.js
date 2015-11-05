@@ -1,4 +1,3 @@
-import colors from "colors/safe"
 import keytar from "keytar"
 import lowdb from "lowdb"
 
@@ -6,6 +5,10 @@ export default class {
   constructor(file = ".cache/credentials.json") {
     const db = lowdb(file)
     this.credentials = db("credentials")
+  }
+
+  hasCredentials(host) {
+    return this.credentials.some({ host })
   }
 
   listCredentials() {
@@ -23,8 +26,7 @@ export default class {
       }
     }
 
-    const command = `whale set-credentials ${host}`
-    throw new Error(`Missing credentials, please run ${colors.bold(command)}`)
+    throw new Error(`No credentials for ${host}`)
   }
 
   setCredentials(host, account, password) {

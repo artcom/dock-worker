@@ -25,6 +25,12 @@ describe("Credential Store", function() {
     expect(() => this.store.getCredentials("unknown")).to.throw
   })
 
+  it("should know if credentials are available", function() {
+    expect(this.store.hasCredentials("myHost")).to.be.false
+    this.store.setCredentials("myHost", "myAccount", "myPassword")
+    expect(this.store.hasCredentials("myHost")).to.be.true
+  })
+
   it("should list stored credentials", function() {
     expect(this.store.listCredentials()).to.be.empty
     this.store.setCredentials("myHost", "myAccount", "myPassword")
