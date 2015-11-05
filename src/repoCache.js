@@ -13,7 +13,7 @@ const dokkuFetchOpts = {
 }
 
 export default class {
-  constructor(cacheDir) {
+  constructor(cacheDir = ".cache") {
     this.cacheDir = cacheDir
   }
 

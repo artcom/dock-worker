@@ -10,8 +10,8 @@ const statusColor = {
   additional: colors.gray
 }
 
-export default envCommand(function(environment, services, repoCache) {
-  return status.determine(environment, services, repoCache).then(function(apps) {
+export default envCommand(function(environment, services) {
+  return status.determine(environment, services).then(function(apps) {
     const rows = apps.map((app) => {
       return [app.name, formatStatus(app), formatVersion(app)]
     })

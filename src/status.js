@@ -2,8 +2,9 @@ import _ from "lodash"
 import nodegit from "nodegit"
 
 import Dokku from "./dokku"
+import RepoCache from "./repoCache"
 
-export function determine(environment, services, repoCache) {
+export function determine(environment, services) {
   const dokku = new Dokku(environment.host)
   return dokku.apps().then(function(available) {
     const defined = _.map(services, "name")
@@ -24,6 +25,8 @@ export function determine(environment, services, repoCache) {
         return "unknown"
       }
     }
+
+    const repoCache = new RepoCache()
 
     function lookUpVersion(service) {
       if (service) {
