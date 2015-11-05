@@ -4,6 +4,18 @@ import url from "url"
 
 import CredentialStore from "./credentialStore"
 
+const sourceFetchOpts = {
+  callbacks: {
+    credentials: (repoUrl) => {
+      const host = url.parse(repoUrl).hostname
+      const credentialStore = new CredentialStore()
+      const { account, password } = credentialStore.getCredentials(host)
+
+      return nodegit.Cred.userpassPlaintextNew(account, password)
+    }
+  }
+}
+
 const dokkuFetchOpts = {
   callbacks: {
     credentials: (repoUrl, user) => {
@@ -19,18 +31,6 @@ export default class {
 
   getRepo(service, environment) {
     const localPath = path.resolve(this.cacheDir, service.name)
-
-    const host = url.parse(service.repo).hostname
-    const credentialStore = new CredentialStore()
-    const { account, password } = credentialStore.getCredentials(host)
-
-    const sourceFetchOpts = {
-      callbacks: {
-        credentials: () => {
-          return nodegit.Cred.userpassPlaintextNew(account, password)
-        }
-      }
-    }
 
     return nodegit.Repository.openBare(localPath).then(
       (repo) => repo.fetch("origin", sourceFetchOpts).then(() => repo),
