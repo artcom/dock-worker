@@ -36,7 +36,14 @@ export default class {
       (repo) => repo.fetch("origin", sourceFetchOpts).then(() => repo),
       () => nodegit.Clone.clone(service.repo, localPath, { bare: 1, fetchOpts: sourceFetchOpts })
     ).then((repo) => {
-      const remoteUrl = `${environment.host}:${service.name}`
+      const remoteUrl = url.format({
+        slashes: true,
+        protocol: environment.protocol || "ssh",
+        auth: "dokku",
+        host: environment.host,
+        pathname: "/" + service.name
+      })
+
       return nodegit.Remote.lookup(repo, environment.name).then(
         () => nodegit.Remote.setUrl(repo, environment.name, remoteUrl),
         () => nodegit.Remote.create(repo, environment.name, remoteUrl)

@@ -9,7 +9,7 @@ export default class {
   }
 
   apps() {
-    return cpAsync.execFileAsync("ssh", [this.host, "apps"]).then((stdout) =>
+    return cpAsync.execFileAsync("ssh", [`dokku@${this.host}`, "apps"]).then((stdout) =>
       _(stdout)
         .split("\n")
         .reject((line) => line === "" || line.startsWith("=====>"))
