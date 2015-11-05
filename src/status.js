@@ -54,3 +54,15 @@ export function determine(environment, services) {
     }))
   })
 }
+
+export function deriveActions(status) {
+  return status.reduce(function(actions, app) {
+    if (app.status === "missing") {
+      actions.push({ description: `Deploy ${app.name}` })
+    } else if (app.status === "deployed" && app.expectedVersion !== app.deployedVersion) {
+      actions.push({ description: `Update ${app.name}` })
+    }
+
+    return actions
+  }, [])
+}
