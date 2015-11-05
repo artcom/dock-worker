@@ -1,7 +1,8 @@
 import _ from "lodash"
 import bluebird from "bluebird"
 import cp from "child_process"
-const cpAsync = bluebird.promisifyAll(cp)
+
+const execFileAsync = bluebird.promisify(cp.execFile)
 
 export default class {
   constructor(host) {
@@ -9,11 +10,37 @@ export default class {
   }
 
   apps() {
-    return cpAsync.execFileAsync("ssh", [`dokku@${this.host}`, "apps"]).then((stdout) =>
+    return this.dokku("apps").then((stdout) =>
       _(stdout)
         .split("\n")
-        .reject((line) => line === "" || line.startsWith("=====>"))
+        .reject(unnecessaryLine)
         .value()
     )
   }
+
+  config(app) {
+    return this.dokku("config", app).then((stdout) =>
+      _(stdout)
+        .split("\n")
+        .reject(unnecessaryLine)
+        .map(extractPair)
+        .zipObject()
+        .value()
+    )
+  }
+
+  // PRIVATE
+
+  dokku(...params) {
+    return execFileAsync("ssh", [`dokku@${this.host}`].concat(params))
+  }
+}
+
+function unnecessaryLine(line) {
+  return line === "" || line.startsWith("=====>")
+}
+
+function extractPair(line) {
+  const [key, value] = line.split(":")
+  return [key, _.trim(value)]
 }
