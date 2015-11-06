@@ -28,7 +28,7 @@ class Context {
           },
           expected: {
             version: service.version,
-            config: service.config
+            config: service.config || {}
           }
         }
       })
@@ -79,9 +79,23 @@ export function determine(environment, services) {
 export function deriveActions(status) {
   return status.reduce(function(actions, app) {
     if (app.status === "missing") {
-      actions.push({ description: `Deploy ${app.name}` })
-    } else if (app.status === "deployed" && app.expected.version !== app.deployed.version) {
-      actions.push({ description: `Update ${app.name}` })
+      actions.push({
+        description: `Deploy ${app.name}`
+      })
+    } else if (app.status === "deployed") {
+      if (app.expected.version !== app.deployed.version) {
+        actions.push({
+          description: `Update ${app.name}`
+        })
+      }
+
+      if (!_.isEqual(app.expected.config, app.deployed.config)) {
+        actions.push({
+          description: `Configure ${app.name}`,
+          expected: app.expected.config,
+          deployed: app.deployed.config
+        })
+      }
     }
 
     return actions

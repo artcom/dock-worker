@@ -24,6 +24,7 @@ export default class {
         .split("\n")
         .reject(unnecessaryLine)
         .map(extractPair)
+        .reject(dokkuConfig)
         .zipObject()
         .value()
     )
@@ -43,4 +44,8 @@ function unnecessaryLine(line) {
 function extractPair(line) {
   const [key, value] = line.split(":")
   return [key, _.trim(value)]
+}
+
+function dokkuConfig(pair) {
+  return pair[0].startsWith("DOKKU_")
 }
