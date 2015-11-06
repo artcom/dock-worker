@@ -6,7 +6,7 @@ export default function(callback) {
 
     return callback(
       _.defaults(environment, { protocol: "ssh", username: "dokku" }),
-      services.filter((service) => _.contains(service.environments, environment.name))
+      services
     )
   }
 }

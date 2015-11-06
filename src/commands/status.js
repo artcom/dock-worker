@@ -29,12 +29,12 @@ function formatStatus(app) {
   return color(app.status)
 }
 
-function formatVersion({expectedVersion, deployedVersion}) {
-  if (expectedVersion) {
-    if (expectedVersion === deployedVersion) {
-      return colors.green(deployedVersion)
+function formatVersion(app) {
+  if (app.status === "deployed") {
+    if (app.expected.version === app.deployed.version) {
+      return colors.green(app.deployed.version)
     } else {
-      return `${colors.red(deployedVersion)} (expected ${expectedVersion})`
+      return `${colors.red(app.deployed.version)} (expected ${app.expected.version})`
     }
   } else {
     return ""
