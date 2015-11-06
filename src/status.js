@@ -76,28 +76,28 @@ export function determine(environment, services) {
   })
 }
 
-export function deriveActions(status) {
-  return status.reduce(function(actions, app) {
-    if (app.status === "missing") {
-      actions.push({
-        description: `Deploy ${app.name}`
-      })
-    } else if (app.status === "deployed") {
-      if (app.expected.version !== app.deployed.version) {
-        actions.push({
-          description: `Update ${app.name}`
-        })
-      }
+export function computeDiffs(app) {
+  const diffs = []
 
-      if (!_.isEqual(app.expected.config, app.deployed.config)) {
-        actions.push({
-          description: `Configure ${app.name}`,
-          expected: app.expected.config,
-          deployed: app.deployed.config
-        })
-      }
+  if (app.status === "missing") {
+    diffs.push({
+      description: `Deploy ${app.name}`
+    })
+  } else if (app.status === "deployed") {
+    if (app.expected.version !== app.deployed.version) {
+      diffs.push({
+        description: `Update ${app.name}`
+      })
     }
 
-    return actions
-  }, [])
+    if (!_.isEqual(app.expected.config, app.deployed.config)) {
+      diffs.push({
+        description: `Configure ${app.name}`,
+        expected: app.expected.config,
+        deployed: app.deployed.config
+      })
+    }
+  }
+
+  return diffs
 }
