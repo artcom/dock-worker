@@ -79,36 +79,36 @@ export function determine(environment, services) {
   })
 }
 
-export function computeDiffs(app) {
-  const diffs = []
+export function computeActions(app) {
+  const actions = []
 
   if (app.status === "missing") {
-    diffs.push({
-      description: `Deploy ${app.name}`
+    actions.push({
+      type: `Deploy ${app.name}`
     })
   } else if (app.status === "deployed") {
     if (app.expected.version !== app.deployed.version) {
-      diffs.push({
+      actions.push({
         description: `Update ${app.name}`
       })
     }
 
     if (!_.isEqual(app.expected.config, app.deployed.config)) {
-      diffs.push({
+      actions.push({
         description: `Configure ${app.name}`,
-        diff: diffObjects(app.deployed.config, app.expected.config)
+        changes: diffObjects(app.deployed.config, app.expected.config)
       })
     }
 
     if (!_.isEqual(app.expected.dockerOptions, app.deployed.dockerOptions)) {
-      diffs.push({
+      actions.push({
         description: `Set Docker Options ${app.name}`,
-        diff: diffObjects(app.deployed.dockerOptions, app.expected.dockerOptions)
+        changes: diffObjects(app.deployed.dockerOptions, app.expected.dockerOptions)
       })
     }
   }
 
-  return diffs
+  return actions
 }
 
 function diffObjects(deployed, expected) {
