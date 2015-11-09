@@ -8,25 +8,18 @@ import RepoCache from "./repoCache"
 
 import type {Config, Environment, Service, Services} from "./types"
 
-export type Status = {
+export type Status = DeployedStatus | MissingStatus | AdditionalStatus
+
+type DeployedStatus = {
+  type: "deployed",
   name: string,
-  status: string,
-  version?: { expected: string, deployed: string },
-  config?: { expected: Config, deployed: Config },
-  dockerOptions?: { expected: Config, deployed: Config }
+  version: { expected: string, deployed: string },
+  config: { expected: Config, deployed: Config },
+  dockerOptions: { expected: Config, deployed: Config }
 }
 
-export type Action = {
-  description: string,
-  changes?: Array<Change>
-}
-
-export type Change = {
-  type: string,
-  key: string,
-  oldValue?: any,
-  value?: any
-}
+type MissingStatus = { type: "missing", name: string }
+type AdditionalStatus = { type: "additional", name: string }
 
 class Context {
   /* jscs:disable disallowSemicolons */
@@ -54,8 +47,8 @@ class Context {
         this.dokku.dockerOptions(service.name)
       ]).then(([version, config, dockerOptions]: [string, Config, Config]) => {
         return {
+          type: "deployed",
           name: service.name,
-          status: "deployed",
           version: {
             deployed: version,
             expected: service.version
@@ -72,8 +65,8 @@ class Context {
       })
     } else {
       return Promise.resolve({
-        name: service.name,
-        status: "missing"
+        type: "missing",
+        name: service.name
       })
     }
   }
@@ -90,8 +83,8 @@ class Context {
 
   additionalServiceStatus(name: string): Promise<Status> {
     return Promise.resolve({
-      name,
-      status: "additional"
+      type: "additional",
+      name
     })
   }
 }
@@ -112,69 +105,4 @@ export function determine(environment: Environment, services: Services): Promise
     return Promise.all(deployedAndMissing.concat(additional))
       .then((statusData) => _.sortBy(statusData, "name"))
   })
-}
-
-export function computeActions(app: Status): Array<Action> {
-  const actions = []
-
-  if (app.status === "missing") {
-    actions.push({
-      description: `Deploy ${app.name}`
-    })
-  } else if (app.status === "deployed") {
-    if (app.version && app.version.expected !== app.version.deployed) {
-      actions.push({
-        description: `Update ${app.name}`
-      })
-    }
-
-    if (app.config && !_.isEqual(app.config.expected, app.config.deployed)) {
-      actions.push({
-        description: `Configure ${app.name}`,
-        changes: diffObjects(app.config.deployed, app.config.expected)
-      })
-    }
-
-    if (app.dockerOptions && !_.isEqual(app.dockerOptions.expected, app.dockerOptions.deployed)) {
-      actions.push({
-        description: `Set Docker Options ${app.name}`,
-        changes: diffObjects(app.dockerOptions.deployed, app.dockerOptions.expected)
-      })
-    }
-  }
-
-  return actions
-}
-
-function diffObjects(deployed: Config, expected: Config): Array<Change> {
-  const {existing, missing, additional} = diffKeys(Object.keys(deployed), Object.keys(expected))
-
-  return _(existing)
-    .reject((key) => _.isEqual(deployed[key], expected[key]))
-    .map((key) => ({
-      type: "change",
-      key,
-      oldValue: deployed[key],
-      value: expected[key]
-    }))
-    .concat(missing.map((key) => ({
-      type: "add",
-      key,
-      value: expected[key]
-    })))
-    .concat(additional.map((key) => ({
-      type: "remove",
-      key,
-      oldValue: deployed[key]
-    })))
-    .flatten()
-    .value()
-}
-
-function diffKeys(deployed: Array<string>, expected: Array<string>) {
-  return {
-    existing: _.intersection(deployed, expected),
-    missing: _.difference(expected, deployed),
-    additional: _.difference(deployed, expected)
-  }
 }
