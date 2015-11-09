@@ -1,3 +1,5 @@
+/* @flow */
+
 import colors from "colors/safe"
 import nodegit from "nodegit"
 import path from "path"
@@ -5,6 +7,8 @@ import readline from "readline"
 import url from "url"
 
 import CredentialStore from "./credentialStore"
+
+import type {Environment, Service} from "./types"
 
 const fetchOpts = {
   callbacks: {
@@ -30,11 +34,15 @@ const fetchOpts = {
 }
 
 export default class {
-  constructor(cacheDir = ".cache") {
+  /* jscs:disable disallowSemicolons */
+  cacheDir: string;
+  /* jscs:enable disallowSemicolons */
+
+  constructor(cacheDir: string = ".cache") {
     this.cacheDir = cacheDir
   }
 
-  getRepo(service, environment) {
+  getRepo(service: Service, environment: Environment): Promise {
     const localPath = path.resolve(this.cacheDir, service.name)
 
     return nodegit.Repository.openBare(localPath).then(
@@ -62,14 +70,14 @@ export default class {
 
   // PRIVATE
 
-  cloneRepo(service, localPath) {
+  cloneRepo(service: Service, localPath: string): Promise {
     readline.clearLine(process.stdout, 0)
     process.stdout.write(colors.gray(`cloning ${colors.bold(service.name)}\r`))
 
     return nodegit.Clone.clone(service.repo, localPath, { bare: 1, fetchOpts })
   }
 
-  fetchRepo(service, repo) {
+  fetchRepo(service: Service, repo: any): Promise {
     readline.clearLine(process.stdout, 0)
     process.stdout.write(colors.gray(`fetching ${colors.bold(service.name)}\r`))
 

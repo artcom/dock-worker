@@ -1,10 +1,43 @@
+/* @flow */
+
 import _ from "lodash"
 import nodegit from "nodegit"
 
 import Dokku from "./dokku"
 import RepoCache from "./repoCache"
 
+import type {Config, Environment, Service, Services} from "./types"
+
+export type Status = {
+  name: string,
+  status: string,
+  version?: { expected: string, deployed: string },
+  config?: { expected: Config, deployed: Config },
+  dockerOptions?: { expected: Config, deployed: Config }
+}
+
+export type Action = {
+  description: string,
+  changes?: Array<Change>
+}
+
+export type Change = {
+  type: string,
+  key: string,
+  oldValue?: any,
+  value?: any
+}
+
 class Context {
+  /* jscs:disable disallowSemicolons */
+  environment: Environment;
+  services: Services;
+  available: Array<string>;
+
+  dokku: Dokku;
+  repoCache: RepoCache;
+  /* jscs:enable disallowSemicolons */
+
   constructor(environment, services) {
     this.environment = environment
     this.services = services.filter((service) => _.contains(service.environments, environment.name))
@@ -13,25 +46,27 @@ class Context {
     this.repoCache = new RepoCache()
   }
 
-  definedServiceStatus(service) {
+  definedServiceStatus(service): Promise<Status> {
     if (_.includes(this.available, service.name)) {
       return Promise.all([
         this.deployedVersion(service),
         this.dokku.config(service.name),
         this.dokku.dockerOptions(service.name)
-      ]).then(([deployedVersion, deployedConfig, deployedDockerOptions]) => {
+      ]).then(([version, config, dockerOptions]: [string, Config, Config]) => {
         return {
           name: service.name,
           status: "deployed",
-          deployed: {
-            version: deployedVersion,
-            config: deployedConfig,
-            dockerOptions: deployedDockerOptions
+          version: {
+            deployed: version,
+            expected: service.version
           },
-          expected: {
-            version: service.version,
-            config: service.config || {},
-            dockerOptions: service.dockerOptions || {}
+          config: {
+            deployed: config,
+            expected: service.config || {}
+          },
+          dockerOptions: {
+            deployed: dockerOptions,
+            expected: service.dockerOptions || {}
           }
         }
       })
@@ -43,7 +78,7 @@ class Context {
     }
   }
 
-  deployedVersion(service) {
+  deployedVersion(service: Service): Promise<string> {
     return this.repoCache.getRepo(service, this.environment)
       .then((repo) => {
         return nodegit.Reference.lookup(repo, `refs/remotes/${this.environment.name}/master`)
@@ -53,7 +88,7 @@ class Context {
       })
   }
 
-  additionalServiceStatus(name) {
+  additionalServiceStatus(name: string): Promise<Status> {
     return Promise.resolve({
       name,
       status: "additional"
@@ -61,7 +96,7 @@ class Context {
   }
 }
 
-export function determine(environment, services) {
+export function determine(environment: Environment, services: Services): Promise<Array<Status>> {
   const context = new Context(environment, services)
 
   return context.dokku.apps().then((available) => {
@@ -79,31 +114,31 @@ export function determine(environment, services) {
   })
 }
 
-export function computeActions(app) {
+export function computeActions(app: Status): Array<Action> {
   const actions = []
 
   if (app.status === "missing") {
     actions.push({
-      type: `Deploy ${app.name}`
+      description: `Deploy ${app.name}`
     })
   } else if (app.status === "deployed") {
-    if (app.expected.version !== app.deployed.version) {
+    if (app.version && app.version.expected !== app.version.deployed) {
       actions.push({
         description: `Update ${app.name}`
       })
     }
 
-    if (!_.isEqual(app.expected.config, app.deployed.config)) {
+    if (app.config && !_.isEqual(app.config.expected, app.config.deployed)) {
       actions.push({
         description: `Configure ${app.name}`,
-        changes: diffObjects(app.deployed.config, app.expected.config)
+        changes: diffObjects(app.config.deployed, app.config.expected)
       })
     }
 
-    if (!_.isEqual(app.expected.dockerOptions, app.deployed.dockerOptions)) {
+    if (app.dockerOptions && !_.isEqual(app.dockerOptions.expected, app.dockerOptions.deployed)) {
       actions.push({
         description: `Set Docker Options ${app.name}`,
-        changes: diffObjects(app.deployed.dockerOptions, app.expected.dockerOptions)
+        changes: diffObjects(app.dockerOptions.deployed, app.dockerOptions.expected)
       })
     }
   }
@@ -111,8 +146,8 @@ export function computeActions(app) {
   return actions
 }
 
-function diffObjects(deployed, expected) {
-  const {existing, missing, additional} = diffKeys(_.keys(deployed), _.keys(expected))
+function diffObjects(deployed: Config, expected: Config): Array<Change> {
+  const {existing, missing, additional} = diffKeys(Object.keys(deployed), Object.keys(expected))
 
   return _(existing)
     .reject((key) => _.isEqual(deployed[key], expected[key]))
@@ -136,7 +171,7 @@ function diffObjects(deployed, expected) {
     .value()
 }
 
-function diffKeys(deployed, expected) {
+function diffKeys(deployed: Array<string>, expected: Array<string>) {
   return {
     existing: _.intersection(deployed, expected),
     missing: _.difference(expected, deployed),

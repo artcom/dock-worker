@@ -1,19 +1,27 @@
+/* @flow */
+
 import _ from "lodash"
 import bluebird from "bluebird"
 import cp from "child_process"
 
+import type {Config} from "./types"
+
 const execFileAsync = bluebird.promisify(cp.execFile)
 
 export default class {
-  constructor(host) {
+  /* jscs:disable disallowSemicolons */
+  host: string;
+  /* jscs:enable disallowSemicolons */
+
+  constructor(host: string) {
     this.host = host
   }
 
-  apps() {
+  apps(): Promise<Array<string>> {
     return this.dokku("apps")
   }
 
-  config(app) {
+  config(app: string): Promise<Config> {
     return this.dokku("config", app).then((lines) =>
       _(lines)
         .map(extractPair)
@@ -23,7 +31,7 @@ export default class {
     )
   }
 
-  dockerOptions(app) {
+  dockerOptions(app: string): Promise<Config> {
     return this.dokku("docker-options", app).then((lines) =>
       lines.reduce(({options, phase}, line) => {
         const match = line.match(phaseLine)
@@ -43,7 +51,7 @@ export default class {
 
   // PRIVATE
 
-  dokku(...params) {
+  dokku(...params: Array<string>): Promise<Array<string>> {
     return execFileAsync("ssh", [`dokku@${this.host}`].concat(params)).then((stdout) => {
       const lines = stdout.split("\n")
       return _.reject(lines, unnecessaryLine)
