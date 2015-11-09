@@ -10,7 +10,7 @@ export default envCommand(function(environment, services) {
       .map(status.computeDiffs)
       .flatten()
       .forEach(function(diff) {
-        console.log(util.inspect(diff))
+        console.log(util.inspect(diff, { depth: null }))
       })
       .value()
   })

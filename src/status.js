@@ -17,18 +17,21 @@ class Context {
     if (_.includes(this.available, service.name)) {
       return Promise.all([
         this.deployedVersion(service),
-        this.dokku.config(service.name)
-      ]).then(([deployedVersion, deployedConfig]) => {
+        this.dokku.config(service.name),
+        this.dokku.dockerOptions(service.name)
+      ]).then(([deployedVersion, deployedConfig, deployedDockerOptions]) => {
         return {
           name: service.name,
           status: "deployed",
           deployed: {
             version: deployedVersion,
-            config: deployedConfig
+            config: deployedConfig,
+            dockerOptions: deployedDockerOptions
           },
           expected: {
             version: service.version,
-            config: service.config || {}
+            config: service.config || {},
+            dockerOptions: service.dockerOptions || {}
           }
         }
       })
@@ -93,11 +96,50 @@ export function computeDiffs(app) {
     if (!_.isEqual(app.expected.config, app.deployed.config)) {
       diffs.push({
         description: `Configure ${app.name}`,
-        expected: app.expected.config,
-        deployed: app.deployed.config
+        diff: diffObjects(app.deployed.config, app.expected.config)
+      })
+    }
+
+    if (!_.isEqual(app.expected.dockerOptions, app.deployed.dockerOptions)) {
+      diffs.push({
+        description: `Set Docker Options ${app.name}`,
+        diff: diffObjects(app.deployed.dockerOptions, app.expected.dockerOptions)
       })
     }
   }
 
   return diffs
+}
+
+function diffObjects(deployed, expected) {
+  const {existing, missing, additional} = diffKeys(_.keys(deployed), _.keys(expected))
+
+  return _(existing)
+    .reject((key) => _.isEqual(deployed[key], expected[key]))
+    .map((key) => ({
+      type: "change",
+      key,
+      oldValue: deployed[key],
+      value: expected[key]
+    }))
+    .concat(missing.map((key) => ({
+      type: "add",
+      key,
+      value: expected[key]
+    })))
+    .concat(additional.map((key) => ({
+      type: "remove",
+      key,
+      oldValue: deployed[key]
+    })))
+    .flatten()
+    .value()
+}
+
+function diffKeys(deployed, expected) {
+  return {
+    existing: _.intersection(deployed, expected),
+    missing: _.difference(expected, deployed),
+    additional: _.difference(deployed, expected)
+  }
 }
