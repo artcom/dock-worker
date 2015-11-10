@@ -8,6 +8,8 @@ import type {Config} from "./types"
 
 const execFileAsync = bluebird.promisify(cp.execFile)
 
+export type Phase = "build" | "deploy" | "run"
+
 export default class {
   /* jscs:disable disallowSemicolons */
   host: string;
@@ -31,6 +33,14 @@ export default class {
     )
   }
 
+  setConfig(app: string, key: string, value: string): Promise {
+    return this.dokku("config:set", app, `${key}="${value}"`)
+  }
+
+  unsetConfig(app: string, key: string): Promise {
+    return this.dokku("config:unset", app, key)
+  }
+
   dockerOptions(app: string): Promise<Config> {
     return this.dokku("docker-options", app).then((lines) =>
       lines.reduce(({options, phase}, line) => {
@@ -47,6 +57,14 @@ export default class {
         }
       }, { options: {}, phase: null }).options
     )
+  }
+
+  addDockerOption(app: string, option: string, phases: Array<Phase>): Promise {
+    return this.dokku("docker-options:add", app, phases.join(","), option)
+  }
+
+  removeDockerOption(app: string, option: string, phases: Array<Phase>): Promise {
+    return this.dokku("docker-options:remove", app, phases.join(","), option)
   }
 
   // PRIVATE

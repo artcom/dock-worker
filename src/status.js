@@ -8,18 +8,15 @@ import RepoCache from "./repoCache"
 
 import type {Config, Environment, Service, Services} from "./types"
 
-export type Status = DeployedStatus | MissingStatus | AdditionalStatus
+export type StatusProperty<T> = { expected: T, deployed: T }
 
-type DeployedStatus = {
-  type: "deployed",
+export type Status = {
+  type: "deployed" | "missing" | "additional",
   name: string,
-  version: { expected: string, deployed: string },
-  config: { expected: Config, deployed: Config },
-  dockerOptions: { expected: Config, deployed: Config }
+  version: StatusProperty<string>,
+  config: StatusProperty<Config>,
+  dockerOptions: StatusProperty<Config>
 }
-
-type MissingStatus = { type: "missing", name: string }
-type AdditionalStatus = { type: "additional", name: string }
 
 class Context {
   /* jscs:disable disallowSemicolons */
@@ -66,7 +63,19 @@ class Context {
     } else {
       return Promise.resolve({
         type: "missing",
-        name: service.name
+        name: service.name,
+        version: {
+          deployed: "",
+          expected: service.version
+        },
+        config: {
+          deployed: {},
+          expected: service.config || {}
+        },
+        dockerOptions: {
+          deployed: {},
+          expected: service.dockerOptions || {}
+        }
       })
     }
   }
@@ -84,12 +93,27 @@ class Context {
   additionalServiceStatus(name: string): Promise<Status> {
     return Promise.resolve({
       type: "additional",
-      name
+      name,
+      version: {
+        deployed: "",
+        expected: ""
+      },
+      config: {
+        deployed: {},
+        expected: {}
+      },
+      dockerOptions: {
+        deployed: {},
+        expected: {}
+      }
     })
   }
 }
 
-export function determine(environment: Environment, services: Services): Promise<Array<Status>> {
+export function determineStatus(
+  environment: Environment,
+  services: Services
+): Promise<Array<Status>> {
   const context = new Context(environment, services)
 
   return context.dokku.apps().then((available) => {
