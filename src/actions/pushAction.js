@@ -15,7 +15,7 @@ export default class {
   }
 
   describe(): Array<string> {
-    return [colors.cyan(`Deploy ${this.app.config.version}`)]
+    return [colors.cyan(`deploy ${this.config.version}`)]
   }
 
   run(environment: Environment): Promise {

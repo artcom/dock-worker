@@ -18,9 +18,9 @@ export default class extends DokkuAction {
     switch (change.type) {
       case "add":
       case "update":
-        return `Set "${change.key}" for phases ${change.value.join(",")}`
+        return `set "${change.key}" for phases ${change.value.join(",")}`
       case "remove":
-        return `Remove "${change.key}" for phases ${change.oldValue.join(",")}`
+        return `remove "${change.key}" for phases ${change.oldValue.join(",")}`
       default:
         return ""
     }

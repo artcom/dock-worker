@@ -17,11 +17,11 @@ export default class extends DokkuAction {
   describeChange(change: Change): string {
     switch (change.type) {
       case "add":
-        return `Set ${change.key} to "${change.value}"`
+        return `set ${change.key} to "${change.value}"`
       case "update":
-        return `Set ${change.key} to "${change.value}" (was "${change.oldValue}")`
+        return `set ${change.key} to "${change.value}" (was "${change.oldValue}")`
       case "remove":
-        return `Unset ${change.key} (was "${change.oldValue}")`
+        return `unset ${change.key} (was "${change.oldValue}")`
       default:
         return ""
     }
