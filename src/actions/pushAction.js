@@ -2,16 +2,17 @@
 
 import colors from "colors/safe"
 
-import type {AppData} from "../appData"
-import type {Environment} from "../types"
+import RepoCache from "../repoCache"
+
+import type {Environment, ServiceConfig} from "../types"
 
 export default class {
   /* jscs:disable disallowSemicolons */
-  app: AppData;
+  config: ServiceConfig;
   /* jscs:enable disallowSemicolons */
 
-  constructor(app: AppData) {
-    this.app = app
+  constructor(config: ServiceConfig) {
+    this.config = config
   }
 
   describe(): Array<string> {
@@ -19,6 +20,11 @@ export default class {
   }
 
   run(environment: Environment): Promise {
-    return Promise.resolve()
+    const repoCache = new RepoCache()
+    return repoCache.getRepo(this.config, environment).then((repo) => {
+      return repo.getRemote(environment.name)
+    }).then((remote) => {
+      return remote.push([`${this.config.version}:refs/heads/master`])
+    })
   }
 }

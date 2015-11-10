@@ -14,7 +14,7 @@ export function deriveActions(app: AppData): Array<Action> {
   const actions = []
 
   if (app.status === "missing") {
-    actions.push(new PushAction(app))
+    actions.push(new PushAction(app.config))
 
     if (!_.isEmpty(app.config.config)) {
       actions.push(new ConfigAction(app))
@@ -25,7 +25,7 @@ export function deriveActions(app: AppData): Array<Action> {
     }
   } else if (app.status === "deployed") {
     if (app.config.version !== app.deployed.version) {
-      actions.push(new PushAction(app))
+      actions.push(new PushAction(app.config))
     }
 
     if (!_.isEqual(app.config.config || {}, app.deployed.config)) {
