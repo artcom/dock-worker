@@ -5,13 +5,13 @@ import colors from "colors/safe"
 
 import envCommand from "./envCommand"
 import {deriveActions} from "../actions"
-import {determineStatus} from "../status"
+import {loadAppData} from "../appData"
 
-import type {Environment, Services} from "../types"
+import type {Environment, ServiceConfigs} from "../types"
 
-export default envCommand(function(environment: Environment, services: Services) {
-  return determineStatus(environment, services).then(function(apps) {
-    apps.forEach(function(app) {
+export default envCommand(function(environment: Environment, configs: ServiceConfigs) {
+  return loadAppData(environment, configs).then(function(appData) {
+    appData.forEach(function(app) {
       const actions = deriveActions(app)
 
       if (!_.isEmpty(actions)) {

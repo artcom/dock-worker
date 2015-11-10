@@ -4,12 +4,14 @@ import colors from "colors/safe"
 
 import DokkuAction from "./dokkuAction"
 
+import type {DeployedAppData, MissingAppData} from "../appData"
 import type {Change} from "./dokkuAction"
-import type {Status} from "../status"
 
 export default class extends DokkuAction {
-  constructor(app: Status) {
-    super(app.name, app.config, colors.blue)
+  constructor(app: DeployedAppData | MissingAppData) {
+    const expected = app.config.config || {}
+    const deployed = app.status === "deployed" ? app.deployed.config : {}
+    super(app.name, expected, deployed, colors.blue)
   }
 
   describeChange(change: Change): string {

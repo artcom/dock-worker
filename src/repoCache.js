@@ -8,7 +8,7 @@ import url from "url"
 
 import CredentialStore from "./credentialStore"
 
-import type {Environment, Service} from "./types"
+import type {Environment, ServiceConfig} from "./types"
 
 const fetchOpts = {
   callbacks: {
@@ -42,7 +42,7 @@ export default class {
     this.cacheDir = cacheDir
   }
 
-  getRepo(service: Service, environment: Environment): Promise {
+  getRepo(service: ServiceConfig, environment: Environment): Promise {
     const localPath = path.resolve(this.cacheDir, service.name)
 
     return nodegit.Repository.openBare(localPath).then(
@@ -70,14 +70,14 @@ export default class {
 
   // PRIVATE
 
-  cloneRepo(service: Service, localPath: string): Promise {
+  cloneRepo(service: ServiceConfig, localPath: string): Promise {
     readline.clearLine(process.stdout, 0)
     process.stdout.write(colors.gray(`cloning ${colors.bold(service.name)}\r`))
 
     return nodegit.Clone.clone(service.repo, localPath, { bare: 1, fetchOpts })
   }
 
-  fetchRepo(service: Service, repo: any): Promise {
+  fetchRepo(service: ServiceConfig, repo: any): Promise {
     readline.clearLine(process.stdout, 0)
     process.stdout.write(colors.gray(`fetching ${colors.bold(service.name)}\r`))
 

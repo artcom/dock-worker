@@ -4,8 +4,7 @@ import _ from "lodash"
 
 import Dokku from "../dokku"
 
-import type {StatusProperty} from "../status"
-import type {Config, Environment} from "../types"
+import type {Options, Environment} from "../types"
 
 export type Change = Add | Remove | Update
 
@@ -38,9 +37,9 @@ export default class {
   dokku: Dokku;
   /* jscs:enable disallowSemicolons */
 
-  constructor(app: string, property: StatusProperty<Config>, color: any) {
+  constructor(app: string, expected: Options, deployed: Options, color: any) {
     this.app = app
-    this.changes = diffObjects(property)
+    this.changes = diffOptions(expected, deployed)
     this.color = color
   }
 
@@ -56,7 +55,7 @@ export default class {
   }
 }
 
-function diffObjects({deployed, expected}: StatusProperty<Config>): Array<Change> {
+function diffOptions(expected: Options, deployed: Options): Array<Change> {
   const {existing, missing, additional} = diffKeys(Object.keys(deployed), Object.keys(expected))
 
   return _(existing)

@@ -4,7 +4,7 @@ import _ from "lodash"
 import bluebird from "bluebird"
 import cp from "child_process"
 
-import type {Config} from "./types"
+import type {Options} from "./types"
 
 const execFileAsync = bluebird.promisify(cp.execFile)
 
@@ -23,7 +23,7 @@ export default class {
     return this.dokku("apps")
   }
 
-  config(app: string): Promise<Config> {
+  config(app: string): Promise<Options> {
     return this.dokku("config", app).then((lines) =>
       _(lines)
         .map(extractPair)
@@ -41,7 +41,7 @@ export default class {
     return this.dokku("config:unset", app, key)
   }
 
-  dockerOptions(app: string): Promise<Config> {
+  dockerOptions(app: string): Promise<Options> {
     return this.dokku("docker-options", app).then((lines) =>
       lines.reduce(({options, phase}, line) => {
         const match = line.match(phaseLine)

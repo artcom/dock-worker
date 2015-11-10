@@ -2,20 +2,20 @@
 
 import colors from "colors/safe"
 
-import type {Status} from "../status"
+import type {AppData} from "../appData"
 import type {Environment} from "../types"
 
 export default class {
   /* jscs:disable disallowSemicolons */
-  app: Status;
+  app: AppData;
   /* jscs:enable disallowSemicolons */
 
-  constructor(app: Status) {
+  constructor(app: AppData) {
     this.app = app
   }
 
   describe(): Array<string> {
-    return [colors.cyan(`Deploy ${this.app.version.expected}`)]
+    return [colors.cyan(`Deploy ${this.app.config.version}`)]
   }
 
   run(environment: Environment): Promise {

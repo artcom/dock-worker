@@ -2,15 +2,15 @@
 
 export type Environment = { name: string, host: string, protocol: string, username: string }
 
-export type Config = {[key: string]: string}
+export type Options = {[key: string]: string}
 
-export type Service = {
+export type ServiceConfig = {
   name: string,
   repo: string,
   version: string,
   environments: Array<string>,
-  config?: Config,
-  dockerOptions?: Config
+  config?: Options,
+  dockerOptions?: Options
 }
 
-export type Services = Array<Service>
+export type ServiceConfigs = Array<ServiceConfig>
