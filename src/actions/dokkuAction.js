@@ -48,10 +48,8 @@ export default class {
   }
 
   run(environment: Environment): Promise {
-    // this.dokku = new Dokku(environment.host)
-    // return Promise.all(this.changes.map(this.applyChange.bind(this)))
-
-    return Promise.resolve()
+    this.dokku = new Dokku(environment.host)
+    return Promise.all(this.changes.map(this.applyChange.bind(this)))
   }
 }
 
