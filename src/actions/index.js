@@ -28,11 +28,11 @@ export function deriveActions(app: AppData): Array<Action> {
       actions.push(new PushAction(app))
     }
 
-    if (!_.isEqual(app.config.config, app.deployed.config)) {
+    if (!_.isEqual(app.config.config || {}, app.deployed.config)) {
       actions.push(new ConfigAction(app))
     }
 
-    if (!_.isEqual(app.config.dockerOptions, app.deployed.dockerOptions)) {
+    if (!_.isEqual(app.config.dockerOptions || {}, app.deployed.dockerOptions)) {
       actions.push(new DockerOptionAction(app))
     }
   }
