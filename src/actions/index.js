@@ -13,6 +13,14 @@ export function deriveActions(app: Status): Array<Action> {
 
   if (app.type === "missing") {
     actions.push(new PushAction(app))
+
+    if (!_.isEmpty(app.config)) {
+      actions.push(new ConfigAction(app))
+    }
+
+    if (!_.isEmpty(app.dockerOptions)) {
+      actions.push(new DockerOptionAction(app))
+    }
   } else if (app.type === "deployed") {
     if (app.version.expected !== app.version.deployed) {
       actions.push(new PushAction(app))
