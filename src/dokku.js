@@ -23,6 +23,10 @@ export default class {
     return this.dokku("apps")
   }
 
+  create(app: string): Promise {
+    return this.dokku("apps:create", app)
+  }
+
   config(app: string): Promise<Options> {
     return this.dokku("config", app).catch((error) => {
       if (error.message.endsWith(`no config vars for ${app}\n`)) {

@@ -3,6 +3,7 @@
 import _ from "lodash"
 
 import ConfigAction from "./configAction"
+import CreateAction from "./createAction"
 import DockerOptionAction from "./dockerOptionAction"
 import PushAction from "./pushAction"
 
@@ -14,7 +15,7 @@ export function deriveActions(app: AppData): Array<Action> {
   const actions = []
 
   if (app.status === "missing") {
-    actions.push(new PushAction(app.config))
+    actions.push(new CreateAction(app))
 
     if (!_.isEmpty(app.config.config)) {
       actions.push(new ConfigAction(app))
@@ -23,6 +24,8 @@ export function deriveActions(app: AppData): Array<Action> {
     if (!_.isEmpty(app.config.dockerOptions)) {
       actions.push(new DockerOptionAction(app))
     }
+
+    actions.push(new PushAction(app.config))
   } else if (app.status === "deployed") {
     if (app.config.version !== app.deployed.version) {
       actions.push(new PushAction(app.config))
