@@ -44,7 +44,7 @@ function deploymentStatus(app: DeployedAppData, actions: Array<Action>) {
   return [
     colorize(app.deployed.version, _.some(actions, (action) => action instanceof PushAction)),
     colorize("config", _.some(actions, (action) => action instanceof ConfigAction)),
-    colorize("dockerOptions", _.some(actions, (action) => action instanceof DockerOptionAction))
+    colorize("docker-options", _.some(actions, (action) => action instanceof DockerOptionAction))
   ]
 }
 
