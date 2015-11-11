@@ -33,8 +33,6 @@ export default class {
       })
 
       return repo.ensureRemote(environment.name, remoteUrl)
-    }).then((repo) =>
-      repo.fetch(environment.name)
-    )
+    })
   }
 }

@@ -81,9 +81,9 @@ class Context {
   }
 
   deployedVersion(config: ServiceConfig): Promise<string> {
-    return this.repoCache.getRepo(config, this.environment).then((repo) =>
-      repo.showRef(`refs/remotes/${this.environment.name}/master`)
-    )
+    return this.repoCache.getRepo(config, this.environment)
+      .then((repo) => repo.fetch(this.environment.name))
+      .then((repo) => repo.showRef(`refs/remotes/${this.environment.name}/master`))
   }
 
   additionalServiceConfigStatus(name: string): Promise<AppData> {
