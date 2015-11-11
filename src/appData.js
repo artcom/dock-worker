@@ -40,7 +40,6 @@ class Context {
   available: Array<string>;
 
   dokku: Dokku;
-  repoCache: RepoCache;
   /* jscs:enable disallowSemicolons */
 
   constructor(environment, configs) {
@@ -48,7 +47,6 @@ class Context {
     this.configs = configs.filter((config) => _.contains(config.environments, environment.name))
 
     this.dokku = new Dokku(environment.host)
-    this.repoCache = new RepoCache()
   }
 
   definedServiceConfigStatus(serviceConfig: ServiceConfig): Promise<AppData> {
@@ -81,7 +79,9 @@ class Context {
   }
 
   deployedVersion(config: ServiceConfig): Promise<string> {
-    return this.repoCache.getRepo(config, this.environment)
+    const repoCache = RepoCache.get()
+
+    return repoCache.getRepo(config, this.environment)
       .then((repo) => repo.fetch(this.environment.name))
       .then((repo) => repo.showRef(`refs/remotes/${this.environment.name}/master`))
       .catch(() => "not deployed yet")

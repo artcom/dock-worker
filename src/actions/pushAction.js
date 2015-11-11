@@ -22,7 +22,7 @@ export default class {
 
   run(environment: Environment): Promise {
     const dokku = new Dokku(environment.host)
-    const repoCache = new RepoCache()
+    const repoCache = RepoCache.get()
 
     const stopService = this.config.stopBeforeDeployment
       ? dokku.stop(this.config.name)
