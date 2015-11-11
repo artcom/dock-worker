@@ -5,5 +5,8 @@
   "requireTrailingComma": false,
   "disallowTrailingComma": true,
   "validateQuoteMarks": "\"",
-  "maximumLineLength": 100
+  "maximumLineLength": 100,
+  "requirePaddingNewLinesAfterBlocks": {
+    "allExcept": ["inCallExpressions"]
+  }
 }

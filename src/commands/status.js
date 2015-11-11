@@ -8,7 +8,7 @@ import {deriveActions} from "../actions"
 import ConfigAction from "../actions/configAction"
 import DockerOptionAction from "../actions/dockerOptionAction"
 import PushAction from "../actions/pushAction"
-import {loadAppData} from "../appData"
+import {loadAppDataWithProgress} from "../appData"
 import envCommand from "./envCommand"
 
 import type {Action} from "../actions"
@@ -16,7 +16,7 @@ import type {AppData, DeployedAppData} from "../appData"
 import type {Environment, ServiceConfigs} from "../types"
 
 export default envCommand(function(environment: Environment, configs: ServiceConfigs) {
-  return loadAppData(environment, configs).then(function(appData) {
+  return loadAppDataWithProgress(environment, configs).then(function(appData) {
     const rows = appData.map((app) => {
       switch (app.status) {
         case "missing":

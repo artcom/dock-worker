@@ -4,6 +4,7 @@ import _ from "lodash"
 
 import Dokku from "./dokku"
 import RepoCache from "./repoCache"
+import showProgress from "./showProgress"
 
 import type {Options, Environment, ServiceConfig, ServiceConfigs} from "./types"
 
@@ -115,3 +116,8 @@ export function loadAppData(
       .then((appData) => _.sortBy(appData, "name"))
   })
 }
+
+export const loadAppDataWithProgress = showProgress(
+  "loading service configuration",
+  loadAppData
+)
