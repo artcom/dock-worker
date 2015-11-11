@@ -24,7 +24,7 @@ describe("Repo Cache", function() {
     ])
   })
 
-  it("should set origin and dokku remote", function() {
+  it("should set origin and environment remote", function() {
     const service = {
       name: "dokku-app",
       repo: `file://${this.repoDir}/source-code`
@@ -37,15 +37,19 @@ describe("Repo Cache", function() {
       username: null
     }
 
-    return this.cache.getRepo(service, environment).then((repo) =>
-      Promise.all([
-        repo.getRemote("origin").then((remote) => {
-          expect(remote.url()).to.equal(`file://${this.repoDir}/source-code`)
-        }),
-        repo.getRemote("test").then((remote) => {
-          expect(remote.url()).to.equal(`file://${this.repoDir}/dokku-app`)
+    return this.cache.getRepo(service, environment)
+      .then((repo) => repo.remotes())
+      .then((remotes) => {
+        expect(remotes).to.deep.equal({
+          origin: {
+            fetch: `file://${this.repoDir}/source-code`,
+            push: `file://${this.repoDir}/source-code`
+          },
+          test: {
+            fetch: `file://${this.repoDir}/dokku-app`,
+            push: `file://${this.repoDir}/dokku-app`
+          }
         })
-      ])
-    )
+      })
   })
 })

@@ -6,7 +6,6 @@ import fs from "fs"
 
 import status from "./commands/status"
 import deploy from "./commands/deploy"
-import setCredentials from "./commands/setCredentials"
 
 const readFileAsync = bluebird.promisify(fs.readFile)
 
@@ -14,13 +13,11 @@ const options = docopt(`
   usage:
     whale <environment> status
     whale <environment> deploy
-    whale set-credentials <host>
 `)
 
 const commands = {
   status,
-  deploy,
-  "set-credentials": setCredentials
+  deploy
 }
 
 readFileAsync("services.json")

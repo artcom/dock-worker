@@ -1,37 +1,11 @@
 /* @flow */
 
-import colors from "colors/safe"
-import nodegit from "nodegit"
 import path from "path"
-import readline from "readline"
 import url from "url"
 
-import CredentialStore from "./credentialStore"
+import * as git from "./git"
 
 import type {Environment, ServiceConfig} from "./types"
-
-const fetchOpts = {
-  callbacks: {
-    credentials: (repoUrl, username, allowedTypes) => {
-      if (allowedTypes & nodegit.Cred.TYPE.SSH_KEY) {
-        return nodegit.Cred.sshKeyFromAgent(username)
-      } else if (allowedTypes & nodegit.Cred.TYPE.USERPASS_PLAINTEXT) {
-        const host = url.parse(repoUrl).hostname
-        const credentialStore = new CredentialStore()
-
-        if (credentialStore.hasCredentials(host)) {
-          const { account, password } = credentialStore.getCredentials(host)
-          return nodegit.Cred.userpassPlaintextNew(account, password)
-        } else {
-          const command = `whale set-credentials ${host}`
-          throw new Error(`Missing credentials, please run ${colors.bold(command)}`)
-        }
-      } else {
-        throw new Error("Unexpected credential type requested")
-      }
-    }
-  }
-}
 
 export default class {
   /* jscs:disable disallowSemicolons */
@@ -45,9 +19,10 @@ export default class {
   getRepo(service: ServiceConfig, environment: Environment): Promise {
     const localPath = path.resolve(this.cacheDir, service.name)
 
-    return nodegit.Repository.openBare(localPath).then(
-      (repo) => this.fetchRepo(service, repo),
-      () => this.cloneRepo(service, localPath)
+    return git.repo(localPath, { bare: true }).catch(
+      () => git.init(localPath, { bare: true })
+    ).then((repo) =>
+      repo.ensureRemote("origin", service.repo)
     ).then((repo) => {
       const remoteUrl = url.format({
         slashes: true,
@@ -57,31 +32,9 @@ export default class {
         pathname: "/" + service.name
       })
 
-      return nodegit.Remote.lookup(repo, environment.name).then(
-        () => nodegit.Remote.setUrl(repo, environment.name, remoteUrl),
-        () => nodegit.Remote.create(repo, environment.name, remoteUrl)
-      ).then(() =>
-        repo.fetch(environment.name, fetchOpts)
-      ).then(() =>
-        repo
-      )
-    })
-  }
-
-  // PRIVATE
-
-  cloneRepo(service: ServiceConfig, localPath: string): Promise {
-    readline.clearLine(process.stdout, 0)
-    process.stdout.write(colors.gray(`cloning ${colors.bold(service.name)}\r`))
-
-    return nodegit.Clone.clone(service.repo, localPath, { bare: 1, fetchOpts })
-  }
-
-  fetchRepo(service: ServiceConfig, repo: any): Promise {
-    readline.clearLine(process.stdout, 0)
-    process.stdout.write(colors.gray(`fetching ${colors.bold(service.name)}\r`))
-
-    return repo.fetch("origin", fetchOpts)
-      .then(() => repo)
+      return repo.ensureRemote(environment.name, remoteUrl)
+    }).then((repo) =>
+      repo.fetch(environment.name)
+    )
   }
 }

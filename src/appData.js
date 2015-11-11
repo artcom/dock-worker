@@ -1,7 +1,6 @@
 /* @flow */
 
 import _ from "lodash"
-import nodegit from "nodegit"
 
 import Dokku from "./dokku"
 import RepoCache from "./repoCache"
@@ -82,13 +81,9 @@ class Context {
   }
 
   deployedVersion(config: ServiceConfig): Promise<string> {
-    return this.repoCache.getRepo(config, this.environment)
-      .then((repo) => {
-        return nodegit.Reference.lookup(repo, `refs/remotes/${this.environment.name}/master`)
-      })
-      .then((reference) => {
-        return reference.target().toString()
-      })
+    return this.repoCache.getRepo(config, this.environment).then((repo) =>
+      repo.showRef(`refs/remotes/${this.environment.name}/master`)
+    )
   }
 
   additionalServiceConfigStatus(name: string): Promise<AppData> {

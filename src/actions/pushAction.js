@@ -21,10 +21,9 @@ export default class {
 
   run(environment: Environment): Promise {
     const repoCache = new RepoCache()
-    return repoCache.getRepo(this.config, environment).then((repo) => {
-      return repo.getRemote(environment.name)
-    }).then((remote) => {
-      return remote.push([`${this.config.version}:refs/heads/master`])
-    })
+
+    return repoCache.getRepo(this.config, environment)
+      .then((repo) => repo.fetch("origin"))
+      .then((repo) => repo.push(environment.name, `${this.config.version}:refs/heads/master`))
   }
 }
