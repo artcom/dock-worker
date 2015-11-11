@@ -37,23 +37,26 @@ export default envCommand(function(environment: Environment, configs: ServiceCon
 
 function printActions(appActions) {
   appActions.forEach(({app, actions}) => {
-    console.log(colors.bold(app.name))
-
-    _(actions)
-      .map((action) => action.describe())
-      .flatten()
-      .forEach((description) => console.log("  " + description))
-      .value()
+    printApp(app)
+    actions.forEach(printAction)
   })
 }
 
 function runActions(appActions, environment) {
   return bluebird.mapSeries(appActions, ({app, actions}) => {
-    console.log(colors.bold(app.name))
+    printApp(app)
 
     return bluebird.mapSeries(actions, (action) => {
-      console.log("  " + action.describe())
+      printAction(action)
       return action.run(environment)
     })
   })
+}
+
+function printApp(app) {
+  console.log(colors.bold(app.name))
+}
+
+function printAction(action) {
+  console.log("  " + colors.cyan(action.describe()))
 }

@@ -32,19 +32,17 @@ export default class {
   app: string;
   applyChange: (change: Change) => Promise;
   changes: Array<Change>;
-  color: any;
   describeChange: (change: Change) => string;
   dokku: Dokku;
   /* jscs:enable disallowSemicolons */
 
-  constructor(app: string, expected: Options, deployed: Options, color: any) {
+  constructor(app: string, expected: Options, deployed: Options) {
     this.app = app
     this.changes = diffOptions(expected, deployed)
-    this.color = color
   }
 
   describe(): Array<string> {
-    return this.changes.map((change) => this.color(this.describeChange(change)))
+    return this.changes.map(this.describeChange.bind(this))
   }
 
   run(environment: Environment): Promise {

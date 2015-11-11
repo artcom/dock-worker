@@ -1,7 +1,5 @@
 /* @flow */
 
-import colors from "colors/safe"
-
 import Dokku from "../dokku"
 import RepoCache from "../repoCache"
 
@@ -17,7 +15,7 @@ export default class {
   }
 
   describe(): Array<string> {
-    return [colors.cyan(`deploy ${this.config.version}`)]
+    return [`deploy ${this.config.version}`]
   }
 
   run(environment: Environment): Promise {
