@@ -6,9 +6,10 @@ import colors from "colors/safe"
 import read from "read"
 import yn from "yn"
 
-import envCommand from "./envCommand"
 import {deriveActions} from "../actions"
 import {loadAppDataWithProgress} from "../appData"
+import envCommand from "./envCommand"
+import showProgress from "../showProgress"
 
 import type {Environment, ServiceConfigs} from "../types"
 
@@ -47,8 +48,14 @@ function runActions(appActions, environment) {
     printApp(app)
 
     return bluebird.mapSeries(actions, (action) => {
-      printAction(action)
-      return action.run(environment)
+      const runActionWithProgress = showProgress(
+        "  " + action.describe(),
+        action.run,
+        action
+      )
+
+      return runActionWithProgress(environment)
+        .then(() => printAction(action))
     })
   })
 }
