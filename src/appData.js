@@ -84,6 +84,7 @@ class Context {
     return this.repoCache.getRepo(config, this.environment)
       .then((repo) => repo.fetch(this.environment.name))
       .then((repo) => repo.showRef(`refs/remotes/${this.environment.name}/master`))
+      .catch(() => "not deployed yet")
   }
 
   additionalServiceConfigStatus(name: string): Promise<AppData> {

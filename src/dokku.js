@@ -24,7 +24,13 @@ export default class {
   }
 
   config(app: string): Promise<Options> {
-    return this.dokku("config", app).then((lines) =>
+    return this.dokku("config", app).catch((error) => {
+      if (error.message.endsWith(`no config vars for ${app}\n`)) {
+        return []
+      } else {
+        throw error
+      }
+    }).then((lines) =>
       _(lines)
         .map(extractPair)
         .reject(dokkuConfig)
