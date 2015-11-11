@@ -10,7 +10,8 @@ export type ServiceConfig = {
   version: string,
   environments: Array<string>,
   config?: Options,
-  dockerOptions?: Options
+  dockerOptions?: Options,
+  stopBeforeDeployment?: boolean
 }
 
 export type ServiceConfigs = Array<ServiceConfig>

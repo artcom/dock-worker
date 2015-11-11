@@ -67,6 +67,10 @@ export default class {
     return this.dokku("docker-options:remove", app, phases.join(","), option)
   }
 
+  stop(app: string): Promise {
+    return this.dokku("ps:stop", app)
+  }
+
   // PRIVATE
 
   dokku(...params: Array<string>): Promise<Array<string>> {
