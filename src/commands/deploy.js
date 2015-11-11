@@ -4,6 +4,7 @@ import _ from "lodash"
 import bluebird from "bluebird"
 import colors from "colors/safe"
 import read from "read"
+import yn from "yn"
 
 import envCommand from "./envCommand"
 import {deriveActions} from "../actions"
@@ -26,7 +27,7 @@ export default envCommand(function(environment: Environment, configs: ServiceCon
       printActions(appActions)
 
       return readAsync({ prompt: "apply changes (y/N)?" }).then((response) => {
-        if (response === "y") {
+        if (yn(response)) {
           return _(appActions)
             .pluck("actions")
             .flatten()

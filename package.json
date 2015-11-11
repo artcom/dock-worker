@@ -19,7 +19,8 @@
     "docopt": "^0.6.2",
     "lodash": "^3.10.1",
     "read": "^1.0.7",
-    "text-table": "^0.2.0"
+    "text-table": "^0.2.0",
+    "yn": "^1.2.0"
   },
   "devDependencies": {
     "babel": "^5.8.29",
