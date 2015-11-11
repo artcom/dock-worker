@@ -28,11 +28,7 @@ export default envCommand(function(environment: Environment, configs: ServiceCon
 
       return readAsync({ prompt: "apply changes (y/N)?" }).then((response) => {
         if (yn(response)) {
-          return _(appActions)
-            .pluck("actions")
-            .flatten()
-            .map((action) => action.run(environment))
-            .value()
+          runActions(appActions, environment)
         }
       })
     }
@@ -48,5 +44,16 @@ function printActions(appActions) {
       .flatten()
       .forEach((description) => console.log("  " + description))
       .value()
+  })
+}
+
+function runActions(appActions, environment) {
+  return bluebird.mapSeries(appActions, ({app, actions}) => {
+    console.log(colors.bold(app.name))
+
+    return bluebird.mapSeries(actions, (action) => {
+      console.log("  " + action.describe())
+      return action.run(environment)
+    })
   })
 }
