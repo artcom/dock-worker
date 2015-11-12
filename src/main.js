@@ -28,6 +28,5 @@ readFileAsync("services.json")
   })
   .catch(function(error) {
     console.log(colors.red("ERROR: ") + error.message)
-    console.log(error.stack)
     process.exit(1)
   })
