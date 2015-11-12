@@ -6,7 +6,27 @@ export default function(callback) {
 
     return callback(
       _.defaults(environment, { protocol: "ssh", username: "dokku" }),
-      services
+      services.map((service) => configureServiceForEnvironment(service, environment))
     )
   }
+}
+
+function configureServiceForEnvironment(service, environment) {
+  return Object.assign({}, service, {
+    config: selectEnvironmentOptions(service.config, environment),
+    dockerOptions: selectEnvironmentOptions(service.dockerOptions, environment)
+  })
+}
+
+function selectEnvironmentOptions(options, environment) {
+  return _(options)
+    .mapValues((value) => {
+      if (_.isPlainObject(value)) {
+        return value[environment.name]
+      } else {
+        return value
+      }
+    })
+    .omit(_.isUndefined)
+    .value()
 }
