@@ -7,7 +7,7 @@ import read from "read"
 import yn from "yn"
 
 import {deriveActions} from "../actions"
-import {loadAppDataWithProgress} from "../appData"
+import {createProvider} from "../appData"
 import envCommand from "./envCommand"
 import showProgress from "../showProgress"
 
@@ -16,23 +16,26 @@ import type {Environment, ServiceConfigs} from "../types"
 const readAsync = bluebird.promisify(read)
 
 export default envCommand(function(environment: Environment, configs: ServiceConfigs) {
-  return loadAppDataWithProgress(environment, configs).then(function(appData) {
-    const appActions = _(appData)
-      .map((app) => ({ app, actions: deriveActions(app) }))
-      .reject(({actions}) => _.isEmpty(actions))
-      .value()
+  return createProvider(environment, configs).then((provider) => {
+    const apps = provider.apps()
 
-    if (_.isEmpty(appActions)) {
-      console.log("all services up-to-date")
-    } else {
-      printActions(appActions)
+    return bluebird.mapSeries(apps, (name) =>
+      provider.loadAppData(name).then((app) => ({ app, actions: deriveActions(app) }))
+    ).then((appActions) =>
+      _.reject(appActions, ({actions}) => _.isEmpty(actions))
+    ).then((appActions) => {
+      if (_.isEmpty(appActions)) {
+        console.log("all services up-to-date")
+      } else {
+        printActions(appActions)
 
-      return readAsync({ prompt: "apply changes (y/N)?" }).then((response) => {
-        if (yn(response)) {
-          runActions(appActions, environment)
-        }
-      })
-    }
+        return readAsync({ prompt: "apply changes (y/N)?" }).then((response) => {
+          if (yn(response)) {
+            runActions(appActions, environment)
+          }
+        })
+      }
+    })
   })
 })
 

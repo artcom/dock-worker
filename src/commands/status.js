@@ -1,6 +1,7 @@
 /* @flow */
 
 import _ from "lodash"
+import bluebird from "bluebird"
 import colors from "colors/safe"
 import table from "text-table"
 
@@ -8,7 +9,7 @@ import {deriveActions} from "../actions"
 import ConfigAction from "../actions/configAction"
 import DockerOptionAction from "../actions/dockerOptionAction"
 import PushAction from "../actions/pushAction"
-import {loadAppDataWithProgress} from "../appData"
+import {createProvider} from "../appData"
 import envCommand from "./envCommand"
 
 import type {Action} from "../actions"
@@ -16,25 +17,28 @@ import type {AppData, DeployedAppData} from "../appData"
 import type {Environment, ServiceConfigs} from "../types"
 
 export default envCommand(function(environment: Environment, configs: ServiceConfigs) {
-  return loadAppDataWithProgress(environment, configs).then(function(appData) {
-    const rows = appData.map((app) => {
-      switch (app.status) {
-        case "missing":
-          return [name(app), colors.red("missing")]
-        case "deployed":
-          const actions = deriveActions(app)
-          const color = _.isEmpty(actions) ? colors.green : colors.yellow
-          return [name(app), color("deployed")].concat(deploymentStatus(app, actions))
-        case "additional":
-          return [name(app), colors.gray("additional")]
-        default:
-          return []
-      }
-    })
-
+  return createProvider(environment, configs).then((provider) => {
+    const apps = provider.apps()
+    return bluebird.mapSeries(apps, (app) => provider.loadAppData(app).then(createRow))
+  }).then((rows) => {
     console.log(table(rows))
   })
 })
+
+function createRow(app) {
+  switch (app.status) {
+    case "missing":
+      return [name(app), colors.red("missing")]
+    case "deployed":
+      const actions = deriveActions(app)
+      const color = _.isEmpty(actions) ? colors.green : colors.yellow
+      return [name(app), color("deployed")].concat(deploymentStatus(app, actions))
+    case "additional":
+      return [name(app), colors.gray("additional")]
+    default:
+      return []
+  }
+}
 
 function name(app: AppData) {
   return colors.bold(app.name)

@@ -5,7 +5,6 @@ import bluebird from "bluebird"
 
 import Dokku from "./dokku"
 import RepoCache from "./repoCache"
-import showProgress from "./showProgress"
 
 import type {Options, Environment, ServiceConfig, ServiceConfigs} from "./types"
 
@@ -35,11 +34,14 @@ export type AdditionalAppData = {
   status: "additional"
 }
 
-class Context {
+class Provider {
   /* jscs:disable disallowSemicolons */
   environment: Environment;
   configs: ServiceConfigs;
-  available: Array<string>;
+
+  missing: Array<string>;
+  deployed: Array<string>;
+  additional: Array<string>;
 
   dokku: Dokku;
   /* jscs:enable disallowSemicolons */
@@ -50,23 +52,55 @@ class Context {
     this.dokku = new Dokku(environment.host)
   }
 
-  definedServiceConfigStatus(config: ServiceConfig): Promise<AppData> {
-    const name = config.name
+  initialize(): Promise<Provider> {
+    return this.dokku.apps().then((available) => {
+      const defined = _.map(this.configs, "name")
 
-    if (_.includes(this.available, name)) {
-      return this.deployedConfig(name).then((deployed) => ({
-        name,
-        status: "deployed",
-        config: config,
-        deployed
-      }))
+      this.missing = _.difference(defined, available)
+      this.deployed = _.intersection(defined, available)
+      this.additional = _.difference(available, defined)
+
+      return this
+    })
+  }
+
+  apps(): Array<string> {
+    return _.flatten([
+      this.missing,
+      this.deployed,
+      this.additional
+    ]).sort()
+  }
+
+  loadAppData(name: string): Promise<AppData> {
+    if (_.contains(this.missing, name)) {
+      const config = _.find(this.configs, { name })
+      return this.missingAppData(config)
+    } else if (_.contains(this.deployed, name)) {
+      const config = _.find(this.configs, { name })
+      return this.definedAppData(config)
+    } else if (_.contains(this.additional, name)) {
+      return this.additionalAppData(name)
     } else {
-      return Promise.resolve({
-        name,
-        status: "missing",
-        config: config
-      })
+      return Promise.reject()
     }
+  }
+
+  missingAppData(config: ServiceConfig): Promise<AppData> {
+    return Promise.resolve({
+      name: config.name,
+      status: "missing",
+      config: config
+    })
+  }
+
+  definedAppData(config: ServiceConfig): Promise<AppData> {
+    return this.deployedConfig(config.name).then((deployed) => ({
+      name: config.name,
+      status: "deployed",
+      config: config,
+      deployed
+    }))
   }
 
   deployedConfig(name: string): Promise<DeployedConfig> {
@@ -86,11 +120,11 @@ class Context {
       .catch(() => "not deployed yet")
   }
 
-  additionalServiceConfigStatus(name: string): AppData {
-    return {
+  additionalAppData(name: string): Promise<AppData> {
+    return Promise.resolve({
       name,
       status: "additional"
-    }
+    })
   }
 }
 
@@ -102,29 +136,10 @@ function configuredForEnvironment(config, environment) {
   }
 }
 
-export function loadAppData(
+export function createProvider(
   environment: Environment,
   configs: ServiceConfigs
-): Promise<Array<AppData>> {
-  const context = new Context(environment, configs)
-
-  return context.dokku.apps().then((available) => {
-    context.available = available
-
-    const defined = _.map(context.configs, "name")
-    const additional = _.difference(available, defined)
-      .map((name) => context.additionalServiceConfigStatus(name))
-
-    return bluebird.mapSeries(context.configs, (config) =>
-      context.definedServiceConfigStatus(config)
-    ).then((deployedAndMissing) => {
-      const appData = deployedAndMissing.concat(additional)
-      return _.sortBy(appData, "name")
-    })
-  })
+): Promise<Provider> {
+  const provider = new Provider(environment, configs)
+  return provider.initialize()
 }
-
-export const loadAppDataWithProgress = showProgress(
-  "loading service configuration",
-  loadAppData
-)
