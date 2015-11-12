@@ -9,7 +9,7 @@ import PushAction from "./pushAction"
 
 import type {AppData} from "../appData"
 
-export type Action = ConfigAction | DockerOptionAction | PushAction
+export type Action = ConfigAction | CreateAction | DockerOptionAction | PushAction
 
 export function deriveActions(app: AppData): Array<Action> {
   const actions = []
