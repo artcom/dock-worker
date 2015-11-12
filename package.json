@@ -13,7 +13,6 @@
     "test": "mocha --compilers js:babel/register"
   },
   "dependencies": {
-    "babel-eslint": "^4.1.4",
     "bluebird": "^3.0.5",
     "colors": "^1.1.2",
     "docopt": "^0.6.2",
@@ -26,6 +25,7 @@
   },
   "devDependencies": {
     "babel": "^5.8.29",
+    "babel-eslint": "^4.1.4",
     "chai": "^3.4.0",
     "eslint": "^1.8.0",
     "mocha": "^2.3.3",
