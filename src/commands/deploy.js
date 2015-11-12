@@ -20,15 +20,24 @@ export default envCommand(function(environment: Environment, configs: ServiceCon
     const apps = provider.apps()
 
     return bluebird.mapSeries(apps, (name) =>
-      provider.loadAppDataWithProgress(name).then((app) => ({ app, actions: deriveActions(app) }))
+      provider.loadAppDataWithProgress(name).then((app) => {
+        const actions = deriveActions(app)
+
+        if (_.isEmpty(actions)) {
+          return null
+        }
+
+        printApp(app)
+        actions.forEach(printAction)
+
+        return { app, actions }
+      })
     ).then((appActions) =>
-      _.reject(appActions, ({actions}) => _.isEmpty(actions))
+      _.compact(appActions)
     ).then((appActions) => {
       if (_.isEmpty(appActions)) {
         console.log("all services up-to-date")
       } else {
-        printActions(appActions)
-
         return readAsync({ prompt: "apply changes (y/N)?" }).then((response) => {
           if (yn(response)) {
             runActions(appActions, environment)
@@ -38,13 +47,6 @@ export default envCommand(function(environment: Environment, configs: ServiceCon
     })
   })
 })
-
-function printActions(appActions) {
-  appActions.forEach(({app, actions}) => {
-    printApp(app)
-    actions.forEach(printAction)
-  })
-}
 
 function runActions(appActions, environment) {
   return bluebird.mapSeries(appActions, ({app, actions}) => {
