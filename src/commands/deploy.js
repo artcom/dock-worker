@@ -20,7 +20,7 @@ export default envCommand(function(environment: Environment, configs: ServiceCon
     const apps = provider.apps()
 
     return bluebird.mapSeries(apps, (name) =>
-      provider.loadAppData(name).then((app) => ({ app, actions: deriveActions(app) }))
+      provider.loadAppDataWithProgress(name).then((app) => ({ app, actions: deriveActions(app) }))
     ).then((appActions) =>
       _.reject(appActions, ({actions}) => _.isEmpty(actions))
     ).then((appActions) => {
@@ -50,16 +50,10 @@ function runActions(appActions, environment) {
   return bluebird.mapSeries(appActions, ({app, actions}) => {
     printApp(app)
 
-    return bluebird.mapSeries(actions, (action) => {
-      const runActionWithProgress = showProgress(
-        indentDescription(action),
-        action.run,
-        action
-      )
-
-      return runActionWithProgress(environment)
+    return bluebird.mapSeries(actions, (action) =>
+      showProgress(indentDescription(action), action.run(environment))
         .then(() => printAction(action))
-    })
+    )
   })
 }
 

@@ -19,7 +19,7 @@ import type {Environment, ServiceConfigs} from "../types"
 export default envCommand(function(environment: Environment, configs: ServiceConfigs) {
   return createProvider(environment, configs).then((provider) => {
     const apps = provider.apps()
-    return bluebird.mapSeries(apps, (app) => provider.loadAppData(app).then(createRow))
+    return bluebird.mapSeries(apps, (app) => provider.loadAppDataWithProgress(app).then(createRow))
   }).then((rows) => {
     console.log(table(rows))
   })
