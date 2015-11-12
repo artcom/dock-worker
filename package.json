@@ -10,7 +10,7 @@
     "prepublish": "babel src --out-dir dist --source-maps",
     "debug": "npm run prepublish && node-debug dist/main.js",
     "start": "npm run prepublish && node dist/main.js",
-    "test": "mocha --compilers js:babel/register"
+    "test": "eslint src && mocha --compilers js:babel/register"
   },
   "dependencies": {
     "bluebird": "^3.0.5",
