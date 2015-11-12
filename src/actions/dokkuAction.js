@@ -1,10 +1,11 @@
 /* @flow */
 
 import _ from "lodash"
+import bluebird from "bluebird"
 
 import Dokku from "../dokku"
 
-import type {Options, Environment} from "../types"
+import type {Environment, Options, ServiceConfig} from "../types"
 
 export type Change = Add | Remove | Update
 
@@ -29,15 +30,15 @@ type Update = {
 
 export default class {
   /* jscs:disable disallowSemicolons */
-  app: string;
+  config: ServiceConfig;
   applyChange: (change: Change) => Promise;
   changes: Array<Change>;
   describeChange: (change: Change) => string;
   dokku: Dokku;
   /* jscs:enable disallowSemicolons */
 
-  constructor(app: string, expected: Options, deployed: Options) {
-    this.app = app
+  constructor(config: ServiceConfig, expected: Options, deployed: Options) {
+    this.config = config
     this.changes = diffOptions(expected, deployed)
   }
 
@@ -47,7 +48,15 @@ export default class {
 
   run(environment: Environment): Promise {
     this.dokku = new Dokku(environment.host)
-    return Promise.all(this.changes.map(this.applyChange.bind(this)))
+
+    return bluebird.each(this.changes, (change) => {
+      const stopService = this.config.stopBeforeDeployment
+        ? this.dokku.stop(this.config.name)
+        : Promise.resolve()
+
+      return stopService
+        .then(() => this.applyChange(change))
+    })
   }
 }
 

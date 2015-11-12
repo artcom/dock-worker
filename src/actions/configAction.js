@@ -9,7 +9,7 @@ export default class extends DokkuAction {
   constructor(app: DeployedAppData | MissingAppData) {
     const expected = app.config.config || {}
     const deployed = app.status === "deployed" ? app.deployed.config : {}
-    super(app.name, expected, deployed)
+    super(app.config, expected, deployed)
   }
 
   describeChange(change: Change): string {
@@ -29,9 +29,9 @@ export default class extends DokkuAction {
     switch (change.type) {
       case "add":
       case "update":
-        return this.dokku.setConfig(this.app, change.key, change.value)
+        return this.dokku.setConfig(this.config.name, change.key, change.value)
       case "remove":
-        return this.dokku.unsetConfig(this.app, change.key)
+        return this.dokku.unsetConfig(this.config.name, change.key)
       default:
         return Promise.resolve()
     }

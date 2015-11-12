@@ -9,7 +9,7 @@ export default class extends DokkuAction {
   constructor(app: DeployedAppData | MissingAppData) {
     const expected = app.config.dockerOptions || {}
     const deployed = app.status === "deployed" ? app.deployed.dockerOptions : {}
-    super(app.name, expected, deployed)
+    super(app.config, expected, deployed)
   }
 
   describeChange(change: Change): string {
@@ -28,9 +28,9 @@ export default class extends DokkuAction {
     switch (change.type) {
       case "add":
       case "update":
-        return this.dokku.addDockerOption(this.app, change.key, change.value)
+        return this.dokku.addDockerOption(this.config.name, change.key, change.value)
       case "remove":
-        return this.dokku.removeDockerOption(this.app, change.key, change.oldValue)
+        return this.dokku.removeDockerOption(this.config.name, change.key, change.oldValue)
       default:
         return Promise.resolve()
     }
