@@ -39,7 +39,6 @@ _Whale Rider_ will look for a configuration file named `services.json` in the cu
       "name": "retrieval-service",
       "repo": "git@github.com:artcom/retrieval-service.git",
       "version": "ebf005e11bd097e0e69a05b320afa89e835a9f2e",
-      "environments": ["staging", "production"],
       "config": {
         "DISPLAY_NAME": "Retrieval Service",
         "RETRIEVE_FROM": {
@@ -77,7 +76,7 @@ type Service = {
   name: string,
   repo: string,
   version: string,
-  environments: Array<EnvironmentName>,
+  environments?: Array<EnvironmentName>,
   config?: Config,
   dockerOptions?: DockerOptions,
   stopBeforeDeployment: boolean

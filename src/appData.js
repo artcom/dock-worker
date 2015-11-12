@@ -46,8 +46,7 @@ class Context {
 
   constructor(environment, configs) {
     this.environment = environment
-    this.configs = configs.filter((config) => _.contains(config.environments, environment.name))
-
+    this.configs = configs.filter((config) => configuredForEnvironment(config, environment))
     this.dokku = new Dokku(environment.host)
   }
 
@@ -92,6 +91,14 @@ class Context {
       name,
       status: "additional"
     })
+  }
+}
+
+function configuredForEnvironment(config, environment) {
+  if (config.environments) {
+    return _.contains(config.environments, environment.name)
+  } else {
+    return true
   }
 }
 

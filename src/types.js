@@ -8,7 +8,7 @@ export type ServiceConfig = {
   name: string,
   repo: string,
   version: string,
-  environments: Array<string>,
+  environments?: Array<string>,
   config?: Options,
   dockerOptions?: Options,
   stopBeforeDeployment?: boolean
