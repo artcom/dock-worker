@@ -49,7 +49,7 @@ function runActions(appActions, environment) {
 
     return bluebird.mapSeries(actions, (action) => {
       const runActionWithProgress = showProgress(
-        "  " + action.describe(),
+        indentDescription(action),
         action.run,
         action
       )
@@ -65,5 +65,11 @@ function printApp(app) {
 }
 
 function printAction(action) {
-  console.log("  " + colors.cyan(action.describe()))
+  console.log(colors.cyan(indentDescription(action)))
+}
+
+function indentDescription(action) {
+  return _(action.describe())
+    .map((description) => "  " + description)
+    .join("\n")
 }
