@@ -96,8 +96,8 @@ function unnecessaryLine(line) {
 }
 
 function extractPair(line) {
-  const [key, value] = line.split(":")
-  return [key, _.trim(value)]
+  const tokens = line.split(":")
+  return [_.first(tokens), _.trim(_.rest(tokens).join(":"))]
 }
 
 function dokkuConfig(pair) {
