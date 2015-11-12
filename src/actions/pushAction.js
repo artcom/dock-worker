@@ -27,7 +27,8 @@ export default class {
       : Promise.resolve()
 
     return stopService
-      .then(() => repoCache.getRepo(this.config, environment))
+      .then(() => repoCache.getRepo(this.config.name, environment))
+      .then((repo) => repo.ensureRemote("origin", this.config.repo))
       .then((repo) => repo.fetch("origin"))
       .then((repo) => repo.push(environment.name, `${this.config.version}:refs/heads/master`))
   }

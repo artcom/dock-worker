@@ -24,12 +24,7 @@ describe("Repo Cache", function() {
     ])
   })
 
-  it("should set origin and environment remote", function() {
-    const service = {
-      name: "dokku-app",
-      repo: `file://${this.repoDir}/source-code`
-    }
-
+  it("should set environment remote", function() {
     const environment = {
       name: "test",
       host: this.repoDir,
@@ -37,14 +32,10 @@ describe("Repo Cache", function() {
       username: null
     }
 
-    return this.cache.getRepo(service, environment)
+    return this.cache.getRepo("dokku-app", environment)
       .then((repo) => repo.remotes())
       .then((remotes) => {
         expect(remotes).to.deep.equal({
-          origin: {
-            fetch: `file://${this.repoDir}/source-code`,
-            push: `file://${this.repoDir}/source-code`
-          },
           test: {
             fetch: `file://${this.repoDir}/dokku-app`,
             push: `file://${this.repoDir}/dokku-app`

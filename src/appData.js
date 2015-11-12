@@ -1,6 +1,7 @@
 /* @flow */
 
 import _ from "lodash"
+import bluebird from "bluebird"
 
 import Dokku from "./dokku"
 import RepoCache from "./repoCache"
@@ -50,39 +51,37 @@ class Context {
     this.dokku = new Dokku(environment.host)
   }
 
-  definedServiceConfigStatus(serviceConfig: ServiceConfig): Promise<AppData> {
-    const name = serviceConfig.name
+  definedServiceConfigStatus(config: ServiceConfig): Promise<AppData> {
+    const name = config.name
 
     if (_.includes(this.available, name)) {
-      return Promise.all([
-        this.deployedVersion(serviceConfig),
-        this.dokku.config(name),
-        this.dokku.dockerOptions(name)
-      ]).then(([version, config, dockerOptions]: [string, Options, Options]) => {
-        return {
-          name,
-          status: "deployed",
-          config: serviceConfig,
-          deployed: {
-            version,
-            config,
-            dockerOptions
-          }
-        }
-      })
+      return this.deployedConfig(name).then((deployed) => ({
+        name,
+        status: "deployed",
+        config: config,
+        deployed
+      }))
     } else {
       return Promise.resolve({
         name,
         status: "missing",
-        config: serviceConfig
+        config: config
       })
     }
   }
 
-  deployedVersion(config: ServiceConfig): Promise<string> {
+  deployedConfig(name: string): Promise<DeployedConfig> {
+    return bluebird.props({
+      version: this.deployedVersion(name),
+      config: this.dokku.config(name),
+      dockerOptions: this.dokku.dockerOptions(name)
+    })
+  }
+
+  deployedVersion(name: string): Promise<string> {
     const repoCache = RepoCache.get()
 
-    return repoCache.getRepo(config, this.environment)
+    return repoCache.getRepo(name, this.environment)
       .then((repo) => repo.fetch(this.environment.name))
       .then((repo) => repo.showRef(`refs/remotes/${this.environment.name}/master`))
       .catch(() => "not deployed yet")
