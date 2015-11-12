@@ -52,7 +52,7 @@ class Repo {
 
         if (match) {
           const [, remote, url, type] = match
-          _.set(remotes, `${remote}.${type}`, url)
+          _.set(remotes, [remote, type], url)
         }
 
         return remotes
