@@ -122,4 +122,4 @@ function git(...params: Array<string>): Promise<Array<string>> {
   })
 }
 
-const remoteLine = /^(\w+)\s+(.+)\s+\((fetch|push)\)$/
+const remoteLine = /^(\w+)\s+(.*)\s+\((fetch|push)\)$/
