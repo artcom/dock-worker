@@ -86,11 +86,11 @@ class Context {
       .catch(() => "not deployed yet")
   }
 
-  additionalServiceConfigStatus(name: string): Promise<AppData> {
-    return Promise.resolve({
+  additionalServiceConfigStatus(name: string): AppData {
+    return {
       name,
       status: "additional"
-    })
+    }
   }
 }
 
@@ -111,15 +111,16 @@ export function loadAppData(
   return context.dokku.apps().then((available) => {
     context.available = available
 
-    const deployedAndMissing = context.configs
-      .map((config) => context.definedServiceConfigStatus(config))
-
     const defined = _.map(context.configs, "name")
     const additional = _.difference(available, defined)
       .map((name) => context.additionalServiceConfigStatus(name))
 
-    return Promise.all(deployedAndMissing.concat(additional))
-      .then((appData) => _.sortBy(appData, "name"))
+    return bluebird.mapSeries(context.configs, (config) =>
+      context.definedServiceConfigStatus(config)
+    ).then((deployedAndMissing) => {
+      const appData = deployedAndMissing.concat(additional)
+      return _.sortBy(appData, "name")
+    })
   })
 }
 
