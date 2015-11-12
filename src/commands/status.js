@@ -9,7 +9,7 @@ import {deriveActions} from "../actions"
 import ConfigAction from "../actions/configAction"
 import DockerOptionAction from "../actions/dockerOptionAction"
 import PushAction from "../actions/pushAction"
-import {createProvider} from "../appData"
+import {createProviderWithProgress} from "../appData"
 import envCommand from "./envCommand"
 
 import type {Action} from "../actions"
@@ -17,7 +17,7 @@ import type {AppData, DeployedAppData} from "../appData"
 import type {Environment, ServiceConfigs} from "../types"
 
 export default envCommand(function(environment: Environment, configs: ServiceConfigs) {
-  return createProvider(environment, configs).then((provider) => {
+  return createProviderWithProgress(environment, configs).then((provider) => {
     const apps = provider.apps()
     return bluebird.mapSeries(apps, (app) => provider.loadAppDataWithProgress(app).then(createRow))
   }).then((rows) => {

@@ -7,7 +7,7 @@ import read from "read"
 import yn from "yn"
 
 import {deriveActions} from "../actions"
-import {createProvider} from "../appData"
+import {createProviderWithProgress} from "../appData"
 import envCommand from "./envCommand"
 import showProgress from "../showProgress"
 
@@ -16,7 +16,7 @@ import type {Environment, ServiceConfigs} from "../types"
 const readAsync = bluebird.promisify(read)
 
 export default envCommand(function(environment: Environment, configs: ServiceConfigs) {
-  return createProvider(environment, configs).then((provider) => {
+  return createProviderWithProgress(environment, configs).then((provider) => {
     const apps = provider.apps()
 
     return bluebird.mapSeries(apps, (name) =>

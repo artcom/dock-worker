@@ -154,3 +154,10 @@ export function createProvider(
   const provider = new Provider(environment, configs)
   return provider.initialize()
 }
+
+export function createProviderWithProgress(
+  environment: Environment,
+  configs: ServiceConfigs
+): Promise<Provider> {
+  return showProgress("loading configuration", createProvider(environment, configs))
+}
