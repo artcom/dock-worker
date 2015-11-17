@@ -20,7 +20,7 @@ const commands = {
   deploy
 }
 
-readFileAsync("services.json")
+readFileAsync("Dockfile.json")
   .then(JSON.parse)
   .then(function(config) {
     const command = _.find(commands, (command, name) => options[name] === true)

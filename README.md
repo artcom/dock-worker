@@ -14,7 +14,7 @@ $ whale <environment> deploy
 
 ## Service Definition
 
-_Whale Rider_ will look for a configuration file named `services.json` in the current directory. Here is an example:
+_Whale Rider_ will look for a configuration file named `Dockfile.json` in the current directory. Here is an example:
 
 ```json
 {
@@ -55,7 +55,7 @@ _Whale Rider_ will look for a configuration file named `services.json` in the cu
 }
 ```
 
-For a formal definition of what can go into `services.json`, have a look at the following [flow](http://flowtype.org) type annotations:
+For a formal definition of what can go into `Dockfile.json`, have a look at the following [flow](http://flowtype.org) type annotations:
 
 ```javascript
 type Config = {
