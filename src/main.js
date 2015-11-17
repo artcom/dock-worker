@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import _ from "lodash"
 import bluebird from "bluebird"
 import colors from "colors/safe"
