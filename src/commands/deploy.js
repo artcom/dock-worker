@@ -11,11 +11,11 @@ import {createProviderWithProgress} from "../appData"
 import envCommand from "./envCommand"
 import showProgress from "../showProgress"
 
-import type {Environment, ServiceConfigs} from "../types"
+import type {Environment, AppConfigs} from "../types"
 
 const readAsync = bluebird.promisify(read)
 
-export default envCommand(function(environment: Environment, configs: ServiceConfigs) {
+export default envCommand(function(environment: Environment, configs: AppConfigs) {
   return createProviderWithProgress(environment, configs).then((provider) => {
     const apps = provider.apps()
 
@@ -36,7 +36,7 @@ export default envCommand(function(environment: Environment, configs: ServiceCon
       _.compact(appActions)
     ).then((appActions) => {
       if (_.isEmpty(appActions)) {
-        console.log("all services up-to-date")
+        console.log("all apps up-to-date")
       } else {
         return readAsync({ prompt: "apply changes (y/N)?" }).then((response) => {
           if (yn(response)) {

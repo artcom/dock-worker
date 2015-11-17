@@ -8,14 +8,14 @@ import Dokku from "./dokku"
 import RepoCache from "./repoCache"
 import showProgress from "./showProgress"
 
-import type {Options, Environment, ServiceConfig, ServiceConfigs} from "./types"
+import type {Options, Environment, AppConfig, AppConfigs} from "./types"
 
 export type AppData = DeployedAppData | MissingAppData | AdditionalAppData
 
 export type DeployedAppData = {
   name: string,
   status: "deployed",
-  config: ServiceConfig,
+  config: AppConfig,
   deployed: DeployedConfig
 }
 
@@ -28,7 +28,7 @@ type DeployedConfig = {
 export type MissingAppData = {
   name: string,
   status: "missing",
-  config: ServiceConfig
+  config: AppConfig
 }
 
 export type AdditionalAppData = {
@@ -39,7 +39,7 @@ export type AdditionalAppData = {
 class Provider {
   /* jscs:disable disallowSemicolons */
   environment: Environment;
-  configs: ServiceConfigs;
+  configs: AppConfigs;
 
   missing: Array<string>;
   deployed: Array<string>;
@@ -97,7 +97,7 @@ class Provider {
     return showProgress(message, this.loadAppData(name))
   }
 
-  missingAppData(config: ServiceConfig): Promise<AppData> {
+  missingAppData(config: AppConfig): Promise<AppData> {
     return Promise.resolve({
       name: config.name,
       status: "missing",
@@ -105,7 +105,7 @@ class Provider {
     })
   }
 
-  definedAppData(config: ServiceConfig): Promise<AppData> {
+  definedAppData(config: AppConfig): Promise<AppData> {
     return this.deployedConfig(config.name).then((deployed) => ({
       name: config.name,
       status: "deployed",
@@ -141,7 +141,7 @@ class Provider {
 
 export function createProvider(
   environment: Environment,
-  configs: ServiceConfigs
+  configs: AppConfigs
 ): Promise<Provider> {
   const provider = new Provider(environment, configs)
   return provider.initialize()
@@ -149,7 +149,7 @@ export function createProvider(
 
 export function createProviderWithProgress(
   environment: Environment,
-  configs: ServiceConfigs
+  configs: AppConfigs
 ): Promise<Provider> {
   return showProgress("loading configuration", createProvider(environment, configs))
 }

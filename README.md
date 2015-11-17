@@ -5,14 +5,14 @@ Automated Dokku Deployment
 ## Usage
 
 ```bash
-// list service and status information
+// list app and status information
 $ whale <environment> status
 
-// deploy services and configuration
+// deploy apps and configuration
 $ whale <environment> deploy
 ```
 
-## Service Definition
+## App Definition
 
 _Whale Rider_ will look for a configuration file named `Dockfile.json` in the current directory. Here is an example:
 
@@ -28,7 +28,7 @@ _Whale Rider_ will look for a configuration file named `Dockfile.json` in the cu
       "host": "production.example.com"
     }
   ],
-  "services": [
+  "apps": [
     {
       "name": "debug-service",
       "repo": "git@github.com:artcom/debug-service.git",
@@ -60,7 +60,7 @@ For a formal definition of what can go into `Dockfile.json`, have a look at the 
 ```javascript
 type Config = {
   environment: Array<Environment>,
-  services: Array<Service>
+  apps: Array<App>
 }
 
 type Environment = {
@@ -72,7 +72,7 @@ type Environment = {
 
 type EnvironmentName = string
 
-type Service = {
+type App = {
   name: string,
   repo: string,
   version: string,

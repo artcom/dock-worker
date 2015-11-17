@@ -4,7 +4,7 @@ export type Environment = { name: string, host: string, protocol: string, userna
 
 export type Options = {[key: string]: string}
 
-export type ServiceConfig = {
+export type AppConfig = {
   name: string,
   repo: string,
   version: string,
@@ -14,4 +14,4 @@ export type ServiceConfig = {
   stopBeforeDeployment?: boolean
 }
 
-export type ServiceConfigs = Array<ServiceConfig>
+export type AppConfigs = Array<AppConfig>

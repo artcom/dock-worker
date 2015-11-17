@@ -3,14 +3,14 @@
 import Dokku from "../dokku"
 import RepoCache from "../repoCache"
 
-import type {Environment, ServiceConfig} from "../types"
+import type {Environment, AppConfig} from "../types"
 
 export default class {
   /* jscs:disable disallowSemicolons */
-  config: ServiceConfig;
+  config: AppConfig;
   /* jscs:enable disallowSemicolons */
 
-  constructor(config: ServiceConfig) {
+  constructor(config: AppConfig) {
     this.config = config
   }
 
@@ -22,11 +22,11 @@ export default class {
     const dokku = new Dokku(environment.host)
     const repoCache = RepoCache.get()
 
-    const stopService = this.config.stopBeforeDeployment
+    const stopApp = this.config.stopBeforeDeployment
       ? dokku.stop(this.config.name)
       : Promise.resolve()
 
-    return stopService
+    return stopApp
       .then(() => repoCache.getRepo(this.config.name, environment))
       .then((repo) => repo.ensureRemote("origin", this.config.repo))
       .then((repo) => repo.fetch("origin"))

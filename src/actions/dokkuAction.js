@@ -5,7 +5,7 @@ import bluebird from "bluebird"
 
 import Dokku from "../dokku"
 
-import type {Environment, Options, ServiceConfig} from "../types"
+import type {Environment, Options, AppConfig} from "../types"
 
 export type Change = Add | Remove | Update
 
@@ -30,14 +30,14 @@ type Update = {
 
 export default class {
   /* jscs:disable disallowSemicolons */
-  config: ServiceConfig;
+  config: AppConfig;
   applyChange: (change: Change) => Promise;
   changes: Array<Change>;
   describeChange: (change: Change) => string;
   dokku: Dokku;
   /* jscs:enable disallowSemicolons */
 
-  constructor(config: ServiceConfig, expected: Options, deployed: Options) {
+  constructor(config: AppConfig, expected: Options, deployed: Options) {
     this.config = config
     this.changes = diffOptions(expected, deployed)
   }
@@ -50,12 +50,11 @@ export default class {
     this.dokku = new Dokku(environment.host)
 
     return bluebird.each(this.changes, (change) => {
-      const stopService = this.config.stopBeforeDeployment
+      const stopApp = this.config.stopBeforeDeployment
         ? this.dokku.stop(this.config.name)
         : Promise.resolve()
 
-      return stopService
-        .then(() => this.applyChange(change))
+      return stopApp.then(this.applyChange.bind(this, change))
     })
   }
 }

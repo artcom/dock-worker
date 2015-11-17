@@ -14,9 +14,9 @@ import envCommand from "./envCommand"
 
 import type {Action} from "../actions"
 import type {AppData, DeployedAppData} from "../appData"
-import type {Environment, ServiceConfigs} from "../types"
+import type {Environment, AppConfigs} from "../types"
 
-export default envCommand(function(environment: Environment, configs: ServiceConfigs) {
+export default envCommand(function(environment: Environment, configs: AppConfigs) {
   return createProviderWithProgress(environment, configs).then((provider) => {
     const apps = provider.apps()
     return bluebird.mapSeries(apps, (app) => provider.loadAppDataWithProgress(app).then(createRow))
