@@ -11,11 +11,11 @@ import {createProviderWithProgress} from "../appData"
 import envCommand from "./envCommand"
 import showProgress from "../showProgress"
 
-import type {Environment, AppConfigs} from "../types"
+import type {Environment, AppConfig} from "../types"
 
 const readAsync = bluebird.promisify(read)
 
-export default envCommand(function(environment: Environment, configs: AppConfigs) {
+export default envCommand(function(environment: Environment, configs: Array<AppConfig>) {
   return createProviderWithProgress(environment, configs).then((provider) => {
     const apps = provider.apps()
 

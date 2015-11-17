@@ -13,5 +13,3 @@ export type AppConfig = {
   dockerOptions?: Options,
   stopBeforeDeployment?: boolean
 }
-
-export type AppConfigs = Array<AppConfig>

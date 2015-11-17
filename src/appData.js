@@ -8,7 +8,7 @@ import Dokku from "./dokku"
 import RepoCache from "./repoCache"
 import showProgress from "./showProgress"
 
-import type {Options, Environment, AppConfig, AppConfigs} from "./types"
+import type {Options, Environment, AppConfig} from "./types"
 
 export type AppData = DeployedAppData | MissingAppData | AdditionalAppData
 
@@ -39,7 +39,7 @@ export type AdditionalAppData = {
 class Provider {
   /* jscs:disable disallowSemicolons */
   environment: Environment;
-  configs: AppConfigs;
+  configs: Array<AppConfig>;
 
   missing: Array<string>;
   deployed: Array<string>;
@@ -141,7 +141,7 @@ class Provider {
 
 export function createProvider(
   environment: Environment,
-  configs: AppConfigs
+  configs: Array<AppConfig>
 ): Promise<Provider> {
   const provider = new Provider(environment, configs)
   return provider.initialize()
@@ -149,7 +149,7 @@ export function createProvider(
 
 export function createProviderWithProgress(
   environment: Environment,
-  configs: AppConfigs
+  configs: Array<AppConfig>
 ): Promise<Provider> {
   return showProgress("loading configuration", createProvider(environment, configs))
 }
