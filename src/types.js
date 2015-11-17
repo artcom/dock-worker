@@ -8,8 +8,7 @@ export type AppConfig = {
   name: string,
   repo: string,
   version: string,
-  environments?: Array<string>,
-  config?: Options,
-  dockerOptions?: Options,
-  stopBeforeDeployment?: boolean
+  config: Options,
+  dockerOptions: Options,
+  stopBeforeDeployment: boolean
 }

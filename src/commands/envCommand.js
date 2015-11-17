@@ -11,6 +11,7 @@ export default function(callback) {
       .filter((app) => hasBeenSelected(app, options["<app>"]))
       .filter((app) => shouldBeDeployed(app, environment))
       .map((app) => configureAppForEnvironment(app, environment))
+      .defaults({ config: {}, dockerOptions: {}, stopBeforeDeployment: false })
       .value()
 
     return callback(environment, apps)

@@ -7,7 +7,7 @@ import type {Change} from "./dokkuAction"
 
 export default class extends DokkuAction {
   constructor(app: DeployedAppData | MissingAppData) {
-    const expected = app.config.config || {}
+    const expected = app.config.config
     const deployed = app.status === "deployed" ? app.deployed.config : {}
     super(app.config, expected, deployed)
   }
