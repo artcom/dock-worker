@@ -1,4 +1,4 @@
-# Whale Rider
+# Dock Worker
 
 Automated Dokku Deployment
 
@@ -6,15 +6,15 @@ Automated Dokku Deployment
 
 ```bash
 // list app and status information
-$ whale <environment> status
+$ dock <environment> status
 
 // deploy apps and configuration
-$ whale <environment> deploy
+$ dock <environment> deploy
 ```
 
 ## App Definition
 
-_Whale Rider_ will look for a configuration file named `Dockfile.json` in the current directory. Here is an example:
+_Dock Worker_ will look for a configuration file named `Dockfile.json` in the current directory. Here is an example:
 
 ```json
 {

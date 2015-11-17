@@ -11,8 +11,8 @@ const readFileAsync = bluebird.promisify(fs.readFile)
 
 const options = docopt(`
   usage:
-    whale <environment> status
-    whale <environment> deploy [<app>...]
+    dock <environment> status
+    dock <environment> deploy [<app>...]
 `)
 
 const commands = {

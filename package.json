@@ -1,10 +1,10 @@
 {
-  "name": "whale-rider",
+  "name": "dock-worker",
   "version": "0.1.0",
   "private": true,
   "description": "Automated Dokku Deployment",
   "bin": {
-    "whale": "dist/main.js"
+    "dock": "dist/main.js"
   },
   "scripts": {
     "prepublish": "babel src --out-dir dist --source-maps",
