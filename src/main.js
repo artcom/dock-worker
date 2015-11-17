@@ -6,6 +6,7 @@ import fs from "fs"
 
 import status from "./commands/status"
 import deploy from "./commands/deploy"
+import version from "./commands/version"
 
 const readFileAsync = bluebird.promisify(fs.readFile)
 
@@ -13,11 +14,13 @@ const options = docopt(`
   usage:
     dock <environment> status
     dock <environment> deploy [<app>...]
+    dock version
 `)
 
 const commands = {
   status,
-  deploy
+  deploy,
+  version
 }
 
 readFileAsync("Dockfile.json")
