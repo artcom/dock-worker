@@ -25,7 +25,7 @@ export default envCommand(function(environment: Environment, configs: ServiceCon
   })
 })
 
-function createRow(app) {
+function createRow(app: AppData) {
   switch (app.status) {
     case "missing":
       return [name(app), colors.red("missing")]
