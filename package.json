@@ -3,9 +3,8 @@
   "version": "0.1.0",
   "description": "Automated Dokku Deployment",
   "repository": "artcom/dock-worker",
-  "bin": {
-    "dock": "dist/main.js"
-  },
+  "files": ["dist/"],
+  "bin": { "dock": "dist/main.js" },
   "scripts": {
     "prepublish": "babel src --out-dir dist --source-maps",
     "debug": "npm run prepublish && node-debug dist/main.js",
