@@ -50,7 +50,7 @@ class Provider {
 
   constructor(environment, configs) {
     this.environment = environment
-    this.configs = configs.filter((config) => configuredForEnvironment(config, environment))
+    this.configs = configs
     this.dokku = new Dokku(environment.host)
   }
 
@@ -136,14 +136,6 @@ class Provider {
       name,
       status: "additional"
     })
-  }
-}
-
-function configuredForEnvironment(config, environment) {
-  if (config.environments) {
-    return _.contains(config.environments, environment.name)
-  } else {
-    return true
   }
 }
 
