@@ -19,18 +19,18 @@ export default class {
   getRepo(name: string, environment: Environment): Promise {
     const localPath = path.resolve(this.cacheDir, name)
 
-    return git.repo(localPath, { bare: true }).catch(
-      () => git.init(localPath, { bare: true })
-    ).then((repo) => {
-      const remoteUrl = url.format({
-        slashes: true,
-        protocol: environment.protocol,
-        auth: environment.username,
-        host: environment.host,
-        pathname: "/" + name
-      })
+    return git.repo(localPath, { bare: true })
+      .catch(() => git.init(localPath, { bare: true }))
+      .then((repo) => {
+        const remoteUrl = url.format({
+          slashes: true,
+          protocol: environment.protocol,
+          auth: environment.username,
+          host: environment.host,
+          pathname: "/" + name
+        })
 
-      return repo.ensureRemote(environment.name, remoteUrl)
-    })
+        return repo.ensureRemote(environment.name, remoteUrl)
+      })
   }
 }
