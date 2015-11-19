@@ -101,7 +101,7 @@ class Provider {
     return Promise.resolve({
       name: config.name,
       status: "missing",
-      config: config
+      config
     })
   }
 
@@ -109,7 +109,7 @@ class Provider {
     return this.deployedConfig(config.name).then((deployed) => ({
       name: config.name,
       status: "deployed",
-      config: config,
+      config,
       deployed
     }))
   }
