@@ -62,7 +62,7 @@ export default class {
 function diffOptions(expected: Options, deployed: Options): Array<Change> {
   const {existing, missing, additional} = diffKeys(Object.keys(deployed), Object.keys(expected))
 
-  return _(existing)
+  const updates = _.chain(existing)
     .reject((key) => _.isEqual(deployed[key], expected[key]))
     .map((key) => ({
       type: "update",
@@ -70,18 +70,25 @@ function diffOptions(expected: Options, deployed: Options): Array<Change> {
       oldValue: deployed[key],
       value: expected[key]
     }))
-    .concat(missing.map((key) => ({
-      type: "add",
-      key,
-      value: expected[key]
-    })))
-    .concat(additional.map((key) => ({
-      type: "remove",
-      key,
-      oldValue: deployed[key]
-    })))
-    .flatten()
     .value()
+
+  const adds = missing.map((key) => ({
+    type: "add",
+    key,
+    value: expected[key]
+  }))
+
+  const removes = additional.map((key) => ({
+    type: "remove",
+    key,
+    oldValue: deployed[key]
+  }))
+
+  return _.flatten([
+    updates,
+    adds,
+    removes
+  ])
 }
 
 function diffKeys(deployed: Array<string>, expected: Array<string>) {
