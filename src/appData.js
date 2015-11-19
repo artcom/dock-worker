@@ -80,7 +80,7 @@ class Provider {
       return this.missingAppData(config)
     } else if (_.contains(this.deployed, name)) {
       const config = _.find(this.configs, { name })
-      return this.definedAppData(config)
+      return this.deployedAppData(config)
     } else if (_.contains(this.additional, name)) {
       return this.additionalAppData(name)
     } else {
@@ -105,7 +105,7 @@ class Provider {
     })
   }
 
-  definedAppData(config: AppConfig): Promise<AppData> {
+  deployedAppData(config: AppConfig): Promise<AppData> {
     return this.deployedConfig(config.name).then((deployed) => ({
       name: config.name,
       status: "deployed",
