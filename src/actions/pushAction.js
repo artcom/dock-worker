@@ -19,7 +19,7 @@ export default class {
   }
 
   run(environment: Environment): Promise {
-    const dokku = new Dokku(environment.host)
+    const dokku = new Dokku(environment)
     const repoCache = RepoCache.get()
 
     const stopApp = this.config.stopBeforeDeployment

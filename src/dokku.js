@@ -4,7 +4,7 @@ import _ from "lodash"
 import bluebird from "bluebird"
 import cp from "child_process"
 
-import type {Options} from "./types"
+import type {Environment, Options} from "./types"
 
 const execFileAsync = bluebird.promisify(cp.execFile)
 
@@ -13,10 +13,12 @@ export type Phase = "build" | "deploy" | "run"
 export default class {
   /* jscs:disable disallowSemicolons */
   host: string;
+  username: string;
   /* jscs:enable disallowSemicolons */
 
-  constructor(host: string) {
+  constructor({host, username}: Environment) {
     this.host = host
+    this.username = username
   }
 
   apps(): Promise<Array<string>> {
@@ -84,7 +86,7 @@ export default class {
   // PRIVATE
 
   dokku(...params: Array<string>): Promise<Array<string>> {
-    return execFileAsync("ssh", [`dokku@${this.host}`].concat(params)).then((stdout) => {
+    return execFileAsync("ssh", [`${this.username}@${this.host}`].concat(params)).then((stdout) => {
       const lines = stdout.split("\n")
       return _.reject(lines, unnecessaryLine)
     })

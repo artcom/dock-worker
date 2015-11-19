@@ -47,7 +47,7 @@ export default class {
   }
 
   run(environment: Environment): Promise {
-    this.dokku = new Dokku(environment.host)
+    this.dokku = new Dokku(environment)
 
     return bluebird.each(this.changes, (change) => {
       const stopApp = this.config.stopBeforeDeployment

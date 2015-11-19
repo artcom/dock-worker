@@ -51,7 +51,7 @@ class Provider {
   constructor(environment, configs) {
     this.environment = environment
     this.configs = configs
-    this.dokku = new Dokku(environment.host)
+    this.dokku = new Dokku(environment)
   }
 
   initialize(): Promise<Provider> {
