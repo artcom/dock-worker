@@ -16,37 +16,45 @@ import type {Environment, AppConfig} from "../types"
 const readAsync = bluebird.promisify(read)
 
 export default envCommand(function(environment: Environment, configs: Array<AppConfig>) {
-  return createProviderWithProgress(environment, configs).then((provider) => {
-    const apps = provider.apps()
-
-    return bluebird.mapSeries(apps, (name) =>
-      provider.loadAppDataWithProgress(name).then((app) => {
-        const actions = deriveActions(app)
-
-        if (_.isEmpty(actions)) {
-          return null
-        }
-
-        printApp(app)
-        actions.forEach(printAction)
-
-        return { app, actions }
-      })
-    ).then((appActions) =>
-      _.compact(appActions)
-    ).then((appActions) => {
+  return createProviderWithProgress(environment, configs)
+    .then(deriveAllAppActions)
+    .then((appActions) => {
       if (_.isEmpty(appActions)) {
         console.log("all apps up-to-date")
       } else {
-        return readAsync({ prompt: "apply changes (y/N)?" }).then((response) => {
-          if (yn(response)) {
-            runActions(appActions, environment)
-          }
-        })
+        return runActionsWithConfirmation(appActions, environment)
       }
     })
-  })
 })
+
+function deriveAllAppActions(provider) {
+  const apps = provider.apps()
+
+  return bluebird.mapSeries(apps, (name) =>
+    provider.loadAppDataWithProgress(name).then(deriveAndPrintAppActions)
+  ).then(_.compact)
+}
+
+function deriveAndPrintAppActions(app) {
+  const actions = deriveActions(app)
+
+  if (_.isEmpty(actions)) {
+    return null
+  }
+
+  printApp(app)
+  actions.forEach(printAction)
+
+  return { app, actions }
+}
+
+function runActionsWithConfirmation(appActions, environment) {
+  return readAsync({ prompt: "apply changes (y/N)?" }).then((response) => {
+    if (yn(response)) {
+      return runActions(appActions, environment)
+    }
+  })
+}
 
 function runActions(appActions, environment) {
   return bluebird.mapSeries(appActions, ({app, actions}) => {
