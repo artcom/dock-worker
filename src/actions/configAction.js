@@ -1,11 +1,11 @@
 /* @flow */
 
-import DokkuAction from "./dokkuAction"
+import DiffAction from "./diffAction"
 
 import type {DeployedAppData, MissingAppData} from "../appData"
-import type {Change} from "./dokkuAction"
+import type {Change} from "./diffAction"
 
-export default class extends DokkuAction {
+export default class extends DiffAction {
   constructor(app: DeployedAppData | MissingAppData) {
     const expected = app.config.config
     const deployed = app.status === "deployed" ? app.deployed.config : {}
