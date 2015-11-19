@@ -2,9 +2,27 @@
 
 Automated Dokku Deployment
 
+## Prerequisites
+
+The following tools need to be installed:
+
+* `git`
+* `ssh`
+
+Both tools need to be able to access the source repos and the Dokku host, e.g. using
+
+* SSH public key authentication or
+* a Git [credential helper](https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage).
+
 ## Usage
 
 ```bash
+// list available commands
+$ dock
+
+// list available environments
+$ dock environments
+
 // list app and status information
 $ dock <environment> status
 
@@ -53,42 +71,4 @@ _Dock Worker_ will look for a configuration file named `Dockfile.json` in the cu
     }
   ]
 }
-```
-
-For a formal definition of what can go into `Dockfile.json`, have a look at the following [flow](http://flowtype.org) type annotations:
-
-```javascript
-type Config = {
-  environment: Array<Environment>,
-  apps: Array<App>
-}
-
-type Environment = {
-  name: EnvironmentName,
-  host: string,
-  protocol?: string, // defaults to "ssh"
-  username?: string // defaults to "dokku"
-}
-
-type EnvironmentName = string
-
-type App = {
-  name: string,
-  repo: string,
-  version: string,
-  environments?: Array<EnvironmentName>,
-  config?: Config,
-  dockerOptions?: DockerOptions,
-  stopBeforeDeployment: boolean
-}
-
-type Config = { [key: ConfigName]: ConfigValue | EnvironmentConfigs }
-type ConfigName = string
-type ConfigValue = string
-type EnvironmentConfigs = { [key: EnvironmentName]: ConfigValue }
-
-type DockerOptions = { [key: DockerOption]: Array<Phase> | EnvironmentDockerOption }
-type DockerOption = string
-type Phase = "build" | "deploy" | "run"
-type EnvironmentDockerOption = { [key: EnvironmentName]: Array<Phase> }
 ```
