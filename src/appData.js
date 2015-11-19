@@ -123,7 +123,7 @@ class Provider {
   }
 
   deployedVersion(name: string): Promise<string> {
-    const repoCache = RepoCache.get()
+    const repoCache = new RepoCache()
 
     return repoCache.getRepo(name, this.environment)
       .then((repo) => repo.fetch(this.environment.name))

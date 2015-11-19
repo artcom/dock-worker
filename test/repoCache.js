@@ -19,7 +19,7 @@ describe("Repo Cache", function() {
         return execFileAsync("bash", [path.resolve(__dirname, "createRepos.sh"), repoDir])
       }),
       tmpDirAsync({ unsafeCleanup: true }).then((cacheDir) => {
-        this.cache = RepoCache.get(cacheDir)
+        this.cache = new RepoCache(cacheDir)
       })
     ])
   })

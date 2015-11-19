@@ -1,6 +1,5 @@
 /* @flow */
 
-import _ from "lodash"
 import path from "path"
 import url from "url"
 
@@ -8,7 +7,7 @@ import * as git from "./git"
 
 import type {Environment} from "./types"
 
-class RepoCache {
+export default class {
   /* jscs:disable disallowSemicolons */
   cacheDir: string;
   /* jscs:enable disallowSemicolons */
@@ -34,10 +33,4 @@ class RepoCache {
       return repo.ensureRemote(environment.name, remoteUrl)
     })
   }
-}
-
-export default {
-  get: _.memoize(function(cacheDir?: string) {
-    return new RepoCache(cacheDir)
-  })
 }
