@@ -37,9 +37,9 @@ export default class {
         throw error
       }
     }).then((lines) =>
-      _(lines)
+      _.chain(lines)
         .map(extractPair)
-        .reject(dokkuConfig)
+        .reject(isDokkuConfig)
         .zipObject()
         .value()
     )
@@ -102,7 +102,7 @@ function extractPair(line) {
   return [_.first(tokens), _.trim(_.rest(tokens).join(":"))]
 }
 
-function dokkuConfig(pair) {
+function isDokkuConfig(pair) {
   return pair[0].startsWith("DOKKU_")
 }
 
