@@ -2,11 +2,14 @@
 
 import bluebird from "bluebird"
 import cp from "child_process"
-import {expect} from "chai"
+import chai, {expect} from "chai"
+import chaiAsPromised from "chai-as-promised"
 import path from "path"
 import tmp from "tmp"
 
 import RepoCache from "../src/repoCache"
+
+chai.use(chaiAsPromised)
 
 const execFileAsync = bluebird.promisify(cp.execFile)
 const tmpDirAsync = bluebird.promisify(tmp.dir)
@@ -32,15 +35,14 @@ describe("Repo Cache", function() {
       username: null
     }
 
-    return this.cache.getRepo("dokku-app", environment)
+    const remotes = this.cache.getRepo("dokku-app", environment)
       .then((repo) => repo.remotes())
-      .then((remotes) => {
-        expect(remotes).to.deep.equal({
-          test: {
-            fetch: `file://${this.repoDir}/dokku-app`,
-            push: `file://${this.repoDir}/dokku-app`
-          }
-        })
-      })
+
+    return expect(remotes).to.eventually.deep.equal({
+      test: {
+        fetch: `file://${this.repoDir}/dokku-app`,
+        push: `file://${this.repoDir}/dokku-app`
+      }
+    })
   })
 })
