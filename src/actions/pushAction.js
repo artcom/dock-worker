@@ -18,8 +18,7 @@ export default class {
     return [`deploy ${this.config.version}`]
   }
 
-  run(environment: Environment): Promise {
-    const dokku = new Dokku(environment)
+  run(dokku: Dokku, environment: Environment): Promise {
     const repoCache = new RepoCache()
 
     const stopApp = this.config.stopBeforeDeployment

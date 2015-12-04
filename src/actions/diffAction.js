@@ -5,7 +5,7 @@ import bluebird from "bluebird"
 
 import Dokku from "../dokku"
 
-import type {Environment, Options, AppConfig} from "../types"
+import type {Options, AppConfig} from "../types"
 
 export type Change = Add | Remove | Update
 
@@ -46,8 +46,8 @@ export default class {
     return this.changes.map(this.describeChange.bind(this))
   }
 
-  run(environment: Environment): Promise {
-    this.dokku = new Dokku(environment)
+  run(dokku: Dokku): Promise {
+    this.dokku = dokku
 
     return bluebird.each(this.changes, (change) => {
       const stopApp = this.config.stopBeforeDeployment

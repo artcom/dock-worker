@@ -8,6 +8,7 @@ import yn from "yn"
 
 import {deriveActions} from "../actions"
 import {createProviderWithProgress} from "../appData"
+import Dokku from "../dokku"
 import envCommand from "./envCommand"
 import showProgress from "../showProgress"
 
@@ -57,11 +58,13 @@ function runActionsWithConfirmation(appActions, environment) {
 }
 
 function runActions(appActions, environment) {
+  const dokku = new Dokku(environment)
+
   return bluebird.mapSeries(appActions, ({app, actions}) => {
     printApp(app)
 
     return bluebird.mapSeries(actions, (action) =>
-      showProgress(indentDescription(action), action.run(environment))
+      showProgress(indentDescription(action), action.run(dokku, environment))
         .then(() => printAction(action))
     )
   })
