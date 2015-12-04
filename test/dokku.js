@@ -175,12 +175,28 @@ describe("Dokku", function() {
   })
 
   describe("Process", function() {
+    it("should start an app", function() {
+      this.mock.expects("ssh")
+        .withArgs("dokku@localhost", "ps:start", "app1")
+        .returns(Promise.resolve(""))
+
+      return this.dokku.start("app1")
+    })
+
     it("should stop an app", function() {
       this.mock.expects("ssh")
         .withArgs("dokku@localhost", "ps:stop", "app1")
         .returns(Promise.resolve(""))
 
       return this.dokku.stop("app1")
+    })
+
+    it("should restart an app", function() {
+      this.mock.expects("ssh")
+        .withArgs("dokku@localhost", "ps:restart", "app1")
+        .returns(Promise.resolve(""))
+
+      return this.dokku.restart("app1")
     })
   })
 })

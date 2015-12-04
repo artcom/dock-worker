@@ -83,6 +83,14 @@ export default class {
     return this.dokku("ps:stop", app)
   }
 
+  start(app: string): Promise {
+    return this.dokku("ps:start", app)
+  }
+
+  restart(app: string): Promise {
+    return this.dokku("ps:restart", app)
+  }
+
   // PRIVATE
 
   dokku(...params: Array<string>): Promise<Array<string>> {
