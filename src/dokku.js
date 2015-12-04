@@ -86,10 +86,14 @@ export default class {
   // PRIVATE
 
   dokku(...params: Array<string>): Promise<Array<string>> {
-    return execFileAsync("ssh", [`${this.username}@${this.host}`].concat(params)).then((stdout) => {
+    return this.ssh(`${this.username}@${this.host}`, ...params).then((stdout) => {
       const lines = stdout.split("\n")
       return _.reject(lines, unnecessaryLine)
     })
+  }
+
+  ssh(...params: Array<string>): Promise<string> {
+    return execFileAsync("ssh", params)
   }
 }
 
