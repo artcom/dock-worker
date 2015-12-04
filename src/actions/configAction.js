@@ -29,7 +29,7 @@ export default class extends DiffAction {
     switch (change.type) {
       case "add":
       case "update":
-        return this.dokku.setConfig(this.config.name, change.key, change.value)
+        return this.dokku.setConfig(this.config.name, { [change.key]: change.value })
       case "remove":
         return this.dokku.unsetConfig(this.config.name, change.key)
       default:

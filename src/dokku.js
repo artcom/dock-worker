@@ -45,12 +45,13 @@ export default class {
     )
   }
 
-  setConfig(app: string, key: string, value: string): Promise {
-    return this.dokku("config:set", app, `${key}="${value}"`)
+  setConfig(app: string, config: { [key: string]: string }): Promise {
+    const params = _.map(config, (value, key) => `${key}="${value}"`)
+    return this.dokku("config:set", app, ...params)
   }
 
-  unsetConfig(app: string, key: string): Promise {
-    return this.dokku("config:unset", app, key)
+  unsetConfig(app: string, ...keys: Array<string>): Promise {
+    return this.dokku("config:unset", app, ...keys)
   }
 
   dockerOptions(app: string): Promise<Options> {

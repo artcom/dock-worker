@@ -82,7 +82,15 @@ describe("Dokku", function() {
         .withArgs("dokku@localhost", "config:set", "app1", `FOO="bar"`)
         .returns(Promise.resolve(""))
 
-      return this.dokku.setConfig("app1", "FOO", "bar")
+      return this.dokku.setConfig("app1", { FOO: "bar" })
+    })
+
+    it("should set multiple config variables", function() {
+      this.mock.expects("ssh")
+        .withArgs("dokku@localhost", "config:set", "app1", `FOO="bar"`, `NUMBER="42"`)
+        .returns(Promise.resolve(""))
+
+      return this.dokku.setConfig("app1", { FOO: "bar", NUMBER: 42 })
     })
 
     it("should unset a single config variable", function() {
@@ -91,6 +99,14 @@ describe("Dokku", function() {
         .returns(Promise.resolve(""))
 
       return this.dokku.unsetConfig("app1", "FOO")
+    })
+
+    it("should unset multiple config variables", function() {
+      this.mock.expects("ssh")
+        .withArgs("dokku@localhost", "config:unset", "app1", "FOO", "NUMBER")
+        .returns(Promise.resolve(""))
+
+      return this.dokku.unsetConfig("app1", "FOO", "NUMBER")
     })
   })
 
