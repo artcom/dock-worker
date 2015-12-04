@@ -12,13 +12,11 @@ export type Phase = "build" | "deploy" | "run"
 
 export default class {
   /* jscs:disable disallowSemicolons */
-  host: string;
-  username: string;
+  uri: string;
   /* jscs:enable disallowSemicolons */
 
   constructor({host, username}: Environment) {
-    this.host = host
-    this.username = username
+    this.uri = `${username}@${host}`
   }
 
   apps(): Promise<Array<string>> {
@@ -95,7 +93,7 @@ export default class {
   // PRIVATE
 
   dokku(...params: Array<string>): Promise<Array<string>> {
-    return this.ssh(`${this.username}@${this.host}`, ...params).then((stdout) => {
+    return this.ssh(this.uri, ...params).then((stdout) => {
       const lines = stdout.split("\n")
       return _.reject(lines, unnecessaryLine)
     })
