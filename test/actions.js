@@ -66,7 +66,7 @@ describe("Actions", function() {
   })
 
   describe("config", function() {
-    it("should set, update and unset config variables", function() {
+    it("should configure environment variables", function() {
       const appData = {
         name: "app1",
         status: "deployed",
@@ -78,10 +78,37 @@ describe("Actions", function() {
 
       const calls = [
         this.mock.expects("setConfig")
-          .withArgs("app1", { SHOULD_CHANGE: "to this" })
+          .withArgs("app1", { SHOULD_ADD: "new value", SHOULD_CHANGE: "to this" })
+          .returns(Promise.resolve()),
+        this.mock.expects("unsetConfig")
+          .withArgs("app1", "SHOULD_REMOVE")
+          .returns(Promise.resolve())
+      ]
+
+      return action.run(this.dokku, this.environment).then(() => {
+        sinon.assert.callOrder(...calls)
+      })
+    })
+
+    it("should configure environment variables for apps that must be stopped", function() {
+      const appData = {
+        name: "app1",
+        status: "deployed",
+        config: Object.assign(this.config, { stopBeforeDeployment: true }),
+        deployed: this.deployed
+      }
+
+      const action = new ConfigAction(appData)
+
+      const calls = [
+        this.mock.expects("stop")
+          .withArgs("app1")
           .returns(Promise.resolve()),
         this.mock.expects("setConfig")
-          .withArgs("app1", { SHOULD_ADD: "new value" })
+          .withArgs("app1", { SHOULD_ADD: "new value", SHOULD_CHANGE: "to this" })
+          .returns(Promise.resolve()),
+        this.mock.expects("stop")
+          .withArgs("app1")
           .returns(Promise.resolve()),
         this.mock.expects("unsetConfig")
           .withArgs("app1", "SHOULD_REMOVE")
@@ -95,7 +122,7 @@ describe("Actions", function() {
   })
 
   describe("docker options", function() {
-    it("should add, update and remove docker options", function() {
+    it("should configure docker options", function() {
       const appData = {
         name: "app1",
         status: "deployed",
@@ -106,6 +133,9 @@ describe("Actions", function() {
       const action = new DockerOptionAction(appData)
 
       const calls = [
+        this.mock.expects("removeDockerOption")
+          .withArgs("app1", "--should-change", ["build"])
+          .returns(Promise.resolve()),
         this.mock.expects("addDockerOption")
           .withArgs("app1", "--should-change", ["deploy", "run"])
           .returns(Promise.resolve()),
@@ -114,6 +144,45 @@ describe("Actions", function() {
           .returns(Promise.resolve()),
         this.mock.expects("removeDockerOption")
           .withArgs("app1", "--should-remove", ["build", "deploy", "run"])
+          .returns(Promise.resolve()),
+        this.mock.expects("restart")
+          .withArgs("app1")
+          .returns(Promise.resolve())
+      ]
+
+      return action.run(this.dokku, this.environment).then(() => {
+        sinon.assert.callOrder(...calls)
+      })
+    })
+
+    it("should configure docker options for apps that must be stopped", function() {
+      const appData = {
+        name: "app1",
+        status: "deployed",
+        config: Object.assign(this.config, { stopBeforeDeployment: true }),
+        deployed: this.deployed
+      }
+
+      const action = new DockerOptionAction(appData)
+
+      const calls = [
+        this.mock.expects("removeDockerOption")
+          .withArgs("app1", "--should-change", ["build"])
+          .returns(Promise.resolve()),
+        this.mock.expects("addDockerOption")
+          .withArgs("app1", "--should-change", ["deploy", "run"])
+          .returns(Promise.resolve()),
+        this.mock.expects("addDockerOption")
+          .withArgs("app1", "--should-add", ["deploy", "run"])
+          .returns(Promise.resolve()),
+        this.mock.expects("removeDockerOption")
+          .withArgs("app1", "--should-remove", ["build", "deploy", "run"])
+          .returns(Promise.resolve()),
+        this.mock.expects("stop")
+          .withArgs("app1")
+          .returns(Promise.resolve()),
+        this.mock.expects("start")
+          .withArgs("app1")
           .returns(Promise.resolve())
       ]
 

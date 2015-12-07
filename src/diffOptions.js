@@ -1,11 +1,8 @@
 /* @flow */
 
 import _ from "lodash"
-import bluebird from "bluebird"
 
-import Dokku from "../dokku"
-
-import type {Options, AppConfig} from "../types"
+import type {Options} from "./types"
 
 export type Change = Add | Remove | Update
 
@@ -28,38 +25,7 @@ type Update = {
   value: any
 }
 
-export default class {
-  /* jscs:disable disallowSemicolons */
-  config: AppConfig;
-  applyChange: (change: Change) => Promise;
-  changes: Array<Change>;
-  describeChange: (change: Change) => string;
-  dokku: Dokku;
-  /* jscs:enable disallowSemicolons */
-
-  constructor(config: AppConfig, expected: Options, deployed: Options) {
-    this.config = config
-    this.changes = diffOptions(expected, deployed)
-  }
-
-  describe(): Array<string> {
-    return this.changes.map(this.describeChange.bind(this))
-  }
-
-  run(dokku: Dokku): Promise {
-    this.dokku = dokku
-
-    return bluebird.each(this.changes, (change) => {
-      const stopApp = this.config.stopBeforeDeployment
-        ? this.dokku.stop(this.config.name)
-        : Promise.resolve()
-
-      return stopApp.then(this.applyChange.bind(this, change))
-    })
-  }
-}
-
-function diffOptions(expected: Options, deployed: Options): Array<Change> {
+export default function diffOptions(expected: Options, deployed: Options): Array<Change> {
   const {existing, missing, additional} = diffKeys(Object.keys(deployed), Object.keys(expected))
 
   const updates = _.chain(existing)
