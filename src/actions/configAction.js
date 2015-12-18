@@ -47,32 +47,28 @@ function describeChange(change: Change): string {
   }
 }
 
-type ChangeFunction = (dokku: Dokku, config: AppConfig, changes: Array<Change>) => Promise
-
-function changeConfig(func: ChangeFunction): ChangeFunction {
-  return function(dokku, config, changes) {
-    if (_.isEmpty(changes)) {
-      return Promise.resolve()
-    } else {
-      const stopApp = config.stopBeforeDeployment
-        ? dokku.stop(config.name)
-        : Promise.resolve()
-
-      return stopApp.then(() => func(dokku, config, changes))
-    }
-  }
+function stopApp(dokku, config) {
+  return config.stopBeforeDeployment ? dokku.stop(config.name) : Promise.resolve()
 }
 
-const setConfig = changeConfig(function(dokku, config, changes) {
+const setConfig = function(dokku, config, changes) {
+  if (_.isEmpty(changes)) {
+    return Promise.resolve()
+  }
+
   const options = _.chain(changes)
     .map(({key, value}) => [key, value])
     .zipObject()
     .value()
 
-  return dokku.setConfig(config.name, options)
-})
+  return stopApp(dokku, config).then(() => dokku.setConfig(config.name, options))
+}
 
-const unsetConfig = changeConfig(function(dokku, config, changes) {
+const unsetConfig = function(dokku, config, changes) {
+  if (_.isEmpty(changes)) {
+    return Promise.resolve()
+  }
+
   const vars = _.pluck(changes, "key")
-  return dokku.unsetConfig(config.name, ...vars)
-})
+  return stopApp(dokku, config).then(() => dokku.unsetConfig(config.name, ...vars))
+}
