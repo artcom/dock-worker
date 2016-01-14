@@ -79,7 +79,11 @@ export default class {
   }
 
   stop(app: string): Promise {
-    return this.dokku("ps:stop", app)
+    return this.dokku("ps:stop", app).catch((error) => {
+      if (!error.message.endsWith(`App ${app} has not been deployed\n`)) {
+        throw error
+      }
+    })
   }
 
   start(app: string): Promise {

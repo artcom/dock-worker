@@ -207,6 +207,14 @@ describe("Dokku", function() {
       return this.dokku.stop("app1")
     })
 
+    it("should not fail when stopping undeployed app", function() {
+      this.mock.expects("ssh")
+        .withArgs("dokku@localhost", "ps:stop", "app1")
+        .returns(Promise.reject(new Error("App app1 has not been deployed\n")))
+
+      return this.dokku.stop("app1")
+    })
+
     it("should restart an app", function() {
       this.mock.expects("ssh")
         .withArgs("dokku@localhost", "ps:restart", "app1")
