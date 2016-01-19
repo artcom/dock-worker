@@ -15,7 +15,7 @@ export default class {
   uri: string;
   /* jscs:enable disallowSemicolons */
 
-  constructor({host, username}: Environment) {
+  constructor({ host, username }: Environment) {
     this.uri = `${username}@${host}`
   }
 
@@ -54,7 +54,7 @@ export default class {
 
   dockerOptions(app: string): Promise<Options> {
     return this.dokku("docker-options", app).then((lines) =>
-      lines.reduce(({options, phase}, line) => {
+      lines.reduce(({ options, phase }, line) => {
         const match = line.match(phaseLine)
 
         if (match) {

@@ -9,7 +9,7 @@ export default class {
   name: string;
   /* jscs:enable disallowSemicolons */
 
-  constructor({name}: AppData) {
+  constructor({ name }: AppData) {
     this.name = name
   }
 

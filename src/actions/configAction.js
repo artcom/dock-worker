@@ -57,7 +57,7 @@ const setConfig = function(dokku, config, changes) {
   }
 
   const options = _.chain(changes)
-    .map(({key, value}) => [key, value])
+    .map(({ key, value }) => [key, value])
     .zipObject()
     .value()
 

@@ -60,7 +60,7 @@ function runActionsWithConfirmation(appActions, environment) {
 function runActions(appActions, environment) {
   const dokku = new Dokku(environment)
 
-  return bluebird.mapSeries(appActions, ({app, actions}) => {
+  return bluebird.mapSeries(appActions, ({ app, actions }) => {
     printApp(app)
 
     return bluebird.mapSeries(actions, (action) =>

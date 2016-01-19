@@ -26,7 +26,7 @@ type Update = {
 }
 
 export default function diffOptions(expected: Options, deployed: Options): Array<Change> {
-  const {existing, missing, additional} = diffKeys(Object.keys(deployed), Object.keys(expected))
+  const { existing, missing, additional } = diffKeys(Object.keys(deployed), Object.keys(expected))
 
   const updates = _.chain(existing)
     .reject((key) => _.isEqual(deployed[key], expected[key]))

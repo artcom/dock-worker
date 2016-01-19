@@ -5,9 +5,9 @@ import bluebird from "bluebird"
 import diffOptions from "../diffOptions"
 import Dokku from "../dokku"
 
-import type {DeployedAppData, MissingAppData} from "../appData"
-import type {Change} from "../diffOptions"
-import type {AppConfig} from "../types"
+import type { DeployedAppData, MissingAppData } from "../appData"
+import type { Change } from "../diffOptions"
+import type { AppConfig } from "../types"
 
 export default class {
   /* jscs:disable disallowSemicolons */
@@ -55,18 +55,18 @@ function describeChange(change: Change): string {
 function applyChange(dokku: Dokku, app: string, change: Change): Promise {
   switch (change.type) {
     case "add": {
-      const {key, value} = change
+      const { key, value } = change
       return dokku.addDockerOption(app, key, value)
     }
 
     case "update": {
-      const {key, value, oldValue} = change
+      const { key, value, oldValue } = change
       return dokku.removeDockerOption(app, key, oldValue)
         .then(() => dokku.addDockerOption(app, key, value))
     }
 
     case "remove": {
-      const {key, oldValue} = change
+      const { key, oldValue } = change
       return dokku.removeDockerOption(app, key, oldValue)
     }
 
