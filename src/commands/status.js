@@ -34,7 +34,7 @@ function createRow(app: AppData) {
     case "deployed":
       const actions = deriveActions(app)
       const color = _.isEmpty(actions) ? colors.green : colors.yellow
-      return [name(app), color("deployed")].concat(deploymentStatus(app, actions))
+      return [name(app), color("deployed"), version(app, actions), deploymentStatus(app, actions)]
     case "additional":
       return [name(app), colors.gray("deployed")]
     default:
@@ -46,15 +46,22 @@ function name(app: AppData) {
   return colors.bold(app.name)
 }
 
-function deploymentStatus(app: DeployedAppData, actions: Array<Action>) {
-  return [
-    colorize(app.deployed.version, _.some(actions, (action) => action instanceof PushAction)),
-    colorize("config", _.some(actions, (action) => action instanceof ConfigAction)),
-    colorize("docker-options", _.some(actions, (action) => action instanceof DockerOptionAction))
-  ]
+function version(app: DeployedAppData, actions: Array<Action>) {
+  const outdated = actions.some((action) => action instanceof PushAction)
+  const color = outdated ? colors.red : colors.green
+  return color(app.deployed.version)
 }
 
-function colorize(string: string, dirty: boolean) {
-  const color = dirty ? colors.red : colors.green
-  return color(string)
+function deploymentStatus(app: DeployedAppData, actions: Array<Action>) {
+  const status = []
+
+  if (actions.some((action) => action instanceof ConfigAction)) {
+    status.push(colors.red("config"))
+  }
+
+  if (actions.some((action) => action instanceof DockerOptionAction)) {
+    status.push(colors.red("docker-options"))
+  }
+
+  return status.join(", ")
 }
