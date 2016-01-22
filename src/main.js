@@ -6,6 +6,8 @@ import colors from "colors/safe"
 import {docopt} from "docopt"
 import fs from "fs"
 
+import sshConnectionPool from "./sshConnectionPool"
+
 import status from "./commands/status"
 import deploy from "./commands/deploy"
 import environments from "./commands/environments"
@@ -35,6 +37,9 @@ readFileAsync("Dockfile.json")
     return command(config, options)
   })
   .catch(function(error) {
-    console.log(colors.red("ERROR: ") + error.message)
-    process.exit(1)
+    console.error(colors.red("ERROR: ") + error.message)
+    process.exitCode = 1
+  })
+  .then(function() {
+    sshConnectionPool.clear()
   })

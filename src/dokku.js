@@ -1,12 +1,10 @@
 /* @flow */
 
 import _ from "lodash"
-import bluebird from "bluebird"
-import cp from "child_process"
+
+import sshConnectionPool from "./sshConnectionPool"
 
 import type {Environment, Options} from "./types"
-
-const execFileAsync = bluebird.promisify(cp.execFile)
 
 export type Phase = "build" | "deploy" | "run"
 
@@ -97,14 +95,15 @@ export default class {
   // PRIVATE
 
   dokku(...params: Array<string>): Promise<Array<string>> {
-    return this.ssh(this.uri, ...params).then((stdout) => {
+    return this.sendCommand(params).then((stdout) => {
       const lines = stdout.split("\n")
       return _.reject(lines, unnecessaryLine)
     })
   }
 
-  ssh(...params: Array<string>): Promise<string> {
-    return execFileAsync("ssh", params)
+  sendCommand(params: Array<string>): Promise<string> {
+    const connection = sshConnectionPool.get(this.uri)
+    return connection(params.join(" "))
   }
 }
 
