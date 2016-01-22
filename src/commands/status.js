@@ -34,9 +34,10 @@ function createRow(app: AppData) {
     case "deployed":
       const actions = deriveActions(app)
       const color = _.isEmpty(actions) ? colors.green : colors.yellow
-      return [name(app), color("deployed"), version(app, actions), deploymentStatus(app, actions)]
+      const running = app.running ? color("running") : colors.red("stopped")
+      return [name(app), running, version(app, actions), deploymentStatus(app, actions)]
     case "additional":
-      return [name(app), colors.gray("deployed")]
+      return [name(app), colors.gray(app.running ? "running" : "stopped")]
     default:
       return []
   }

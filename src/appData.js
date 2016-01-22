@@ -27,6 +27,7 @@ export type CreatedAppData = {
 export type DeployedAppData = {
   name: string,
   status: "deployed",
+  running: bool,
   config: AppConfig,
   deployed: DeployedConfig
 }
@@ -39,7 +40,8 @@ type DeployedConfig = {
 
 export type AdditionalAppData = {
   name: string,
-  status: "additional"
+  status: "additional",
+  running: bool
 }
 
 class Provider {
@@ -96,10 +98,10 @@ class Provider {
       if (this.status[name] === "NOT_DEPLOYED") {
         return this.createdAppData(config)
       } else {
-        return this.deployedAppData(config)
+        return this.deployedAppData(config, this.status[name] === "running")
       }
     } else if (_.contains(this.additional, name)) {
-      return this.additionalAppData(name)
+      return this.additionalAppData(name, this.status[name] === "running")
     } else {
       return Promise.reject()
     }
@@ -130,10 +132,11 @@ class Provider {
     })
   }
 
-  deployedAppData(config: AppConfig): Promise<AppData> {
+  deployedAppData(config: AppConfig, running: bool): Promise<AppData> {
     return this.deployedConfig(config.name).then((deployed) => ({
       name: config.name,
       status: "deployed",
+      running,
       config,
       deployed
     }))
@@ -156,10 +159,11 @@ class Provider {
       .catch(() => "not deployed yet")
   }
 
-  additionalAppData(name: string): Promise<AppData> {
+  additionalAppData(name: string, running: bool): Promise<AppData> {
     return Promise.resolve({
       name,
-      status: "additional"
+      status: "additional",
+      running
     })
   }
 }
