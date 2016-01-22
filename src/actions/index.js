@@ -6,10 +6,11 @@ import ConfigAction from "./configAction"
 import CreateAction from "./createAction"
 import DockerOptionAction from "./dockerOptionAction"
 import PushAction from "./pushAction"
+import StartAction from "./startAction"
 
 import type {AppData} from "../appData"
 
-export type Action = ConfigAction | CreateAction | DockerOptionAction | PushAction
+export type Action = ConfigAction | CreateAction | DockerOptionAction | PushAction | StartAction
 
 export function deriveActions(app: AppData): Array<Action> {
   const actions = []
@@ -39,6 +40,10 @@ export function deriveActions(app: AppData): Array<Action> {
 
     if (app.config.version !== app.deployed.version) {
       actions.push(new PushAction(app.config))
+    }
+
+    if (_.isEmpty(actions) && !app.running) {
+      actions.push(new StartAction(app))
     }
   }
 
