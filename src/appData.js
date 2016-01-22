@@ -2,7 +2,6 @@
 
 import _ from "lodash"
 import bluebird from "bluebird"
-import colors from "colors/safe"
 
 import Dokku from "./dokku"
 import RepoCache from "./repoCache"
@@ -108,12 +107,7 @@ class Provider {
   }
 
   loadAppDataWithProgress(name: string): Promise<AppData> {
-    const apps = this.apps()
-    const index = apps.indexOf(name) + 1
-    const count = apps.length
-    const message = `loading configuration for ${colors.bold(name)} (${index}/${count})`
-
-    return showProgress(message, this.loadAppData(name))
+    return showProgress("loading configuration", this.loadAppData(name))
   }
 
   missingAppData(config: AppConfig): Promise<AppData> {
