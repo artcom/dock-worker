@@ -5,7 +5,7 @@ import _ from "lodash"
 import diffOptions from "../diffOptions"
 import Dokku from "../dokku"
 
-import type {DeployedAppData, MissingAppData} from "../appData"
+import type {CreatedAppData, DeployedAppData, MissingAppData} from "../appData"
 import type {Change} from "../diffOptions"
 import type {AppConfig} from "../types"
 
@@ -15,7 +15,7 @@ export default class {
   config: AppConfig;
   /* jscs:enable disallowSemicolons */
 
-  constructor(app: DeployedAppData | MissingAppData) {
+  constructor(app: MissingAppData | CreatedAppData | DeployedAppData) {
     const expected = app.config.config
     const deployed = app.status === "deployed" ? app.deployed.config : {}
     this.changes = diffOptions(expected, deployed)

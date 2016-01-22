@@ -29,12 +29,14 @@ function createRow(app: AppData) {
   switch (app.status) {
     case "missing":
       return [name(app), colors.red("missing")]
+    case "created":
+      return [name(app), colors.red("created")]
     case "deployed":
       const actions = deriveActions(app)
       const color = _.isEmpty(actions) ? colors.green : colors.yellow
       return [name(app), color("deployed")].concat(deploymentStatus(app, actions))
     case "additional":
-      return [name(app), colors.gray("additional")]
+      return [name(app), colors.gray("deployed")]
     default:
       return []
   }

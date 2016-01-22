@@ -7,6 +7,12 @@ import sshConnectionPool from "./sshConnectionPool"
 import type {Environment, Options} from "./types"
 
 export type Phase = "build" | "deploy" | "run"
+export type AppStatus = {
+  name: string,
+  type: string,
+  id: string,
+  status: string
+}
 
 export default class {
   /* jscs:disable disallowSemicolons */
@@ -19,6 +25,10 @@ export default class {
 
   apps(): Promise<Array<string>> {
     return this.dokku("apps")
+  }
+
+  ls(): Promise<Array<AppStatus>> {
+    return this.dokku("ls").then((lines) => lines.map(extractStatus))
   }
 
   create(app: string): Promise {
@@ -108,7 +118,18 @@ export default class {
 }
 
 function unnecessaryLine(line) {
-  return line === "" || line.startsWith("=====>")
+  return line === "" || line.startsWith("=====>") || line.startsWith("----->")
+}
+
+function extractStatus(line) {
+  const match = line.match(statusLine)
+
+  if (!match) {
+    throw new Error(`unexpected Dokku output (${line})`)
+  }
+
+  const [, name, type, id, status] = match
+  return { name, type, id, status }
 }
 
 function extractPair(line) {
@@ -120,4 +141,5 @@ function isDokkuConfig(pair) {
   return pair[0].startsWith("DOKKU_")
 }
 
+const statusLine = /(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/
 const phaseLine = /^(Build|Deploy|Run) options/

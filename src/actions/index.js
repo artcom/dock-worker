@@ -14,8 +14,10 @@ export type Action = ConfigAction | CreateAction | DockerOptionAction | PushActi
 export function deriveActions(app: AppData): Array<Action> {
   const actions = []
 
-  if (app.status === "missing") {
-    actions.push(new CreateAction(app))
+  if (app.status === "missing" || app.status === "created") {
+    if (app.status === "missing") {
+      actions.push(new CreateAction(app))
+    }
 
     if (!_.isEmpty(app.config.config)) {
       actions.push(new ConfigAction(app))

@@ -47,6 +47,34 @@ describe("Dokku", function() {
     })
   })
 
+  describe("List", function() {
+    it("should list apps and status", function() {
+      this.mock.expects("sendCommand")
+        .withArgs(["ls"])
+        .returns(Promise.resolve(unindent(`
+          -----> App Name           Container Type            Container Id              Status
+          some-app                  web                       26effc047c53              running
+          another-app               NOT_DEPLOYED              NOT_DEPLOYED              NOT_DEPLOYED
+          stopped-app               web                       09d5ecb93b6d              stopped
+          `
+        )))
+
+      return expect(this.dokku.ls()).to.eventually.deep.equal([
+        { name: "some-app", type: "web", id: "26effc047c53", status: "running" },
+        { name: "another-app", type: "NOT_DEPLOYED", id: "NOT_DEPLOYED", status: "NOT_DEPLOYED" },
+        { name: "stopped-app", type: "web", id: "09d5ecb93b6d", status: "stopped" }
+      ])
+    })
+
+    it("should create an app", function() {
+      this.mock.expects("sendCommand")
+        .withArgs(["apps:create", "new-app"])
+        .returns(Promise.resolve(""))
+
+      return this.dokku.create("new-app")
+    })
+  })
+
   describe("Config", function() {
     it("should get the config", function() {
       this.mock.expects("sendCommand")

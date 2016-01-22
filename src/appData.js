@@ -10,7 +10,19 @@ import showProgress from "./showProgress"
 
 import type {Options, Environment, AppConfig} from "./types"
 
-export type AppData = DeployedAppData | MissingAppData | AdditionalAppData
+export type AppData = MissingAppData | CreatedAppData | DeployedAppData | AdditionalAppData
+
+export type MissingAppData = {
+  name: string,
+  status: "missing",
+  config: AppConfig
+}
+
+export type CreatedAppData = {
+  name: string,
+  status: "created",
+  config: AppConfig
+}
 
 export type DeployedAppData = {
   name: string,
@@ -25,12 +37,6 @@ type DeployedConfig = {
   dockerOptions: Options
 }
 
-export type MissingAppData = {
-  name: string,
-  status: "missing",
-  config: AppConfig
-}
-
 export type AdditionalAppData = {
   name: string,
   status: "additional"
@@ -40,6 +46,7 @@ class Provider {
   /* jscs:disable disallowSemicolons */
   environment: Environment;
   configs: Array<AppConfig>;
+  status: { [key: string]: string };
 
   missing: Array<string>;
   deployed: Array<string>;
@@ -55,8 +62,14 @@ class Provider {
   }
 
   initialize(): Promise<Provider> {
-    return this.dokku.apps().then((available) => {
+    return this.dokku.ls().then((list) => {
+      const available = _.map(list, "name")
       const defined = _.map(this.configs, "name")
+
+      this.status = _.chain(list)
+        .map(({ name, status }) => [name, status])
+        .zipObject()
+        .value()
 
       this.missing = _.difference(defined, available)
       this.deployed = _.intersection(defined, available)
@@ -80,7 +93,11 @@ class Provider {
       return this.missingAppData(config)
     } else if (_.contains(this.deployed, name)) {
       const config = _.find(this.configs, { name })
-      return this.deployedAppData(config)
+      if (this.status[name] === "NOT_DEPLOYED") {
+        return this.createdAppData(config)
+      } else {
+        return this.deployedAppData(config)
+      }
     } else if (_.contains(this.additional, name)) {
       return this.additionalAppData(name)
     } else {
@@ -101,6 +118,14 @@ class Provider {
     return Promise.resolve({
       name: config.name,
       status: "missing",
+      config
+    })
+  }
+
+  createdAppData(config: AppConfig): Promise<AppData> {
+    return Promise.resolve({
+      name: config.name,
+      status: "created",
       config
     })
   }
