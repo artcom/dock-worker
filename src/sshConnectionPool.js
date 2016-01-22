@@ -1,25 +1,38 @@
 /* @flow */
 
-import bluebird from "bluebird"
+import _ from "lodash"
 import sequest from "sequest"
 
-const pool = new Map()
+let pool = {}
 
 export default {
   get(host: string): any {
-    if (!pool.has(host)) {
-      const connection = bluebird.promisify(sequest.connect(host))
-      pool.set(host, connection)
+    if (!pool[host]) {
+      const connection = sequest.connect(host)
+
+      const wrapper = function(command) {
+        return new Promise(function(resolve, reject) {
+          connection(command, function(error, stdout, { stderr }) {
+            if (error) {
+              reject(new Error(stderr))
+            } else {
+              resolve(stdout)
+            }
+          })
+        })
+      }
+
+      pool[host] = {
+        connection,
+        wrapper
+      }
     }
 
-    return pool.get(host)
+    return pool[host].wrapper
   },
 
   clear() {
-    pool.forEach(function(connection) {
-      connection.end()
-    })
-
-    pool.clear()
+    _.forEach(pool, ({ connection }) => connection.end())
+    pool = {}
   }
 }
