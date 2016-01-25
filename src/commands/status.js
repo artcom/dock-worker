@@ -10,33 +10,41 @@ import {deriveActions} from "../actions"
 import ConfigAction from "../actions/configAction"
 import DockerOptionAction from "../actions/dockerOptionAction"
 import PushAction from "../actions/pushAction"
-import {createProviderWithProgress} from "../appData"
+import {createProvider} from "../appData"
 import envCommand from "./envCommand"
+import showProgress from "../showProgress"
 
 import type {Action} from "../actions"
 import type {AppData, DeployedAppData} from "../appData"
 import type {Environment, AppConfig} from "../types"
 
 export default envCommand(function(environment: Environment, configs: Array<AppConfig>) {
-  return createProviderWithProgress(environment, configs).then((provider) => {
+  return showProgress(
+    (spinner) => colors.gray(`loading service list ${spinner}`),
+    createProvider(environment, configs)
+  ).then((provider) => {
     const apps = provider.apps()
     const data = {}
-    printTable(apps, data)
 
     function updateAppData(appData) {
       data[appData.name] = appData
-      printTable(apps, data)
     }
 
-    return bluebird.map(apps, (app) => provider.loadAppData(app).then(updateAppData), {
-      concurrency: 4
-    })
+    return showProgress(
+      (spinner) => createTable(apps, data, spinner),
+      bluebird.map(apps, (app) => provider.loadAppData(app).then(updateAppData), { concurrency: 4 })
+    ).then(() => console.log(createTable(apps, data)))
   })
 })
 
-function printTable(apps, data) {
-  const rows = apps.map((app) => data[app] ? createRow(data[app]) : [name(app), "..."])
-  logUpdate(table(rows))
+function createTable(apps, data, spinner) {
+  const rows = apps.map((app) =>
+    data[app]
+      ? createRow(data[app])
+      : [name(app), colors.gray(spinner)]
+  )
+
+  return table(rows)
 }
 
 function createRow(app: AppData) {

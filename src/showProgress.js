@@ -1,25 +1,25 @@
-import colors from "colors/safe"
 import elegantSpinner from "elegant-spinner"
 import logUpdate from "log-update"
 
 export default function(message, promise) {
   const spinner = elegantSpinner()
+
   const interval = setInterval(function() {
-    logUpdate(colors.gray(`${message} ${spinner()}`))
+    logUpdate(message(spinner()))
   }, 50)
 
-  function stopSpinner() {
+  function stop() {
     clearInterval(interval)
     logUpdate.clear()
   }
 
   return promise.then(
     (result) => {
-      stopSpinner()
+      stop()
       return result
     },
     (error) => {
-      stopSpinner()
+      stop()
       throw error
     }
   )
