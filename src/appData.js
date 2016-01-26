@@ -69,7 +69,7 @@ class Provider {
 
       this.status = _.chain(list)
         .map(({ name, status }) => [name, status])
-        .zipObject()
+        .fromPairs()
         .value()
 
       this.missing = _.difference(defined, available)
@@ -89,17 +89,17 @@ class Provider {
   }
 
   loadAppData(name: string): Promise<AppData> {
-    if (_.contains(this.missing, name)) {
+    if (_.includes(this.missing, name)) {
       const config = _.find(this.configs, { name })
       return this.missingAppData(config)
-    } else if (_.contains(this.deployed, name)) {
+    } else if (_.includes(this.deployed, name)) {
       const config = _.find(this.configs, { name })
       if (this.status[name] === "NOT_DEPLOYED") {
         return this.createdAppData(config)
       } else {
         return this.deployedAppData(config, this.status[name] === "running")
       }
-    } else if (_.contains(this.additional, name)) {
+    } else if (_.includes(this.additional, name)) {
       return this.additionalAppData(name, this.status[name] === "running")
     } else {
       return Promise.reject()

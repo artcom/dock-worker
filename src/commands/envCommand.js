@@ -3,7 +3,7 @@ import _ from "lodash"
 export default function(callback) {
   return function(config, options) {
     const environment = _.chain(config.environments)
-      .find("name", options["<environment>"])
+      .find(["name", options["<environment>"]])
       .defaults({ protocol: "ssh", username: "dokku" })
       .value()
 

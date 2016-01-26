@@ -46,7 +46,7 @@ export default class {
       _.chain(lines)
         .map(extractPair)
         .reject(isDokkuConfig)
-        .zipObject()
+        .fromPairs()
         .value()
     )
   }
@@ -134,7 +134,7 @@ function extractStatus(line) {
 
 function extractPair(line) {
   const tokens = line.split(":")
-  return [_.first(tokens), _.trim(_.rest(tokens).join(":"))]
+  return [_.head(tokens), _.trim(_.tail(tokens).join(":"))]
 }
 
 function isDokkuConfig(pair) {

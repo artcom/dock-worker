@@ -58,7 +58,7 @@ const setConfig = function(dokku, config, changes) {
 
   const options = _.chain(changes)
     .map(({ key, value }) => [key, value])
-    .zipObject()
+    .fromPairs()
     .value()
 
   return stopApp(dokku, config).then(() => dokku.setConfig(config.name, options))
@@ -69,6 +69,6 @@ const unsetConfig = function(dokku, config, changes) {
     return Promise.resolve()
   }
 
-  const vars = _.pluck(changes, "key")
+  const vars = _.map(changes, "key")
   return stopApp(dokku, config).then(() => dokku.unsetConfig(config.name, ...vars))
 }
