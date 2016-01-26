@@ -12,9 +12,9 @@ export default {
 
       const wrapper = function(command) {
         return new Promise(function(resolve, reject) {
-          connection(command, function(error, stdout, { stderr }) {
+          connection(command, function(error, stdout, options) {
             if (error) {
-              reject(new Error(stderr))
+              reject(options ? new Error(options.stderr) : error)
             } else {
               resolve(stdout)
             }
