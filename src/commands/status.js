@@ -17,7 +17,9 @@ import type {Action} from "../actions"
 import type {AppData, DeployedAppData} from "../appData"
 import type {Environment, AppConfig} from "../types"
 
-export default envCommand(function(environment: Environment, configs: Array<AppConfig>) {
+export default envCommand(status)
+
+function status(environment: Environment, configs: Array<AppConfig>) {
   return showProgress(
     (spinner) => colors.gray(`loading service list ${spinner}`),
     createProvider(environment, configs)
@@ -34,7 +36,7 @@ export default envCommand(function(environment: Environment, configs: Array<AppC
       bluebird.map(apps, (app) => provider.loadAppData(app).then(updateAppData), { concurrency: 4 })
     ).then(() => console.log(createTable(apps, data)))
   })
-})
+}
 
 function createTable(apps, data, spinner) {
   const rows = apps.map((app) =>

@@ -14,7 +14,7 @@ export default function(callback) {
       .defaults({ config: {}, dockerOptions: {}, stopBeforeDeployment: false })
       .value()
 
-    return callback(environment, apps)
+    return callback(environment, apps, options)
   }
 }
 

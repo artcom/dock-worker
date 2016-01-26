@@ -22,49 +22,58 @@ type AppActions = {
   actions?: Array<Action>
 }
 
-export default envCommand(function(environment: Environment, configs: Array<AppConfig>) {
+export default envCommand(deploy)
+
+function deploy(environment: Environment, configs: Array<AppConfig>, options: any) {
   return showProgress(
     (spinner) => colors.gray(`loading service list ${spinner}`),
     createProvider(environment, configs)
-  ).then((provider) => {
-    const apps = provider.apps()
-    let appActionsList: Array<AppActions> = apps.map((app) => ({ app }))
+  ).then(loadAndDisplayAppActions).then((appActions) =>
+    applyAppActions(appActions, environment, options["--yes"])
+  )
+}
 
-    function deriveAppAction(app) {
-      return provider.loadAppData(app)
-        .then(deriveActions)
-        .then((actions) => {
-          _.remove(appActionsList, { app })
+function loadAndDisplayAppActions(provider) {
+  const apps = provider.apps()
+  let appActionsList: Array<AppActions> = apps.map((app) => ({ app }))
 
-          if (actions.length > 0) {
-            appActionsList.push({ app, actions })
-          }
+  function deriveAppAction(app) {
+    return provider.loadAppData(app)
+      .then(deriveActions)
+      .then((actions) => {
+        _.remove(appActionsList, { app })
 
-          appActionsList = _.sortBy(appActionsList, "app")
-        })
-    }
+        if (actions.length > 0) {
+          appActionsList.push({ app, actions })
+        }
 
-    return showProgress(
-      (spinner) => printList(appActionsList, spinner),
-      bluebird.map(apps, deriveAppAction, { concurrency: 4 })
-    ).then(() => appActionsList)
-  }).then((appActionsList) => {
-    if (appActionsList.length === 0) {
-      console.log("nothing to deploy")
-    } else {
-      return runActionsWithConfirmation(appActionsList, environment)
-    }
-  })
-})
+        appActionsList = _.sortBy(appActionsList, "app")
+      })
+  }
 
-function runActionsWithConfirmation(appActionsList, environment) {
+  return showProgress(
+    (spinner) => printList(appActionsList, spinner),
+    bluebird.map(apps, deriveAppAction, { concurrency: 4 })
+  ).then(() => appActionsList)
+}
+
+function applyAppActions(appActionsList, environment, yes) {
+  if (appActionsList.length === 0) {
+    return console.log("nothing to deploy")
+  }
+
   console.log(printList(appActionsList))
+  const confirm = yes ? Promise.resolve(true) : askForConfirmation()
 
-  return readAsync({ prompt: "apply changes (y/N)?" }).then((response) => {
-    if (yn(response)) {
+  return confirm.then((confirmed) => {
+    if (confirmed) {
       return runActions(appActionsList, environment)
     }
   })
+}
+
+function askForConfirmation() {
+  return readAsync({ prompt: "apply changes (y/N)?" }).then(yn)
 }
 
 function runActions(appActionsList, environment) {
