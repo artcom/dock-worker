@@ -5,7 +5,6 @@ import bluebird from "bluebird"
 
 import Dokku from "./dokku"
 import RepoCache from "./repoCache"
-import showProgress from "./showProgress"
 
 import type {Options, Environment, AppConfig} from "./types"
 
@@ -106,10 +105,6 @@ class Provider {
     }
   }
 
-  loadAppDataWithProgress(name: string): Promise<AppData> {
-    return showProgress("loading configuration", this.loadAppData(name))
-  }
-
   missingAppData(config: AppConfig): Promise<AppData> {
     return Promise.resolve({
       name: config.name,
@@ -168,11 +163,4 @@ export function createProvider(
 ): Promise<Provider> {
   const provider = new Provider(environment, configs)
   return provider.initialize()
-}
-
-export function createProviderWithProgress(
-  environment: Environment,
-  configs: Array<AppConfig>
-): Promise<Provider> {
-  return showProgress("loading configuration", createProvider(environment, configs))
 }
