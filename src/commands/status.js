@@ -3,7 +3,6 @@
 import _ from "lodash"
 import bluebird from "bluebird"
 import colors from "colors/safe"
-import logUpdate from "log-update"
 import table from "text-table"
 
 import {deriveActions} from "../actions"
