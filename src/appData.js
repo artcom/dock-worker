@@ -30,16 +30,16 @@ export type DeployedAppData = {
   deployed: DeployedConfig
 }
 
-type DeployedConfig = {
-  version: string,
-  config: Options,
-  dockerOptions: Options
-}
-
 export type AdditionalAppData = {
   name: string,
   status: "additional",
   running: bool
+}
+
+type DeployedConfig = {
+  version: string,
+  config: Options,
+  dockerOptions: Options
 }
 
 class Provider {
