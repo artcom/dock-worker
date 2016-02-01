@@ -22,14 +22,7 @@ describe("Repo Cache", function() {
         return execFileAsync("bash", [path.resolve(__dirname, "createRepos.sh"), repoDir])
       }),
       tmpDirAsync({ unsafeCleanup: true }).then((cacheDir) => {
-        const environment = {
-          name: "test",
-          host: this.repoDir,
-          protocol: "file",
-          username: null
-        }
-
-        this.cache = new RepoCache(environment, cacheDir)
+        this.cache = new RepoCache(this.repoDir, { cacheDir, protocol: "file" })
       })
     ])
   })

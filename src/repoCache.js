@@ -5,8 +5,6 @@ import url from "url"
 
 import * as git from "./git"
 
-import type {Environment} from "./types"
-
 export default class RepoCache {
   /* jscs:disable disallowSemicolons */
   ORIGIN_REMOTE: string;
@@ -16,16 +14,15 @@ export default class RepoCache {
   remoteUrl: string;
   /* jscs:enable disallowSemicolons */
 
-  constructor(environment: Environment, cacheDir: string = ".cache") {
+  constructor(host: string, options: { cacheDir?: string, protocol?: string } = {}) {
     this.ORIGIN_REMOTE = "origin"
     this.DOKKU_REMOTE = "dokku"
 
-    this.cacheDir = cacheDir
+    this.cacheDir = options.cacheDir || ".cache"
     this.remoteUrl = url.format({
       slashes: true,
-      protocol: environment.protocol,
-      auth: environment.username,
-      host: environment.host
+      protocol: options.protocol || "ssh",
+      host: host
     })
   }
 

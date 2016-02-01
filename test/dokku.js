@@ -11,7 +11,7 @@ chai.use(chaiAsPromised)
 
 describe("Dokku", function() {
   beforeEach(function() {
-    this.dokku = new Dokku({ host: "localhost", username: "dokku" })
+    this.dokku = new Dokku("localhost")
     this.mock = sinon.mock(this.dokku)
   })
 

@@ -39,11 +39,11 @@ _Dock Worker_ will look for a configuration file named `Dockfile.json` in the cu
   "environments": [
     {
       "name": "staging",
-      "host": "staging.example.com"
+      "host": "dokku@staging.example.com"
     },
     {
       "name": "production",
-      "host": "production.example.com"
+      "host": "dokku@production.example.com"
     }
   ],
   "apps": [

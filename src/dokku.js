@@ -3,7 +3,7 @@
 import _ from "lodash"
 import sequest from "sequest"
 
-import type {Environment, Options} from "./types"
+import type {Options} from "./types"
 
 export type Phase = "build" | "deploy" | "run"
 export type AppStatus = {
@@ -16,11 +16,11 @@ export type AppStatus = {
 export default class {
   /* jscs:disable disallowSemicolons */
   connection: any;
-  uri: string;
+  host: string;
   /* jscs:enable disallowSemicolons */
 
-  constructor({ host, username }: Environment) {
-    this.uri = `${username}@${host}`
+  constructor(host: string) {
+    this.host = host
   }
 
   disconnect() {
@@ -121,7 +121,7 @@ export default class {
   sendCommand(command: string): Promise<string> {
     return new Promise((resolve, reject) => {
       if (!this.connection) {
-        this.connection = sequest.connect(this.uri)
+        this.connection = sequest.connect(this.host)
       }
 
       this.connection(command, (error, stdout, options) => {

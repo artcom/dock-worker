@@ -9,14 +9,7 @@ import Dokku from "../src/dokku"
 
 describe("Actions", function() {
   beforeEach(function() {
-    this.environment = {
-      name: "test",
-      host: "localhost",
-      protocol: "ssh",
-      username: "dokku"
-    }
-
-    this.dokku = new Dokku(this.environment)
+    this.dokku = new Dokku("localhost")
     this.mock = sinon.mock(this.dokku)
 
     this.config = {
@@ -61,7 +54,7 @@ describe("Actions", function() {
         .withArgs("new-app")
         .returns(Promise.resolve())
 
-      return action.run(this.dokku, this.environment)
+      return action.run(this.dokku)
     })
   })
 
@@ -85,7 +78,7 @@ describe("Actions", function() {
           .returns(Promise.resolve())
       ]
 
-      return action.run(this.dokku, this.environment).then(() => {
+      return action.run(this.dokku).then(() => {
         sinon.assert.callOrder(...calls)
       })
     })
@@ -115,7 +108,7 @@ describe("Actions", function() {
           .returns(Promise.resolve())
       ]
 
-      return action.run(this.dokku, this.environment).then(() => {
+      return action.run(this.dokku).then(() => {
         sinon.assert.callOrder(...calls)
       })
     })
@@ -150,7 +143,7 @@ describe("Actions", function() {
           .returns(Promise.resolve())
       ]
 
-      return action.run(this.dokku, this.environment).then(() => {
+      return action.run(this.dokku).then(() => {
         sinon.assert.callOrder(...calls)
       })
     })
@@ -186,7 +179,7 @@ describe("Actions", function() {
           .returns(Promise.resolve())
       ]
 
-      return action.run(this.dokku, this.environment).then(() => {
+      return action.run(this.dokku).then(() => {
         sinon.assert.callOrder(...calls)
       })
     })
