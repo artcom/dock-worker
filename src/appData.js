@@ -8,7 +8,7 @@ import RepoCache from "./repoCache"
 
 import type {Options, AppConfig} from "./types"
 
-export type AppData = MissingAppData | CreatedAppData | DeployedAppData | AdditionalAppData
+export type AppData = MissingAppData | CreatedAppData | DeployedAppData | UnknownAppData
 
 export type MissingAppData = {
   name: string,
@@ -30,9 +30,9 @@ export type DeployedAppData = {
   deployed: DeployedConfig
 }
 
-export type AdditionalAppData = {
+export type UnknownAppData = {
   name: string,
-  status: "additional",
+  status: "unknown",
   running: bool
 }
 
@@ -47,9 +47,9 @@ class Provider {
   configs: Array<AppConfig>;
   status: { [key: string]: string };
 
-  missing: Array<string>;
-  deployed: Array<string>;
-  additional: Array<string>;
+  missingApps: Array<string>;
+  knownApps: Array<string>;
+  unknownApps: Array<string>;
 
   dokku: Dokku;
   repoCache: RepoCache;
@@ -71,9 +71,9 @@ class Provider {
         .fromPairs()
         .value()
 
-      this.missing = _.difference(defined, available)
-      this.deployed = _.intersection(defined, available)
-      this.additional = _.difference(available, defined)
+      this.missingApps = _.difference(defined, available)
+      this.knownApps = _.intersection(defined, available)
+      this.unknownApps = _.difference(available, defined)
 
       return this
     })
@@ -81,25 +81,25 @@ class Provider {
 
   apps(): Array<string> {
     return _.flatten([
-      this.missing,
-      this.deployed,
-      this.additional
+      this.missingApps,
+      this.knownApps,
+      this.unknownApps
     ]).sort()
   }
 
   loadAppData(name: string): Promise<AppData> {
-    if (_.includes(this.missing, name)) {
+    if (_.includes(this.missingApps, name)) {
       const config = _.find(this.configs, { name })
       return this.missingAppData(config)
-    } else if (_.includes(this.deployed, name)) {
+    } else if (_.includes(this.knownApps, name)) {
       const config = _.find(this.configs, { name })
       if (this.status[name] === "NOT_DEPLOYED") {
         return this.createdAppData(config)
       } else {
         return this.deployedAppData(config, this.status[name] === "running")
       }
-    } else if (_.includes(this.additional, name)) {
-      return this.additionalAppData(name, this.status[name] === "running")
+    } else if (_.includes(this.unknownApps, name)) {
+      return this.unknownAppData(name, this.status[name] === "running")
     } else {
       return Promise.reject()
     }
@@ -146,10 +146,10 @@ class Provider {
       .catch(() => "not deployed yet")
   }
 
-  additionalAppData(name: string, running: bool): Promise<AppData> {
+  unknownAppData(name: string, running: bool): Promise<AppData> {
     return Promise.resolve({
       name,
-      status: "additional",
+      status: "unknown",
       running
     })
   }
