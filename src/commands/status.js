@@ -10,7 +10,7 @@ import ConfigAction from "../actions/configAction"
 import DockerOptionAction from "../actions/dockerOptionAction"
 import PushAction from "../actions/pushAction"
 
-import {createProvider} from "../appData"
+import {loadContext} from "../appData"
 import Dokku from "../dokku"
 import envCommand from "./envCommand"
 import RepoCache from "../repoCache"
@@ -25,9 +25,9 @@ export default envCommand(status)
 function status(configs: Array<AppConfig>, dokku: Dokku, repoCache: RepoCache) {
   return showProgress(
     (spinner) => colors.gray(`loading service list ${spinner}`),
-    createProvider(configs, dokku, repoCache)
-  ).then((provider) => {
-    const apps = provider.apps()
+    loadContext(configs, dokku, repoCache)
+  ).then((context) => {
+    const apps = context.listApps()
     const data = {}
 
     function updateAppData(appData) {
@@ -36,7 +36,7 @@ function status(configs: Array<AppConfig>, dokku: Dokku, repoCache: RepoCache) {
 
     return showProgress(
       (spinner) => createTable(apps, data, spinner),
-      bluebird.map(apps, (app) => provider.loadAppData(app).then(updateAppData), { concurrency: 4 })
+      bluebird.map(apps, (app) => context.loadAppData(app).then(updateAppData), { concurrency: 4 })
     ).then(() => console.log(createTable(apps, data)))
   })
 }

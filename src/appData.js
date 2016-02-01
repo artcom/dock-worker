@@ -42,7 +42,7 @@ type DeployedConfig = {
   dockerOptions: Options
 }
 
-class Provider {
+class Context {
   /* jscs:disable disallowSemicolons */
   configs: Array<AppConfig>;
   status: { [key: string]: string };
@@ -61,7 +61,7 @@ class Provider {
     this.repoCache = repoCache
   }
 
-  initialize(): Promise<Provider> {
+  initialize(): Promise<Context> {
     return this.dokku.ls().then((list) => {
       const available = _.map(list, "name")
       const defined = _.map(this.configs, "name")
@@ -79,7 +79,7 @@ class Provider {
     })
   }
 
-  apps(): Array<string> {
+  listApps(): Array<string> {
     return _.flatten([
       this.missingApps,
       this.knownApps,
@@ -155,11 +155,11 @@ class Provider {
   }
 }
 
-export function createProvider(
+export function loadContext(
   configs: Array<AppConfig>,
   dokku: Dokku,
   repoCache: RepoCache
-): Promise<Provider> {
-  const provider = new Provider(configs, dokku, repoCache)
-  return provider.initialize()
+): Promise<Context> {
+  const context = new Context(configs, dokku, repoCache)
+  return context.initialize()
 }

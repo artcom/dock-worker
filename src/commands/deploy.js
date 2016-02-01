@@ -7,7 +7,7 @@ import read from "read"
 import yn from "yn"
 
 import {deriveActions} from "../actions"
-import {createProvider} from "../appData"
+import {loadContext} from "../appData"
 import Dokku from "../dokku"
 import envCommand from "./envCommand"
 import RepoCache from "../repoCache"
@@ -28,18 +28,18 @@ export default envCommand(deploy)
 function deploy(configs: Array<AppConfig>, dokku: Dokku, repoCache: RepoCache, options: any) {
   return showProgress(
     (spinner) => colors.gray(`loading service list ${spinner}`),
-    createProvider(configs, dokku, repoCache)
+    loadContext(configs, dokku, repoCache)
   ).then(loadAndDisplayAppActions).then((appActions) =>
     applyAppActions(appActions, dokku, repoCache, options["--yes"])
   )
 }
 
-function loadAndDisplayAppActions(provider) {
-  const apps = provider.apps()
+function loadAndDisplayAppActions(context) {
+  const apps = context.listApps()
   let appActionsList: Array<AppActions> = apps.map((app) => ({ app }))
 
   function deriveAppAction(app) {
-    return provider.loadAppData(app)
+    return context.loadAppData(app)
       .then(deriveActions)
       .then((actions) => {
         _.remove(appActionsList, { app })
