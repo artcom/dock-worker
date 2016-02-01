@@ -140,7 +140,7 @@ function unnecessaryLine(line) {
 }
 
 function extractStatus(line) {
-  const columns = _.split(line, /\s+/).filter((column) => column !== "")
+  const columns = line.split(/\s+/).filter((column) => column !== "")
 
   if (columns.length !== 4) {
     throw new Error(`unexpected Dokku output (${line})`)
