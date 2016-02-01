@@ -1,8 +1,7 @@
 /* @flow */
 
 import _ from "lodash"
-
-import sshConnectionPool from "./sshConnectionPool"
+import sequest from "sequest"
 
 import type {Environment, Options} from "./types"
 
@@ -16,11 +15,19 @@ export type AppStatus = {
 
 export default class {
   /* jscs:disable disallowSemicolons */
+  connection: any;
   uri: string;
   /* jscs:enable disallowSemicolons */
 
   constructor({ host, username }: Environment) {
     this.uri = `${username}@${host}`
+  }
+
+  disconnect() {
+    if (this.connection) {
+      this.connection.end()
+      this.connection = null
+    }
   }
 
   apps(): Promise<Array<string>> {
@@ -105,15 +112,26 @@ export default class {
   // PRIVATE
 
   dokku(...params: Array<string>): Promise<Array<string>> {
-    return this.sendCommand(params).then((stdout) => {
+    return this.sendCommand(params.join(" ")).then((stdout) => {
       const lines = stdout.split("\n")
       return _.reject(lines, unnecessaryLine)
     })
   }
 
-  sendCommand(params: Array<string>): Promise<string> {
-    const connection = sshConnectionPool.get(this.uri)
-    return connection(params.join(" "))
+  sendCommand(command: string): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!this.connection) {
+        this.connection = sequest.connect(this.uri)
+      }
+
+      this.connection(command, (error, stdout, options) => {
+        if (error) {
+          reject(options ? new Error(options.stderr) : error)
+        } else {
+          resolve(stdout)
+        }
+      })
+    })
   }
 }
 

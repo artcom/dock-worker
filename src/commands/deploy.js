@@ -10,10 +10,11 @@ import {deriveActions} from "../actions"
 import {createProvider} from "../appData"
 import Dokku from "../dokku"
 import envCommand from "./envCommand"
+import RepoCache from "../repoCache"
 import showProgress from "../showProgress"
 
 import type {Action} from "../actions"
-import type {Environment, AppConfig} from "../types"
+import type {AppConfig} from "../types"
 
 const readAsync = bluebird.promisify(read)
 
@@ -24,12 +25,12 @@ type AppActions = {
 
 export default envCommand(deploy)
 
-function deploy(environment: Environment, configs: Array<AppConfig>, options: any) {
+function deploy(configs: Array<AppConfig>, dokku: Dokku, repoCache: RepoCache, options: any) {
   return showProgress(
     (spinner) => colors.gray(`loading service list ${spinner}`),
-    createProvider(environment, configs)
+    createProvider(configs, dokku, repoCache)
   ).then(loadAndDisplayAppActions).then((appActions) =>
-    applyAppActions(appActions, environment, options["--yes"])
+    applyAppActions(appActions, dokku, repoCache, options["--yes"])
   )
 }
 
@@ -57,7 +58,7 @@ function loadAndDisplayAppActions(provider) {
   ).then(() => appActionsList)
 }
 
-function applyAppActions(appActionsList, environment, yes) {
+function applyAppActions(appActionsList, dokku, repoCache, yes) {
   if (appActionsList.length === 0) {
     return console.log("nothing to deploy")
   }
@@ -67,7 +68,7 @@ function applyAppActions(appActionsList, environment, yes) {
 
   return confirm.then((confirmed) => {
     if (confirmed) {
-      return runActions(appActionsList, environment)
+      return runActions(appActionsList, dokku, repoCache)
     }
   })
 }
@@ -76,16 +77,14 @@ function askForConfirmation() {
   return readAsync({ prompt: "apply changes (y/N)?" }).then(yn)
 }
 
-function runActions(appActionsList, environment) {
-  const dokku = new Dokku(environment)
-
+function runActions(appActionsList, dokku, repoCache) {
   return bluebird.mapSeries(appActionsList, ({ app, actions }) => {
     console.log(printName(app))
 
     return bluebird.mapSeries(actions, (action) =>
       showProgress(
         (spinner) => colors.gray(`${printAction(action)} ${spinner}`),
-        action.run(dokku, environment)
+        action.run(dokku, repoCache)
       ).then(() => console.log(colors.cyan(printAction(action))))
     )
   })

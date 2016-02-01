@@ -9,20 +9,23 @@ import {deriveActions} from "../actions"
 import ConfigAction from "../actions/configAction"
 import DockerOptionAction from "../actions/dockerOptionAction"
 import PushAction from "../actions/pushAction"
+
 import {createProvider} from "../appData"
+import Dokku from "../dokku"
 import envCommand from "./envCommand"
+import RepoCache from "../repoCache"
 import showProgress from "../showProgress"
 
 import type {Action} from "../actions"
 import type {AppData, DeployedAppData} from "../appData"
-import type {Environment, AppConfig} from "../types"
+import type {AppConfig} from "../types"
 
 export default envCommand(status)
 
-function status(environment: Environment, configs: Array<AppConfig>) {
+function status(configs: Array<AppConfig>, dokku: Dokku, repoCache: RepoCache) {
   return showProgress(
     (spinner) => colors.gray(`loading service list ${spinner}`),
-    createProvider(environment, configs)
+    createProvider(configs, dokku, repoCache)
   ).then((provider) => {
     const apps = provider.apps()
     const data = {}

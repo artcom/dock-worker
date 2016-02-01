@@ -1,6 +1,22 @@
+/* @flow */
+
 import _ from "lodash"
 
-export default function(callback) {
+import Dokku from "../dokku"
+import RepoCache from "../repoCache"
+
+import type {AppConfig} from "../types"
+
+type Command = (config: any, options: any) => Promise
+
+type EnvCommand = (
+  apps: Array<AppConfig>,
+  dokku: Dokku,
+  repoCache: RepoCache,
+  options: any
+) => Command
+
+export default function(callback: EnvCommand): Command {
   return function(config, options) {
     const environment = _.chain(config.environments)
       .find(["name", options["<environment>"]])
@@ -14,7 +30,18 @@ export default function(callback) {
       .defaults({ config: {}, dockerOptions: {}, stopBeforeDeployment: false })
       .value()
 
-    return callback(environment, apps, options)
+    const dokku = new Dokku(environment)
+    const repoCache = new RepoCache(environment)
+
+    return callback(apps, dokku, repoCache, options)
+      .then((result) => {
+        dokku.disconnect()
+        return result
+      })
+      .catch((error) => {
+        dokku.disconnect()
+        throw error
+      })
   }
 }
 

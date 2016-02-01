@@ -22,26 +22,26 @@ describe("Repo Cache", function() {
         return execFileAsync("bash", [path.resolve(__dirname, "createRepos.sh"), repoDir])
       }),
       tmpDirAsync({ unsafeCleanup: true }).then((cacheDir) => {
-        this.cache = new RepoCache(cacheDir)
+        const environment = {
+          name: "test",
+          host: this.repoDir,
+          protocol: "file",
+          username: null
+        }
+
+        this.cache = new RepoCache(environment, cacheDir)
       })
     ])
   })
 
   it("should set environment remote", function() {
-    const environment = {
-      name: "test",
-      host: this.repoDir,
-      protocol: "file",
-      username: null
-    }
-
-    const remotes = this.cache.getRepo("dokku-app", environment)
+    const remotes = this.cache.getRepo("app1")
       .then((repo) => repo.remotes())
 
     return expect(remotes).to.eventually.deep.equal({
-      test: {
-        fetch: `file://${this.repoDir}/dokku-app`,
-        push: `file://${this.repoDir}/dokku-app`
+      dokku: {
+        fetch: `file://${this.repoDir}/app1`,
+        push: `file://${this.repoDir}/app1`
       }
     })
   })

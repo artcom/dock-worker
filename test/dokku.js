@@ -22,7 +22,7 @@ describe("Dokku", function() {
   describe("Apps", function() {
     it("should list apps", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["apps"])
+        .withArgs("apps")
         .returns(Promise.resolve(unindent(`
           =====> My Apps
           app1
@@ -40,7 +40,7 @@ describe("Dokku", function() {
 
     it("should create an app", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["apps:create", "new-app"])
+        .withArgs("apps:create new-app")
         .returns(Promise.resolve(""))
 
       return this.dokku.create("new-app")
@@ -50,7 +50,7 @@ describe("Dokku", function() {
   describe("List", function() {
     it("should list apps and status", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["ls"])
+        .withArgs("ls")
         .returns(Promise.resolve(unindent(`
           -----> App Name           Container Type            Container Id              Status
           some-app                  web                       26effc047c53              running
@@ -68,7 +68,7 @@ describe("Dokku", function() {
 
     it("should create an app", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["apps:create", "new-app"])
+        .withArgs("apps:create new-app")
         .returns(Promise.resolve(""))
 
       return this.dokku.create("new-app")
@@ -78,7 +78,7 @@ describe("Dokku", function() {
   describe("Config", function() {
     it("should get the config", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["config", "app1"])
+        .withArgs("config app1")
         .returns(Promise.resolve(unindent(`
           =====> app1 config vars
           DOKKU_DOCKERFILE_PORT: 8000
@@ -96,7 +96,7 @@ describe("Dokku", function() {
 
     it("should get an empty config", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["config", "app1"])
+        .withArgs("config app1")
         .returns(Promise.reject(new Error(unindent(`
           no config vars for app1
           `
@@ -107,7 +107,7 @@ describe("Dokku", function() {
 
     it("should set a single config variable", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["config:set", "app1", `FOO="bar"`])
+        .withArgs(`config:set app1 FOO="bar"`)
         .returns(Promise.resolve(""))
 
       return this.dokku.setConfig("app1", { FOO: "bar" })
@@ -115,7 +115,7 @@ describe("Dokku", function() {
 
     it("should set multiple config variables", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["config:set", "app1", `FOO="bar"`, `NUMBER="42"`])
+        .withArgs(`config:set app1 FOO="bar" NUMBER="42"`)
         .returns(Promise.resolve(""))
 
       return this.dokku.setConfig("app1", { FOO: "bar", NUMBER: 42 })
@@ -123,7 +123,7 @@ describe("Dokku", function() {
 
     it("should unset a single config variable", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["config:unset", "app1", "FOO"])
+        .withArgs("config:unset app1 FOO")
         .returns(Promise.resolve(""))
 
       return this.dokku.unsetConfig("app1", "FOO")
@@ -131,7 +131,7 @@ describe("Dokku", function() {
 
     it("should unset multiple config variables", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["config:unset", "app1", "FOO", "NUMBER"])
+        .withArgs("config:unset app1 FOO NUMBER")
         .returns(Promise.resolve(""))
 
       return this.dokku.unsetConfig("app1", "FOO", "NUMBER")
@@ -141,7 +141,7 @@ describe("Dokku", function() {
   describe("Docker Options", function() {
     it("should get docker options for all phases", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["docker-options", "app1"])
+        .withArgs("docker-options app1")
         .returns(Promise.resolve(unindent(`
           Build options:
               -v=/var/local/data:/app/data
@@ -161,7 +161,7 @@ describe("Dokku", function() {
 
     it("should get docker options for some phases", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["docker-options", "app1"])
+        .withArgs("docker-options app1")
         .returns(Promise.resolve(unindent(`
           Deploy options:
               -p=8080:8080
@@ -179,7 +179,7 @@ describe("Dokku", function() {
 
     it("should get empty docker options", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["docker-options", "app1"])
+        .withArgs("docker-options app1")
         .returns(Promise.resolve(""))
 
       return expect(this.dokku.dockerOptions("app1")).to.eventually.deep.equal({})
@@ -187,7 +187,7 @@ describe("Dokku", function() {
 
     it("should add a docker option for one phase", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["docker-options:add", "app1", "deploy", "--foo"])
+        .withArgs("docker-options:add app1 deploy --foo")
         .returns(Promise.resolve(""))
 
       return this.dokku.addDockerOption("app1", "--foo", ["deploy"])
@@ -195,7 +195,7 @@ describe("Dokku", function() {
 
     it("should add a docker option for all phases", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["docker-options:add", "app1", "build,deploy,run", "--foo"])
+        .withArgs("docker-options:add app1 build,deploy,run --foo")
         .returns(Promise.resolve(""))
 
       return this.dokku.addDockerOption("app1", "--foo", ["build", "deploy", "run"])
@@ -203,7 +203,7 @@ describe("Dokku", function() {
 
     it("should remove a docker option for one phase", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["docker-options:remove", "app1", "deploy", "--foo"])
+        .withArgs("docker-options:remove app1 deploy --foo")
         .returns(Promise.resolve(""))
 
       return this.dokku.removeDockerOption("app1", "--foo", ["deploy"])
@@ -211,7 +211,7 @@ describe("Dokku", function() {
 
     it("should remove a docker option for all phases", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["docker-options:remove", "app1", "build,deploy,run", "--foo"])
+        .withArgs("docker-options:remove app1 build,deploy,run --foo")
         .returns(Promise.resolve(""))
 
       return this.dokku.removeDockerOption("app1", "--foo", ["build", "deploy", "run"])
@@ -221,7 +221,7 @@ describe("Dokku", function() {
   describe("Process", function() {
     it("should start an app", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["ps:start", "app1"])
+        .withArgs("ps:start app1")
         .returns(Promise.resolve(""))
 
       return this.dokku.start("app1")
@@ -229,7 +229,7 @@ describe("Dokku", function() {
 
     it("should stop an app", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["ps:stop", "app1"])
+        .withArgs("ps:stop app1")
         .returns(Promise.resolve(""))
 
       return this.dokku.stop("app1")
@@ -237,7 +237,7 @@ describe("Dokku", function() {
 
     it("should not fail when stopping undeployed app", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["ps:stop", "app1"])
+        .withArgs("ps:stop app1")
         .returns(Promise.reject(new Error("App app1 has not been deployed\n")))
 
       return this.dokku.stop("app1")
@@ -245,7 +245,7 @@ describe("Dokku", function() {
 
     it("should restart an app", function() {
       this.mock.expects("sendCommand")
-        .withArgs(["ps:restart", "app1"])
+        .withArgs("ps:restart app1")
         .returns(Promise.resolve(""))
 
       return this.dokku.restart("app1")

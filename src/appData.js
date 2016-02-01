@@ -6,7 +6,7 @@ import bluebird from "bluebird"
 import Dokku from "./dokku"
 import RepoCache from "./repoCache"
 
-import type {Options, Environment, AppConfig} from "./types"
+import type {Options, AppConfig} from "./types"
 
 export type AppData = MissingAppData | CreatedAppData | DeployedAppData | AdditionalAppData
 
@@ -44,7 +44,6 @@ export type AdditionalAppData = {
 
 class Provider {
   /* jscs:disable disallowSemicolons */
-  environment: Environment;
   configs: Array<AppConfig>;
   status: { [key: string]: string };
 
@@ -53,12 +52,13 @@ class Provider {
   additional: Array<string>;
 
   dokku: Dokku;
+  repoCache: RepoCache;
   /* jscs:enable disallowSemicolons */
 
-  constructor(environment, configs) {
-    this.environment = environment
+  constructor(configs, dokku, repoCache) {
     this.configs = configs
-    this.dokku = new Dokku(environment)
+    this.dokku = dokku
+    this.repoCache = repoCache
   }
 
   initialize(): Promise<Provider> {
@@ -140,11 +140,9 @@ class Provider {
   }
 
   deployedVersion(name: string): Promise<string> {
-    const repoCache = new RepoCache()
-
-    return repoCache.getRepo(name, this.environment)
-      .then((repo) => repo.fetch(this.environment.name))
-      .then((repo) => repo.showRef(`refs/remotes/${this.environment.name}/master`))
+    return this.repoCache.getRepo(name)
+      .then((repo) => repo.fetch(this.repoCache.DOKKU_REMOTE))
+      .then((repo) => repo.showRef(`refs/remotes/${this.repoCache.DOKKU_REMOTE}/master`))
       .catch(() => "not deployed yet")
   }
 
@@ -158,9 +156,10 @@ class Provider {
 }
 
 export function createProvider(
-  environment: Environment,
-  configs: Array<AppConfig>
+  configs: Array<AppConfig>,
+  dokku: Dokku,
+  repoCache: RepoCache
 ): Promise<Provider> {
-  const provider = new Provider(environment, configs)
+  const provider = new Provider(configs, dokku, repoCache)
   return provider.initialize()
 }

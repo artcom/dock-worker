@@ -14,8 +14,8 @@ createRepos () {
   git add main.js
   git commit -m "Initial commit"
 
-  git init --bare "$DIRECTORY/dokku-app"
-  git remote add dokku "$DIRECTORY/dokku-app"
+  git init --bare "$DIRECTORY/app1"
+  git remote add dokku "$DIRECTORY/app1"
   git push dokku master
 
   echo "Hello World Example" > README.md
