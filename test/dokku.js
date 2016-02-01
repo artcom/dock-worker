@@ -51,13 +51,14 @@ describe("Dokku", function() {
     it("should list apps and status", function() {
       this.mock.expects("sendCommand")
         .withArgs("ls")
-        .returns(Promise.resolve(unindent(`
-          -----> App Name           Container Type            Container Id              Status
-          some-app                  web                       26effc047c53              running
-          another-app               NOT_DEPLOYED              NOT_DEPLOYED              NOT_DEPLOYED
-          stopped-app               web                       09d5ecb93b6d              stopped
-          `
-        )))
+        .returns(Promise.resolve(
+          /* jscs:disable maximumLineLength */
+          "-----> App Name           Container Type            Container Id              Status                    \n" +
+          "some-app                  web                       26effc047c53              running                   \n" +
+          "another-app               NOT_DEPLOYED              NOT_DEPLOYED              NOT_DEPLOYED              \n" +
+          "stopped-app               web                       09d5ecb93b6d              stopped                   \n"
+          /* jscs:enable maximumLineLength */
+        ))
 
       return expect(this.dokku.ls()).to.eventually.deep.equal([
         { name: "some-app", type: "web", id: "26effc047c53", status: "running" },

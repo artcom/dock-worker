@@ -140,13 +140,13 @@ function unnecessaryLine(line) {
 }
 
 function extractStatus(line) {
-  const match = line.match(statusLine)
+  const columns = _.split(line, /\s+/).filter((column) => column !== "")
 
-  if (!match) {
+  if (columns.length !== 4) {
     throw new Error(`unexpected Dokku output (${line})`)
   }
 
-  const [, name, type, id, status] = match
+  const [name, type, id, status] = columns
   return { name, type, id, status }
 }
 
@@ -159,5 +159,4 @@ function isDokkuConfig(pair) {
   return pair[0].startsWith("DOKKU_")
 }
 
-const statusLine = /(\S+)\s+(\S+)\s+(\S+)\s+(\S+)/
 const phaseLine = /^(Build|Deploy|Run) options/
