@@ -5,24 +5,24 @@ import _ from "lodash"
 import Dokku from "../dokku"
 import RepoCache from "../repoCache"
 
-import type {AppConfig, Options} from "../types"
+import type {AppDescription, Options} from "../types"
 
-type Command = (config: any, options: any) => Promise
+type Command = (dockfile: any, options: any) => Promise
 
 type EnvCommand = (
-  apps: Array<AppConfig>,
+  descriptions: Array<AppDescription>,
   dokku: Dokku,
   repoCache: RepoCache,
   options: any
 ) => Command
 
 export default function(callback: EnvCommand): Command {
-  return function(config, options) {
-    const environment = _.chain(config.environments)
+  return function(dockfile, options) {
+    const environment = _.chain(dockfile.environments)
       .find(["name", options["<environment>"]])
       .value()
 
-    const apps = _.chain(config.apps)
+    const descriptions = _.chain(dockfile.apps)
       .filter((app) => hasBeenSelected(app, options["<app>"]))
       .filter((app) => shouldBeDeployed(app, environment.name))
       .map((app) => configureAppForEnvironment(app, environment.name))
@@ -32,7 +32,7 @@ export default function(callback: EnvCommand): Command {
     const dokku = new Dokku(environment.host)
     const repoCache = new RepoCache(environment.host)
 
-    return callback(apps, dokku, repoCache, options)
+    return callback(descriptions, dokku, repoCache, options)
       .then((result) => {
         dokku.disconnect()
         return result
@@ -44,30 +44,30 @@ export default function(callback: EnvCommand): Command {
   }
 }
 
-function hasBeenSelected(app: AppConfig, selectedApps: Array<string>) {
+function hasBeenSelected(description: AppDescription, selectedApps: Array<string>) {
   if (_.isEmpty(selectedApps)) {
     return true
   } else {
-    return _.includes(selectedApps, app.name)
+    return _.includes(selectedApps, description.name)
   }
 }
 
-function shouldBeDeployed(app: AppConfig, environment: string) {
-  if (app.environments) {
-    return _.includes(app.environments, environment)
+function shouldBeDeployed(description: AppDescription, environment: string) {
+  if (description.environments) {
+    return _.includes(description.environments, environment)
   } else {
     return true
   }
 }
 
-function configureAppForEnvironment(app: AppConfig, environment: string) {
-  return Object.assign({}, app, {
-    config: selectEnvironmentOptions(app.config, environment),
-    dockerOptions: selectEnvironmentOptions(app.dockerOptions, environment)
+function configureAppForEnvironment(description: AppDescription, environment: string) {
+  return Object.assign({}, description, {
+    config: selectEnvironmentOptions(description.config, environment),
+    dockerOptions: selectEnvironmentOptions(description.dockerOptions, environment)
   })
 }
 
-function selectEnvironmentOptions(options: Options, environment: string) {
+function selectEnvironmentOptions(options: Options, environment: string): Options {
   return _(options)
     .mapValues((value) => {
       if (_.isPlainObject(value)) {

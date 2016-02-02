@@ -2,7 +2,7 @@
 
 export type Options = {[key: string]: string}
 
-export type AppConfig = {
+export type AppDescription = {
   name: string,
   repo: string,
   version: string,

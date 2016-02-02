@@ -14,47 +14,52 @@ import RepoCache from "../repoCache"
 import showProgress from "../showProgress"
 
 import type {Action} from "../actions"
-import type {AppConfig} from "../types"
+import type {AppDescription} from "../types"
 
 const readAsync = bluebird.promisify(read)
 
 type AppActions = {
-  app: string,
+  appName: string,
   actions?: Array<Action>
 }
 
 export default envCommand(deploy)
 
-function deploy(configs: Array<AppConfig>, dokku: Dokku, repoCache: RepoCache, options: any) {
+function deploy(
+  descriptions: Array<AppDescription>,
+  dokku: Dokku,
+  repoCache: RepoCache,
+  options: any)
+{
   return showProgress(
     (spinner) => colors.gray(`loading service list ${spinner}`),
-    loadContext(configs, dokku, repoCache)
+    loadContext(descriptions, dokku, repoCache)
   ).then(loadAndDisplayAppActions).then((appActions) =>
     applyAppActions(appActions, dokku, repoCache, options["--yes"])
   )
 }
 
 function loadAndDisplayAppActions(context) {
-  const apps = context.listApps()
-  let appActionsList: Array<AppActions> = apps.map((app) => ({ app }))
+  const appNames = context.listAppNames()
+  let appActionsList: Array<AppActions> = appNames.map((appName) => ({ appName }))
 
-  function deriveAppAction(app) {
-    return context.loadAppData(app)
+  function deriveAppAction(appName) {
+    return context.loadAppData(appName)
       .then(deriveActions)
       .then((actions) => {
-        _.remove(appActionsList, { app })
+        _.remove(appActionsList, { appName })
 
         if (actions.length > 0) {
-          appActionsList.push({ app, actions })
+          appActionsList.push({ appName, actions })
         }
 
-        appActionsList = _.sortBy(appActionsList, "app")
+        appActionsList = _.sortBy(appActionsList, "appName")
       })
   }
 
   return showProgress(
     (spinner) => printList(appActionsList, spinner),
-    bluebird.map(apps, deriveAppAction, { concurrency: 4 })
+    bluebird.map(appNames, deriveAppAction, { concurrency: 4 })
   ).then(() => appActionsList)
 }
 
@@ -78,8 +83,8 @@ function askForConfirmation() {
 }
 
 function runActions(appActionsList, dokku, repoCache) {
-  return bluebird.mapSeries(appActionsList, ({ app, actions }) => {
-    console.log(printName(app))
+  return bluebird.mapSeries(appActionsList, ({ appName, actions }) => {
+    console.log(printName(appName))
 
     return bluebird.mapSeries(actions, (action) =>
       showProgress(
@@ -95,19 +100,19 @@ function printList(appActionsList: Array<AppActions>, spinner: string = ""): str
   return lines.join("\n")
 }
 
-function printAppActions({ app, actions }: AppActions, spinner: string): string {
+function printAppActions({ appName, actions }: AppActions, spinner: string): string {
   if (!actions) {
-    return `${printName(app)} ${colors.gray(spinner)}`
+    return `${printName(appName)} ${colors.gray(spinner)}`
   }
 
   const lines = actions.map((action) => colors.gray(printAction(action)))
-  lines.unshift(printName(app))
+  lines.unshift(printName(appName))
 
   return lines.join("\n")
 }
 
-function printName(app: string): string {
-  return colors.bold(app)
+function printName(appName: string): string {
+  return colors.bold(appName)
 }
 
 function printAction(action: Action): string {

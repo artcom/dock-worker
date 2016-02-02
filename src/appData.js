@@ -6,27 +6,27 @@ import bluebird from "bluebird"
 import Dokku from "./dokku"
 import RepoCache from "./repoCache"
 
-import type {Options, AppConfig} from "./types"
+import type {Options, AppDescription} from "./types"
 
 export type AppData = MissingAppData | CreatedAppData | DeployedAppData | UnknownAppData
 
 export type MissingAppData = {
   name: string,
   status: "missing",
-  config: AppConfig
+  description: AppDescription
 }
 
 export type CreatedAppData = {
   name: string,
   status: "created",
-  config: AppConfig
+  description: AppDescription
 }
 
 export type DeployedAppData = {
   name: string,
   status: "deployed",
   running: bool,
-  config: AppConfig,
+  description: AppDescription,
   deployed: DeployedConfig
 }
 
@@ -44,7 +44,7 @@ type DeployedConfig = {
 
 class Context {
   /* jscs:disable disallowSemicolons */
-  configs: Array<AppConfig>;
+  descriptions: Array<AppDescription>;
   status: { [key: string]: string };
 
   missingApps: Array<string>;
@@ -55,8 +55,8 @@ class Context {
   repoCache: RepoCache;
   /* jscs:enable disallowSemicolons */
 
-  constructor(configs, dokku, repoCache) {
-    this.configs = configs
+  constructor(descriptions, dokku, repoCache) {
+    this.descriptions = descriptions
     this.dokku = dokku
     this.repoCache = repoCache
   }
@@ -64,7 +64,7 @@ class Context {
   initialize(): Promise<Context> {
     return this.dokku.ls().then((list) => {
       const available = _.map(list, "name")
-      const defined = _.map(this.configs, "name")
+      const defined = _.map(this.descriptions, "name")
 
       this.status = _.chain(list)
         .map(({ name, status }) => [name, status])
@@ -79,7 +79,7 @@ class Context {
     })
   }
 
-  listApps(): Array<string> {
+  listAppNames(): Array<string> {
     return _.flatten([
       this.missingApps,
       this.knownApps,
@@ -89,10 +89,10 @@ class Context {
 
   loadAppData(name: string): Promise<AppData> {
     if (_.includes(this.missingApps, name)) {
-      const config = _.find(this.configs, { name })
+      const config = _.find(this.descriptions, { name })
       return this.missingAppData(config)
     } else if (_.includes(this.knownApps, name)) {
-      const config = _.find(this.configs, { name })
+      const config = _.find(this.descriptions, { name })
       if (this.status[name] === "NOT_DEPLOYED") {
         return this.createdAppData(config)
       } else {
@@ -105,28 +105,28 @@ class Context {
     }
   }
 
-  missingAppData(config: AppConfig): Promise<AppData> {
+  missingAppData(description: AppDescription): Promise<AppData> {
     return Promise.resolve({
-      name: config.name,
+      name: description.name,
       status: "missing",
-      config
+      description
     })
   }
 
-  createdAppData(config: AppConfig): Promise<AppData> {
+  createdAppData(description: AppDescription): Promise<AppData> {
     return Promise.resolve({
-      name: config.name,
+      name: description.name,
       status: "created",
-      config
+      description
     })
   }
 
-  deployedAppData(config: AppConfig, running: bool): Promise<AppData> {
-    return this.deployedConfig(config.name).then((deployed) => ({
-      name: config.name,
+  deployedAppData(description: AppDescription, running: bool): Promise<AppData> {
+    return this.deployedConfig(description.name).then((deployed) => ({
+      name: description.name,
       status: "deployed",
       running,
-      config,
+      description,
       deployed
     }))
   }
@@ -156,10 +156,10 @@ class Context {
 }
 
 export function loadContext(
-  configs: Array<AppConfig>,
+  descriptions: Array<AppDescription>,
   dokku: Dokku,
   repoCache: RepoCache
 ): Promise<Context> {
-  const context = new Context(configs, dokku, repoCache)
+  const context = new Context(descriptions, dokku, repoCache)
   return context.initialize()
 }

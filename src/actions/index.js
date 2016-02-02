@@ -20,26 +20,26 @@ export function deriveActions(app: AppData): Array<Action> {
       actions.push(new CreateAction(app))
     }
 
-    if (!_.isEmpty(app.config.config)) {
+    if (!_.isEmpty(app.description.config)) {
       actions.push(new ConfigAction(app))
     }
 
-    if (!_.isEmpty(app.config.dockerOptions)) {
+    if (!_.isEmpty(app.description.dockerOptions)) {
       actions.push(new DockerOptionAction(app))
     }
 
-    actions.push(new PushAction(app.config))
+    actions.push(new PushAction(app.description))
   } else if (app.status === "deployed") {
-    if (!_.isEqual(app.config.config, app.deployed.config)) {
+    if (!_.isEqual(app.description.config, app.deployed.config)) {
       actions.push(new ConfigAction(app))
     }
 
-    if (!_.isEqual(app.config.dockerOptions, app.deployed.dockerOptions)) {
+    if (!_.isEqual(app.description.dockerOptions, app.deployed.dockerOptions)) {
       actions.push(new DockerOptionAction(app))
     }
 
-    if (app.config.version !== app.deployed.version) {
-      actions.push(new PushAction(app.config))
+    if (app.description.version !== app.deployed.version) {
+      actions.push(new PushAction(app.description))
     }
 
     if (_.isEmpty(actions) && !app.running) {

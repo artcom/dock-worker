@@ -18,34 +18,36 @@ import showProgress from "../showProgress"
 
 import type {Action} from "../actions"
 import type {AppData, DeployedAppData} from "../appData"
-import type {AppConfig} from "../types"
+import type {AppDescription} from "../types"
 
 export default envCommand(status)
 
-function status(configs: Array<AppConfig>, dokku: Dokku, repoCache: RepoCache) {
+function status(descriptions: Array<AppDescription>, dokku: Dokku, repoCache: RepoCache) {
   return showProgress(
     (spinner) => colors.gray(`loading service list ${spinner}`),
-    loadContext(configs, dokku, repoCache)
+    loadContext(descriptions, dokku, repoCache)
   ).then((context) => {
-    const apps = context.listApps()
-    const data = {}
+    const appNames = context.listAppNames()
+    const apps = {}
 
-    function updateAppData(appData) {
-      data[appData.name] = appData
+    function updateApp(app) {
+      apps[app.name] = app
     }
 
     return showProgress(
-      (spinner) => createTable(apps, data, spinner),
-      bluebird.map(apps, (app) => context.loadAppData(app).then(updateAppData), { concurrency: 4 })
-    ).then(() => console.log(createTable(apps, data)))
+      (spinner) => createTable(appNames, apps, spinner),
+      bluebird.map(appNames, (appName) => context.loadAppData(appName).then(updateApp), {
+        concurrency: 4
+      })
+    ).then(() => console.log(createTable(appNames, apps)))
   })
 }
 
-function createTable(apps, data, spinner) {
-  const rows = apps.map((app) =>
-    data[app]
-      ? createRow(data[app])
-      : [name(app), colors.gray(spinner)]
+function createTable(appNames, apps, spinner) {
+  const rows = appNames.map((appName) =>
+    apps[appName]
+      ? createRow(apps[appName])
+      : [name(appName), colors.gray(spinner)]
   )
 
   return table(rows)
@@ -69,8 +71,8 @@ function createRow(app: AppData) {
   }
 }
 
-function name(app: string) {
-  return colors.bold(app)
+function name(appName: string) {
+  return colors.bold(appName)
 }
 
 function version(app: DeployedAppData, actions: Array<Action>) {

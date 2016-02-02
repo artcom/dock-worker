@@ -7,19 +7,19 @@ import Dokku from "../dokku"
 
 import type {CreatedAppData, DeployedAppData, MissingAppData} from "../appData"
 import type {Change} from "../diffOptions"
-import type {AppConfig} from "../types"
+import type {AppDescription} from "../types"
 
 export default class {
   /* jscs:disable disallowSemicolons */
   changes: Array<Change>;
-  config: AppConfig;
+  description: AppDescription;
   /* jscs:enable disallowSemicolons */
 
   constructor(app: MissingAppData | CreatedAppData | DeployedAppData) {
-    const expected = app.config.config
+    const expected = app.description.config
     const deployed = app.status === "deployed" ? app.deployed.config : {}
     this.changes = diffOptions(expected, deployed)
-    this.config = app.config
+    this.description = app.description
   }
 
   describe(): Array<string> {
@@ -29,8 +29,8 @@ export default class {
   run(dokku: Dokku): Promise {
     const [unset, set] = _.partition(this.changes, (change) => change.type === "remove")
 
-    return setConfig(dokku, this.config, set)
-      .then(() => unsetConfig(dokku, this.config, unset))
+    return setConfig(dokku, this.description, set)
+      .then(() => unsetConfig(dokku, this.description, unset))
   }
 }
 
@@ -47,11 +47,11 @@ function describeChange(change: Change): string {
   }
 }
 
-function stopApp(dokku, config) {
-  return config.stopBeforeDeployment ? dokku.stop(config.name) : Promise.resolve()
+function stopApp(dokku, description) {
+  return description.stopBeforeDeployment ? dokku.stop(description.name) : Promise.resolve()
 }
 
-const setConfig = function(dokku, config, changes) {
+const setConfig = function(dokku, description, changes) {
   if (_.isEmpty(changes)) {
     return Promise.resolve()
   }
@@ -61,14 +61,14 @@ const setConfig = function(dokku, config, changes) {
     .fromPairs()
     .value()
 
-  return stopApp(dokku, config).then(() => dokku.setConfig(config.name, options))
+  return stopApp(dokku, description).then(() => dokku.setConfig(description.name, options))
 }
 
-const unsetConfig = function(dokku, config, changes) {
+const unsetConfig = function(dokku, description, changes) {
   if (_.isEmpty(changes)) {
     return Promise.resolve()
   }
 
   const vars = _.map(changes, "key")
-  return stopApp(dokku, config).then(() => dokku.unsetConfig(config.name, ...vars))
+  return stopApp(dokku, description).then(() => dokku.unsetConfig(description.name, ...vars))
 }

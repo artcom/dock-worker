@@ -12,7 +12,7 @@ describe("Actions", function() {
     this.dokku = new Dokku("localhost")
     this.mock = sinon.mock(this.dokku)
 
-    this.config = {
+    this.description = {
       name: "app1",
       repo: "git@github.com:artcom/app1.git",
       version: "3c0d3cd3e131e4c56df95157d60868f38a9ce429",
@@ -63,7 +63,7 @@ describe("Actions", function() {
       const appData = {
         name: "app1",
         status: "deployed",
-        config: this.config,
+        description: this.description,
         deployed: this.deployed
       }
 
@@ -87,7 +87,7 @@ describe("Actions", function() {
       const appData = {
         name: "app1",
         status: "deployed",
-        config: Object.assign(this.config, { stopBeforeDeployment: true }),
+        description: Object.assign(this.description, { stopBeforeDeployment: true }),
         deployed: this.deployed
       }
 
@@ -119,7 +119,7 @@ describe("Actions", function() {
       const appData = {
         name: "app1",
         status: "deployed",
-        config: this.config,
+        description: this.description,
         deployed: this.deployed
       }
 
@@ -152,7 +152,7 @@ describe("Actions", function() {
       const appData = {
         name: "app1",
         status: "deployed",
-        config: Object.assign(this.config, { stopBeforeDeployment: true }),
+        description: Object.assign(this.description, { stopBeforeDeployment: true }),
         deployed: this.deployed
       }
 

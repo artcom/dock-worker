@@ -3,30 +3,32 @@
 import Dokku from "../dokku"
 import RepoCache from "../repoCache"
 
-import type {AppConfig} from "../types"
+import type {AppDescription} from "../types"
 
 export default class {
   /* jscs:disable disallowSemicolons */
-  config: AppConfig;
+  description: AppDescription;
   /* jscs:enable disallowSemicolons */
 
-  constructor(config: AppConfig) {
-    this.config = config
+  constructor(description: AppDescription) {
+    this.description = description
   }
 
   describe(): Array<string> {
-    return [`deploy ${this.config.version}`]
+    return [`deploy ${this.description.version}`]
   }
 
   run(dokku: Dokku, repoCache: RepoCache): Promise {
-    const stopApp = this.config.stopBeforeDeployment
-      ? dokku.stop(this.config.name)
+    const stopApp = this.description.stopBeforeDeployment
+      ? dokku.stop(this.description.name)
       : Promise.resolve()
 
+    const { ORIGIN_REMOTE, DOKKU_REMOTE } = repoCache
+
     return stopApp
-      .then(() => repoCache.getRepo(this.config.name))
-      .then((repo) => repo.ensureRemote(repoCache.ORIGIN_REMOTE, this.config.repo))
-      .then((repo) => repo.fetch(repoCache.ORIGIN_REMOTE))
-      .then((repo) => repo.push(repoCache.DOKKU_REMOTE, `${this.config.version}:refs/heads/master`))
+      .then(() => repoCache.getRepo(this.description.name))
+      .then((repo) => repo.ensureRemote(ORIGIN_REMOTE, this.description.repo))
+      .then((repo) => repo.fetch(ORIGIN_REMOTE))
+      .then((repo) => repo.push(DOKKU_REMOTE, `${this.description.version}:refs/heads/master`))
   }
 }

@@ -7,19 +7,19 @@ import Dokku from "../dokku"
 
 import type { CreatedAppData, DeployedAppData, MissingAppData } from "../appData"
 import type { Change } from "../diffOptions"
-import type { AppConfig } from "../types"
+import type { AppDescription } from "../types"
 
 export default class {
   /* jscs:disable disallowSemicolons */
   changes: Array<Change>;
-  config: AppConfig;
+  description: AppDescription;
   /* jscs:enable disallowSemicolons */
 
   constructor(app: MissingAppData | CreatedAppData | DeployedAppData) {
-    const expected = app.config.dockerOptions
+    const expected = app.description.dockerOptions
     const deployed = app.status === "deployed" ? app.deployed.dockerOptions : {}
     this.changes = diffOptions(expected, deployed)
-    this.config = app.config
+    this.description = app.description
   }
 
   describe(): Array<string> {
@@ -27,14 +27,14 @@ export default class {
   }
 
   run(dokku: Dokku): Promise {
-    const app = this.config.name
+    const appName = this.description.name
 
-    return bluebird.each(this.changes, (change) => applyChange(dokku, app, change))
+    return bluebird.each(this.changes, (change) => applyChange(dokku, appName, change))
       .then(() => {
-        if (this.config.stopBeforeDeployment) {
-          return dokku.stop(app).then(() => dokku.start(app))
+        if (this.description.stopBeforeDeployment) {
+          return dokku.stop(appName).then(() => dokku.start(appName))
         } else {
-          return dokku.restart(app)
+          return dokku.restart(appName)
         }
       })
   }
@@ -52,22 +52,22 @@ function describeChange(change: Change): string {
   }
 }
 
-function applyChange(dokku: Dokku, app: string, change: Change): Promise {
+function applyChange(dokku: Dokku, appName: string, change: Change): Promise {
   switch (change.type) {
     case "add": {
       const { key, value } = change
-      return dokku.addDockerOption(app, key, value)
+      return dokku.addDockerOption(appName, key, value)
     }
 
     case "update": {
       const { key, value, oldValue } = change
-      return dokku.removeDockerOption(app, key, oldValue)
-        .then(() => dokku.addDockerOption(app, key, value))
+      return dokku.removeDockerOption(appName, key, oldValue)
+        .then(() => dokku.addDockerOption(appName, key, value))
     }
 
     case "remove": {
       const { key, oldValue } = change
-      return dokku.removeDockerOption(app, key, oldValue)
+      return dokku.removeDockerOption(appName, key, oldValue)
     }
 
     default:

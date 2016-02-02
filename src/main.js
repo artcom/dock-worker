@@ -30,9 +30,9 @@ const commands = {
 
 readFileAsync("Dockfile.json")
   .then(JSON.parse)
-  .then(function(config) {
+  .then(function(dockfile) {
     const command = _.find(commands, (command, name) => options[name] === true)
-    return command(config, options)
+    return command(dockfile, options)
   })
   .catch(function(error) {
     console.error(colors.red("ERROR: ") + error.message)
