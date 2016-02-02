@@ -55,12 +55,13 @@ function createTable(appNames, apps, spinner) {
 function createRow(app: AppData) {
   switch (app.status) {
     case "missing":
-      return [name(app.name), colors.red("missing")]
+      return [name(app.name), colors.red("✗"), colors.red("missing")]
     case "exists":
       const actions = deriveActions(app)
-      return [name(app.name), state(app), version(app, actions), deploymentStatus(app, actions)]
+      const indicator = actions.length === 0 ? colors.green("✓") : colors.red("✗")
+      return [name(app.name), indicator, state(app), version(app, actions), deploymentStatus(app, actions)]
     case "unknown":
-      return [name(app.name), state(app, colors.gray), colors.gray(app.actual.version)]
+      return [name(app.name), colors.gray(" "), state(app, colors.gray), colors.gray(app.actual.version)]
     default:
       return []
   }
@@ -95,12 +96,12 @@ function deploymentStatus(app: KnownAppData, actions: Array<Action>) {
   const status = []
 
   if (actions.some((action) => action instanceof ConfigAction)) {
-    status.push(colors.red("config"))
+    status.push("config")
   }
 
   if (actions.some((action) => action instanceof DockerOptionAction)) {
-    status.push(colors.red("docker-options"))
+    status.push("docker-options")
   }
 
-  return status.join(", ")
+  return colors.red(status.join(", "))
 }
