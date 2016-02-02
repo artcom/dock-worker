@@ -8,42 +8,24 @@ import RepoCache from "./repoCache"
 
 import type {Options, AppDescription} from "./types"
 
-export type AppData = MissingAppData | CreatedAppData | DeployedAppData | UnknownAppData
+export type AppData = KnownAppData | UnknownAppData
 
-export type MissingAppData = {
+export type KnownAppData = {
   name: string,
-  status: "missing",
-  running: false,
-  description: AppDescription,
-  actual: ActualConfig
-}
-
-export type CreatedAppData = {
-  name: string,
-  status: "created",
-  running: false,
-  description: AppDescription,
-  actual: ActualConfig
-}
-
-export type DeployedAppData = {
-  name: string,
-  status: "deployed",
+  status: "missing" | "created" | "deployed",
   running: bool,
   description: AppDescription,
-  actual: ActualConfig
+  actual: {
+    version: string,
+    config: Options,
+    dockerOptions: Options
+  }
 }
 
 export type UnknownAppData = {
   name: string,
   status: "unknown",
   running: bool
-}
-
-type ActualConfig = {
-  version: string,
-  config: Options,
-  dockerOptions: Options
 }
 
 class Context {
@@ -109,7 +91,7 @@ class Context {
     }
   }
 
-  missingAppData(description: AppDescription): Promise<MissingAppData> {
+  missingAppData(description: AppDescription): Promise<KnownAppData> {
     return Promise.resolve({
       name: description.name,
       status: "missing",
@@ -123,7 +105,7 @@ class Context {
     })
   }
 
-  createdAppData(description: AppDescription): Promise<CreatedAppData> {
+  createdAppData(description: AppDescription): Promise<KnownAppData> {
     return bluebird.props({
       version: "",
       config: this.dokku.config(description.name),
@@ -137,7 +119,7 @@ class Context {
     }))
   }
 
-  deployedAppData(description: AppDescription, running: bool): Promise<DeployedAppData> {
+  deployedAppData(description: AppDescription, running: bool): Promise<KnownAppData> {
     return bluebird.props({
       version: this.actualVersion(description.name),
       config: this.dokku.config(description.name),

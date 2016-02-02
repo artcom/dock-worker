@@ -5,20 +5,20 @@ import bluebird from "bluebird"
 import colors from "colors/safe"
 import table from "text-table"
 
-import {deriveActions} from "../actions"
+import { deriveActions } from "../actions"
 import ConfigAction from "../actions/configAction"
 import DockerOptionAction from "../actions/dockerOptionAction"
 import PushAction from "../actions/pushAction"
 
-import {loadContext} from "../appData"
+import { loadContext } from "../appData"
 import Dokku from "../dokku"
 import envCommand from "./envCommand"
 import RepoCache from "../repoCache"
 import showProgress from "../showProgress"
 
-import type {Action} from "../actions"
-import type {AppData, DeployedAppData} from "../appData"
-import type {AppDescription} from "../types"
+import type { Action } from "../actions"
+import type { AppData, KnownAppData } from "../appData"
+import type { AppDescription } from "../types"
 
 export default envCommand(status)
 
@@ -75,13 +75,13 @@ function name(appName: string) {
   return colors.bold(appName)
 }
 
-function version(app: DeployedAppData, actions: Array<Action>) {
+function version(app: KnownAppData, actions: Array<Action>) {
   const outdated = actions.some((action) => action instanceof PushAction)
   const color = outdated ? colors.red : colors.green
   return color(app.actual.version)
 }
 
-function deploymentStatus(app: DeployedAppData, actions: Array<Action>) {
+function deploymentStatus(app: KnownAppData, actions: Array<Action>) {
   const status = []
 
   if (actions.some((action) => action instanceof ConfigAction)) {
