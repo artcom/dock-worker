@@ -12,20 +12,25 @@ export type AppData = KnownAppData | UnknownAppData
 
 export type KnownAppData = {
   name: string,
-  status: "missing" | "created" | "deployed",
+  status: "missing" | "exists",
+  deployed: bool,
   running: bool,
   description: AppDescription,
-  actual: {
-    version: string,
-    config: Options,
-    dockerOptions: Options
-  }
+  actual: ActualConfig
 }
 
 export type UnknownAppData = {
   name: string,
   status: "unknown",
-  running: bool
+  deployed: bool,
+  running: bool,
+  actual: ActualConfig
+}
+
+type ActualConfig = {
+  version: string,
+  config: Options,
+  dockerOptions: Options
 }
 
 class Context {
@@ -34,7 +39,7 @@ class Context {
   status: { [key: string]: string };
 
   missingApps: Array<string>;
-  knownApps: Array<string>;
+  existingApps: Array<string>;
   unknownApps: Array<string>;
 
   dokku: Dokku;
@@ -58,7 +63,7 @@ class Context {
         .value()
 
       this.missingApps = _.difference(defined, available)
-      this.knownApps = _.intersection(defined, available)
+      this.existingApps = _.intersection(defined, available)
       this.unknownApps = _.difference(available, defined)
 
       return this
@@ -68,7 +73,7 @@ class Context {
   listAppNames(): Array<string> {
     return _.flatten([
       this.missingApps,
-      this.knownApps,
+      this.existingApps,
       this.unknownApps
     ]).sort()
   }
@@ -77,15 +82,11 @@ class Context {
     if (_.includes(this.missingApps, name)) {
       const config = _.find(this.descriptions, { name })
       return this.missingAppData(config)
-    } else if (_.includes(this.knownApps, name)) {
+    } else if (_.includes(this.existingApps, name)) {
       const config = _.find(this.descriptions, { name })
-      if (this.status[name] === "NOT_DEPLOYED") {
-        return this.createdAppData(config)
-      } else {
-        return this.deployedAppData(config, this.status[name] === "running")
-      }
+      return this.existingAppData(config, this.status[name])
     } else if (_.includes(this.unknownApps, name)) {
-      return this.unknownAppData(name, this.status[name] === "running")
+      return this.unknownAppData(name, this.status[name])
     } else {
       return Promise.reject()
     }
@@ -95,6 +96,7 @@ class Context {
     return Promise.resolve({
       name: description.name,
       status: "missing",
+      deployed: false,
       running: false,
       description,
       actual: {
@@ -105,30 +107,37 @@ class Context {
     })
   }
 
-  createdAppData(description: AppDescription): Promise<KnownAppData> {
+  existingAppData(description: AppDescription, status: string): Promise<KnownAppData> {
+    const deployed = status !== "NOT_DEPLOYED"
+    const running = status === "running"
+
     return bluebird.props({
-      version: "",
+      version: deployed ? this.actualVersion(description.name) : "",
       config: this.dokku.config(description.name),
       dockerOptions: this.dokku.dockerOptions(description.name)
     }).then((actual) => ({
       name: description.name,
-      status: "created",
-      running: false,
+      status: "exists",
+      deployed,
+      running,
       description,
       actual
     }))
   }
 
-  deployedAppData(description: AppDescription, running: bool): Promise<KnownAppData> {
+  unknownAppData(name: string, status: string): Promise<UnknownAppData> {
+    const deployed = status !== "NOT_DEPLOYED"
+    const running = status === "running"
+
     return bluebird.props({
-      version: this.actualVersion(description.name),
-      config: this.dokku.config(description.name),
-      dockerOptions: this.dokku.dockerOptions(description.name)
+      version: deployed ? this.actualVersion(name) : "",
+      config: this.dokku.config(name),
+      dockerOptions: this.dokku.dockerOptions(name)
     }).then((actual) => ({
-      name: description.name,
-      status: "deployed",
+      name,
+      status: "unknown",
+      deployed,
       running,
-      description,
       actual
     }))
   }
@@ -138,14 +147,6 @@ class Context {
       .then((repo) => repo.fetch(this.repoCache.DOKKU_REMOTE))
       .then((repo) => repo.showRef(`refs/remotes/${this.repoCache.DOKKU_REMOTE}/master`))
       .catch(() => "not deployed yet")
-  }
-
-  unknownAppData(name: string, running: bool): Promise<UnknownAppData> {
-    return Promise.resolve({
-      name,
-      status: "unknown",
-      running
-    })
   }
 }
 

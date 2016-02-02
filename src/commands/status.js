@@ -1,6 +1,5 @@
 /* @flow */
 
-import _ from "lodash"
 import bluebird from "bluebird"
 import colors from "colors/safe"
 import table from "text-table"
@@ -57,15 +56,11 @@ function createRow(app: AppData) {
   switch (app.status) {
     case "missing":
       return [name(app.name), colors.red("missing")]
-    case "created":
-      return [name(app.name), colors.red("created")]
-    case "deployed":
+    case "exists":
       const actions = deriveActions(app)
-      const color = _.isEmpty(actions) ? colors.green : colors.yellow
-      const running = app.running ? color("running") : colors.red("stopped")
-      return [name(app.name), running, version(app, actions), deploymentStatus(app, actions)]
+      return [name(app.name), state(app), version(app, actions), deploymentStatus(app, actions)]
     case "unknown":
-      return [name(app.name), colors.gray(app.running ? "running" : "stopped")]
+      return [name(app.name), state(app, colors.gray), colors.gray(app.actual.version)]
     default:
       return []
   }
@@ -75,7 +70,22 @@ function name(appName: string) {
   return colors.bold(appName)
 }
 
-function version(app: KnownAppData, actions: Array<Action>) {
+function state(app: AppData, overrideColor?: Function): string {
+  if (app.deployed) {
+    if (app.running) {
+      const color = overrideColor || colors.green
+      return color("running")
+    } else {
+      const color = overrideColor || colors.red
+      return color("stopped")
+    }
+  } else {
+    const color = overrideColor || colors.red
+    return color("created")
+  }
+}
+
+function version(app: AppData, actions: Array<Action>) {
   const outdated = actions.some((action) => action instanceof PushAction)
   const color = outdated ? colors.red : colors.green
   return color(app.actual.version)
