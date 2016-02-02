@@ -16,9 +16,7 @@ export default class {
   /* jscs:enable disallowSemicolons */
 
   constructor(app: MissingAppData | CreatedAppData | DeployedAppData) {
-    const expected = app.description.dockerOptions
-    const deployed = app.status === "deployed" ? app.deployed.dockerOptions : {}
-    this.changes = diffOptions(expected, deployed)
+    this.changes = diffOptions(app.description.dockerOptions, app.actual.dockerOptions)
     this.description = app.description
   }
 

@@ -78,7 +78,7 @@ function name(appName: string) {
 function version(app: DeployedAppData, actions: Array<Action>) {
   const outdated = actions.some((action) => action instanceof PushAction)
   const color = outdated ? colors.red : colors.green
-  return color(app.deployed.version)
+  return color(app.actual.version)
 }
 
 function deploymentStatus(app: DeployedAppData, actions: Array<Action>) {

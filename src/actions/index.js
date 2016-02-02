@@ -15,34 +15,24 @@ export type Action = ConfigAction | CreateAction | DockerOptionAction | PushActi
 export function deriveActions(app: AppData): Array<Action> {
   const actions = []
 
-  if (app.status === "missing" || app.status === "created") {
+  if (app.status !== "unknown") {
     if (app.status === "missing") {
       actions.push(new CreateAction(app))
     }
 
-    if (!_.isEmpty(app.description.config)) {
+    if (!_.isEqual(app.description.config, app.actual.config)) {
       actions.push(new ConfigAction(app))
     }
 
-    if (!_.isEmpty(app.description.dockerOptions)) {
+    if (!_.isEqual(app.description.dockerOptions, app.actual.dockerOptions)) {
       actions.push(new DockerOptionAction(app))
     }
 
-    actions.push(new PushAction(app.description))
-  } else if (app.status === "deployed") {
-    if (!_.isEqual(app.description.config, app.deployed.config)) {
-      actions.push(new ConfigAction(app))
-    }
-
-    if (!_.isEqual(app.description.dockerOptions, app.deployed.dockerOptions)) {
-      actions.push(new DockerOptionAction(app))
-    }
-
-    if (app.description.version !== app.deployed.version) {
+    if (app.description.version !== app.actual.version) {
       actions.push(new PushAction(app.description))
     }
 
-    if (_.isEmpty(actions) && !app.running) {
+    if (!app.running && _.isEmpty(actions)) {
       actions.push(new StartAction(app))
     }
   }

@@ -28,7 +28,7 @@ describe("Actions", function() {
       stopBeforeDeployment: false
     }
 
-    this.deployed = {
+    this.actual = {
       version: "ef258538b0aa09870cd39fd4f6ae39dcb82cd3ac",
       config: {
         SHOULD_CHANGE: "from this",
@@ -64,7 +64,7 @@ describe("Actions", function() {
         name: "app1",
         status: "deployed",
         description: this.description,
-        deployed: this.deployed
+        actual: this.actual
       }
 
       const action = new ConfigAction(appData)
@@ -88,7 +88,7 @@ describe("Actions", function() {
         name: "app1",
         status: "deployed",
         description: Object.assign(this.description, { stopBeforeDeployment: true }),
-        deployed: this.deployed
+        actual: this.actual
       }
 
       const action = new ConfigAction(appData)
@@ -120,7 +120,7 @@ describe("Actions", function() {
         name: "app1",
         status: "deployed",
         description: this.description,
-        deployed: this.deployed
+        actual: this.actual
       }
 
       const action = new DockerOptionAction(appData)
@@ -153,7 +153,7 @@ describe("Actions", function() {
         name: "app1",
         status: "deployed",
         description: Object.assign(this.description, { stopBeforeDeployment: true }),
-        deployed: this.deployed
+        actual: this.actual
       }
 
       const action = new DockerOptionAction(appData)

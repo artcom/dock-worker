@@ -13,13 +13,17 @@ export type AppData = MissingAppData | CreatedAppData | DeployedAppData | Unknow
 export type MissingAppData = {
   name: string,
   status: "missing",
-  description: AppDescription
+  running: false,
+  description: AppDescription,
+  actual: ActualConfig
 }
 
 export type CreatedAppData = {
   name: string,
   status: "created",
-  description: AppDescription
+  running: false,
+  description: AppDescription,
+  actual: ActualConfig
 }
 
 export type DeployedAppData = {
@@ -27,7 +31,7 @@ export type DeployedAppData = {
   status: "deployed",
   running: bool,
   description: AppDescription,
-  deployed: DeployedConfig
+  actual: ActualConfig
 }
 
 export type UnknownAppData = {
@@ -36,7 +40,7 @@ export type UnknownAppData = {
   running: bool
 }
 
-type DeployedConfig = {
+type ActualConfig = {
   version: string,
   config: Options,
   dockerOptions: Options
@@ -105,48 +109,56 @@ class Context {
     }
   }
 
-  missingAppData(description: AppDescription): Promise<AppData> {
+  missingAppData(description: AppDescription): Promise<MissingAppData> {
     return Promise.resolve({
       name: description.name,
       status: "missing",
-      description
+      running: false,
+      description,
+      actual: {
+        version: "",
+        config: {},
+        dockerOptions: {}
+      }
     })
   }
 
-  createdAppData(description: AppDescription): Promise<AppData> {
-    return Promise.resolve({
+  createdAppData(description: AppDescription): Promise<CreatedAppData> {
+    return bluebird.props({
+      version: "",
+      config: this.dokku.config(description.name),
+      dockerOptions: this.dokku.dockerOptions(description.name)
+    }).then((actual) => ({
       name: description.name,
       status: "created",
-      description
-    })
+      running: false,
+      description,
+      actual
+    }))
   }
 
-  deployedAppData(description: AppDescription, running: bool): Promise<AppData> {
-    return this.deployedConfig(description.name).then((deployed) => ({
+  deployedAppData(description: AppDescription, running: bool): Promise<DeployedAppData> {
+    return bluebird.props({
+      version: this.actualVersion(description.name),
+      config: this.dokku.config(description.name),
+      dockerOptions: this.dokku.dockerOptions(description.name)
+    }).then((actual) => ({
       name: description.name,
       status: "deployed",
       running,
       description,
-      deployed
+      actual
     }))
   }
 
-  deployedConfig(name: string): Promise<DeployedConfig> {
-    return bluebird.props({
-      version: this.deployedVersion(name),
-      config: this.dokku.config(name),
-      dockerOptions: this.dokku.dockerOptions(name)
-    })
-  }
-
-  deployedVersion(name: string): Promise<string> {
+  actualVersion(name: string): Promise<string> {
     return this.repoCache.getRepo(name)
       .then((repo) => repo.fetch(this.repoCache.DOKKU_REMOTE))
       .then((repo) => repo.showRef(`refs/remotes/${this.repoCache.DOKKU_REMOTE}/master`))
       .catch(() => "not deployed yet")
   }
 
-  unknownAppData(name: string, running: bool): Promise<AppData> {
+  unknownAppData(name: string, running: bool): Promise<UnknownAppData> {
     return Promise.resolve({
       name,
       status: "unknown",
