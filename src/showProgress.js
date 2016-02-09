@@ -6,7 +6,7 @@ export default function(message, promise) {
 
   const interval = setInterval(function() {
     logUpdate(message(spinner()))
-  }, 50)
+  }, 66)
 
   function stop() {
     clearInterval(interval)
