@@ -26,7 +26,10 @@ describe("deriveActions", function() {
       const actions = deriveActions({
         name: "app1",
         status: "missing",
-        description: appDescription("app1", CURRENT_VERSION)
+        deployed: false,
+        running: false,
+        description: appDescription("app1", CURRENT_VERSION),
+        actual: actualConfig("")
       })
 
       expect(actions).to.matchActionTypes([
@@ -39,11 +42,14 @@ describe("deriveActions", function() {
       const actions = deriveActions({
         name: "app1",
         status: "missing",
+        deployed: false,
+        running: false,
         description: appDescription("app1", CURRENT_VERSION, {
           FOO: "bar"
         }, {
           "--some=option": ["build", "deploy"]
-        })
+        }),
+        actual: actualConfig("")
       })
 
       expect(actions).to.matchActionTypes([
@@ -59,8 +65,11 @@ describe("deriveActions", function() {
     it("should deploy a created app", function() {
       const actions = deriveActions({
         name: "app1",
-        status: "created",
-        description: appDescription("app1", CURRENT_VERSION)
+        status: "exists",
+        deployed: true,
+        running: false,
+        description: appDescription("app1", CURRENT_VERSION),
+        actual: actualConfig("")
       })
 
       expect(actions).to.matchActionTypes([
@@ -71,12 +80,15 @@ describe("deriveActions", function() {
     it("should configure and deploy a created app", function() {
       const actions = deriveActions({
         name: "app1",
-        status: "created",
+        status: "exists",
+        deployed: true,
+        running: false,
         description: appDescription("app1", CURRENT_VERSION, {
           FOO: "bar"
         }, {
           "--some=option": ["build", "deploy"]
-        })
+        }),
+        actual: actualConfig("")
       })
 
       expect(actions).to.matchActionTypes([
@@ -92,10 +104,11 @@ describe("deriveActions", function() {
       it("should ignore a running app", function() {
         const actions = deriveActions({
           name: "app1",
-          status: "deployed",
+          status: "exists",
+          deployed: true,
           running: true,
           description: appDescription("app1", CURRENT_VERSION),
-          deployed: deployedConfig(CURRENT_VERSION)
+          actual: actualConfig(CURRENT_VERSION)
         })
 
         expect(actions).to.be.empty
@@ -104,10 +117,11 @@ describe("deriveActions", function() {
       it("should start a stopped app", function() {
         const actions = deriveActions({
           name: "app1",
-          status: "deployed",
+          status: "exists",
+          deployed: true,
           running: false,
           description: appDescription("app1", CURRENT_VERSION),
-          deployed: deployedConfig(CURRENT_VERSION)
+          actual: actualConfig(CURRENT_VERSION)
         })
 
         expect(actions).to.matchActionTypes([
@@ -120,10 +134,11 @@ describe("deriveActions", function() {
       it("should deploy a running app", function() {
         const actions = deriveActions({
           name: "app1",
-          status: "deployed",
+          status: "exists",
+          deployed: true,
           running: true,
           description: appDescription("app1", CURRENT_VERSION),
-          deployed: deployedConfig(OLD_VERSION)
+          actual: actualConfig(OLD_VERSION)
         })
 
         expect(actions).to.matchActionTypes([
@@ -134,10 +149,11 @@ describe("deriveActions", function() {
       it("should deploy a stopped app", function() {
         const actions = deriveActions({
           name: "app1",
-          status: "deployed",
+          status: "exists",
+          deployed: true,
           running: false,
           description: appDescription("app1", CURRENT_VERSION),
-          deployed: deployedConfig(OLD_VERSION)
+          actual: actualConfig(OLD_VERSION)
         })
 
         expect(actions).to.matchActionTypes([
@@ -148,14 +164,15 @@ describe("deriveActions", function() {
       it("should configure and deploy a running app", function() {
         const actions = deriveActions({
           name: "app1",
-          status: "deployed",
+          status: "exists",
+          deployed: true,
           running: true,
           description: appDescription("app1", CURRENT_VERSION, {
             FOO: "bar"
           }, {
             "--some=option": ["build", "deploy"]
           }),
-          deployed: deployedConfig(OLD_VERSION, {
+          actual: actualConfig(OLD_VERSION, {
             OLD_COFIG: "old value"
           }, {
             "--some=option": ["deploy"]
@@ -172,14 +189,15 @@ describe("deriveActions", function() {
       it("should configure and deploy a stopped app", function() {
         const actions = deriveActions({
           name: "app1",
-          status: "deployed",
+          status: "exists",
+          deployed: true,
           running: false,
           description: appDescription("app1", CURRENT_VERSION, {
             FOO: "bar"
           }, {
             "--some=option": ["build", "deploy"]
           }),
-          deployed: deployedConfig(OLD_VERSION, {
+          actual: actualConfig(OLD_VERSION, {
             OLD_COFIG: "old value"
           }, {
             "--some=option": ["deploy"]
@@ -218,12 +236,7 @@ describe("deriveActions", function() {
   })
 })
 
-function appDescription(
-  appName,
-  version,
-  config = {},
-  dockerOptions = {}
-) {
+function appDescription(appName, version, config = {}, dockerOptions = {}) {
   return {
     name: appName,
     repo: `git@github.com:artcom/${appName}.git`,
@@ -234,11 +247,7 @@ function appDescription(
   }
 }
 
-function deployedConfig(
-  version,
-  config = {},
-  dockerOptions = {}
-) {
+function actualConfig(version, config = {}, dockerOptions = {}) {
   return {
     version,
     config,
