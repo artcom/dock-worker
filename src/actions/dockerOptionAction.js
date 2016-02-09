@@ -5,7 +5,7 @@ import bluebird from "bluebird"
 import diffOptions from "../diffOptions"
 import Dokku from "../dokku"
 
-import type { CreatedAppData, DeployedAppData, MissingAppData } from "../appData"
+import type { KnownAppData } from "../appData"
 import type { Change } from "../diffOptions"
 import type { AppDescription } from "../types"
 
@@ -15,10 +15,8 @@ export default class {
   description: AppDescription;
   /* jscs:enable disallowSemicolons */
 
-  constructor(app: MissingAppData | CreatedAppData | DeployedAppData) {
-    const expected = app.description.dockerOptions
-    const deployed = app.status === "deployed" ? app.deployed.dockerOptions : {}
-    this.changes = diffOptions(expected, deployed)
+  constructor(app: KnownAppData) {
+    this.changes = diffOptions(app.description.dockerOptions, app.actual.dockerOptions)
     this.description = app.description
   }
 

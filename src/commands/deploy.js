@@ -6,15 +6,15 @@ import colors from "colors/safe"
 import read from "read"
 import yn from "yn"
 
-import {deriveActions} from "../actions"
-import {loadContext} from "../appData"
+import { deriveActions } from "../actions"
+import { loadContext } from "../appData"
 import Dokku from "../dokku"
 import envCommand from "./envCommand"
 import RepoCache from "../repoCache"
 import showProgress from "../showProgress"
 
-import type {Action} from "../actions"
-import type {AppDescription} from "../types"
+import type { Action } from "../actions"
+import type { AppDescription } from "../types"
 
 const readAsync = bluebird.promisify(read)
 
@@ -41,19 +41,18 @@ function deploy(
 
 function loadAndDisplayAppActions(context) {
   const appNames = context.listAppNames()
-  let appActionsList: Array<AppActions> = appNames.map((appName) => ({ appName }))
+  const appActionsList: Array<AppActions> = appNames.map((appName) => ({ appName }))
 
   function deriveAppAction(appName) {
     return context.loadAppData(appName)
       .then(deriveActions)
       .then((actions) => {
-        _.remove(appActionsList, { appName })
-
         if (actions.length > 0) {
-          appActionsList.push({ appName, actions })
+          const appActions = _.find(appActionsList, { appName })
+          appActions.actions = actions
+        } else {
+          _.remove(appActionsList, { appName })
         }
-
-        appActionsList = _.sortBy(appActionsList, "appName")
       })
   }
 

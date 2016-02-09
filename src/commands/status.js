@@ -1,24 +1,23 @@
 /* @flow */
 
-import _ from "lodash"
 import bluebird from "bluebird"
 import colors from "colors/safe"
 import table from "text-table"
 
-import {deriveActions} from "../actions"
+import { deriveActions } from "../actions"
 import ConfigAction from "../actions/configAction"
 import DockerOptionAction from "../actions/dockerOptionAction"
 import PushAction from "../actions/pushAction"
 
-import {loadContext} from "../appData"
+import { loadContext } from "../appData"
 import Dokku from "../dokku"
 import envCommand from "./envCommand"
 import RepoCache from "../repoCache"
 import showProgress from "../showProgress"
 
-import type {Action} from "../actions"
-import type {AppData, DeployedAppData} from "../appData"
-import type {AppDescription} from "../types"
+import type { Action } from "../actions"
+import type { AppData, KnownAppData } from "../appData"
+import type { AppDescription } from "../types"
 
 export default envCommand(status)
 
@@ -56,16 +55,13 @@ function createTable(appNames, apps, spinner) {
 function createRow(app: AppData) {
   switch (app.status) {
     case "missing":
-      return [name(app.name), colors.red("missing")]
-    case "created":
-      return [name(app.name), colors.red("created")]
-    case "deployed":
+      return [name(app.name), colors.red("✗"), colors.red("missing")]
+    case "exists":
       const actions = deriveActions(app)
-      const color = _.isEmpty(actions) ? colors.green : colors.yellow
-      const running = app.running ? color("running") : colors.red("stopped")
-      return [name(app.name), running, version(app, actions), deploymentStatus(app, actions)]
+      const indicator = actions.length === 0 ? colors.green("✓") : colors.red("✗")
+      return [name(app.name), indicator, state(app), version(app, actions), deploymentStatus(app, actions)]
     case "unknown":
-      return [name(app.name), colors.gray(app.running ? "running" : "stopped")]
+      return [name(app.name), colors.gray(" "), state(app, colors.gray), colors.gray(app.actual.version)]
     default:
       return []
   }
@@ -75,22 +71,37 @@ function name(appName: string) {
   return colors.bold(appName)
 }
 
-function version(app: DeployedAppData, actions: Array<Action>) {
-  const outdated = actions.some((action) => action instanceof PushAction)
-  const color = outdated ? colors.red : colors.green
-  return color(app.deployed.version)
+function state(app: AppData, overrideColor?: Function): string {
+  if (app.deployed) {
+    if (app.running) {
+      const color = overrideColor || colors.green
+      return color("running")
+    } else {
+      const color = overrideColor || colors.red
+      return color("stopped")
+    }
+  } else {
+    const color = overrideColor || colors.red
+    return color("created")
+  }
 }
 
-function deploymentStatus(app: DeployedAppData, actions: Array<Action>) {
+function version(app: AppData, actions: Array<Action>) {
+  const outdated = actions.some((action) => action instanceof PushAction)
+  const color = outdated ? colors.red : colors.green
+  return color(app.actual.version)
+}
+
+function deploymentStatus(app: KnownAppData, actions: Array<Action>) {
   const status = []
 
   if (actions.some((action) => action instanceof ConfigAction)) {
-    status.push(colors.red("config"))
+    status.push("config")
   }
 
   if (actions.some((action) => action instanceof DockerOptionAction)) {
-    status.push(colors.red("docker-options"))
+    status.push("docker-options")
   }
 
-  return status.join(", ")
+  return colors.red(status.join(", "))
 }

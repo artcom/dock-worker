@@ -5,9 +5,9 @@ import _ from "lodash"
 import diffOptions from "../diffOptions"
 import Dokku from "../dokku"
 
-import type {CreatedAppData, DeployedAppData, MissingAppData} from "../appData"
-import type {Change} from "../diffOptions"
-import type {AppDescription} from "../types"
+import type { KnownAppData } from "../appData"
+import type { Change } from "../diffOptions"
+import type { AppDescription } from "../types"
 
 export default class {
   /* jscs:disable disallowSemicolons */
@@ -15,10 +15,8 @@ export default class {
   description: AppDescription;
   /* jscs:enable disallowSemicolons */
 
-  constructor(app: MissingAppData | CreatedAppData | DeployedAppData) {
-    const expected = app.description.config
-    const deployed = app.status === "deployed" ? app.deployed.config : {}
-    this.changes = diffOptions(expected, deployed)
+  constructor(app: KnownAppData) {
+    this.changes = diffOptions(app.description.config, app.actual.config)
     this.description = app.description
   }
 
