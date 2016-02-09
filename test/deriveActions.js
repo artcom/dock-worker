@@ -97,6 +97,29 @@ describe("deriveActions", function() {
         PushAction
       ])
     })
+
+    it("should deploy a created app that is already configured", function() {
+      const actions = deriveActions({
+        name: "app1",
+        status: "exists",
+        deployed: true,
+        running: false,
+        description: appDescription("app1", CURRENT_VERSION, {
+          FOO: "bar"
+        }, {
+          "--some=option": ["build", "deploy"]
+        }),
+        actual: actualConfig("", {
+          FOO: "bar"
+        }, {
+          "--some=option": ["build", "deploy"]
+        })
+      })
+
+      expect(actions).to.matchActionTypes([
+        PushAction
+      ])
+    })
   })
 
   describe("deployed app", function() {
