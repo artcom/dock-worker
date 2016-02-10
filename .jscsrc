@@ -8,5 +8,6 @@
   "maximumLineLength": 100,
   "requirePaddingNewLinesAfterBlocks": {
     "allExcept": ["inCallExpressions"]
-  }
+  },
+  "requireSpacesInAnonymousFunctionExpression": false
 }
