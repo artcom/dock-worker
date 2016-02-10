@@ -34,13 +34,18 @@ function deploy(
   return showProgress(
     (spinner) => colors.gray(`loading service list ${spinner}`),
     loadContext(descriptions, dokku, repoCache)
-  ).then(loadAndDisplayAppActions).then((appActions) =>
+  ).then((context) =>
+    loadAndDisplayAppActions(context, descriptions)
+  ).then((appActions) =>
     applyAppActions(appActions, dokku, repoCache, options["--yes"])
   )
 }
 
-function loadAndDisplayAppActions(context) {
-  const appNames = context.listAppNames()
+function loadAndDisplayAppActions(context, descriptions) {
+  const appNames = context.listAppNames().filter((appName) =>
+    _.find(descriptions, ["name", appName])
+  )
+
   const appActionsList: Array<AppActions> = appNames.map((appName) => ({ appName }))
 
   function deriveAppAction(appName) {
