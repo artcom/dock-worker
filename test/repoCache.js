@@ -6,6 +6,7 @@ import chai, {expect} from "chai"
 import chaiAsPromised from "chai-as-promised"
 import path from "path"
 import tmp from "tmp"
+import url from "url"
 
 import RepoCache from "../src/repoCache"
 
@@ -22,7 +23,8 @@ describe("Repo Cache", function() {
         return execFileAsync("bash", [path.resolve(__dirname, "createRepos.sh"), repoDir])
       }),
       tmpDirAsync({ unsafeCleanup: true }).then((cacheDir) => {
-        this.cache = new RepoCache(this.repoDir, { cacheDir, protocol: "file" })
+        const remoteUrl = url.format({ protocol: "file", host: this.repoDir })
+        this.cache = new RepoCache(remoteUrl, { cacheDir })
       })
     ])
   })

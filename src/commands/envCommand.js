@@ -1,6 +1,7 @@
 /* @flow */
 
 import _ from "lodash"
+import url from "url"
 
 import Dokku from "../dokku"
 import RepoCache from "../repoCache"
@@ -30,7 +31,12 @@ export default function(callback: EnvCommand): Command {
       .value()
 
     const dokku = new Dokku(environment.host)
-    const repoCache = new RepoCache(environment.host)
+    const repoCache = new RepoCache(url.format({
+      slashes: true,
+      protocol: "ssh",
+      auth: "dokku",
+      host: environment.host
+    }))
 
     return callback(descriptions, dokku, repoCache, options)
       .then((result) => {

@@ -1,7 +1,6 @@
 /* @flow */
 
 import path from "path"
-import url from "url"
 
 import * as git from "./git"
 
@@ -14,16 +13,12 @@ export default class RepoCache {
   remoteUrl: string;
   /* jscs:enable disallowSemicolons */
 
-  constructor(host: string, options: { cacheDir?: string, protocol?: string } = {}) {
+  constructor(remoteUrl: string, options: { cacheDir?: string } = {}) {
     this.ORIGIN_REMOTE = "origin"
     this.DOKKU_REMOTE = "dokku"
 
     this.cacheDir = options.cacheDir || ".cache"
-    this.remoteUrl = url.format({
-      slashes: true,
-      protocol: options.protocol || "ssh",
-      host: host
-    })
+    this.remoteUrl = remoteUrl
   }
 
   getRepo(name: string): Promise {

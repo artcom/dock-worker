@@ -1,7 +1,8 @@
 /* @flow */
 
 import _ from "lodash"
-import sequest from "sequest"
+
+import SshConnection from "./sshConnection"
 
 import type {Options} from "./types"
 
@@ -17,15 +18,17 @@ export default class {
   /* jscs:disable disallowSemicolons */
   connection: any;
   host: string;
+  username: string;
   /* jscs:enable disallowSemicolons */
 
-  constructor(host: string) {
+  constructor(host: string, username: string = "dokku") {
     this.host = host
+    this.username = username
   }
 
   disconnect() {
     if (this.connection) {
-      this.connection.end()
+      this.connection.close()
       this.connection = null
     }
   }
@@ -119,19 +122,11 @@ export default class {
   }
 
   sendCommand(command: string): Promise<string> {
-    return new Promise((resolve, reject) => {
-      if (!this.connection) {
-        this.connection = sequest.connect(this.host)
-      }
+    if (!this.connection) {
+      this.connection = new SshConnection(this.username, this.host)
+    }
 
-      this.connection(command, (error, stdout, options) => {
-        if (error) {
-          reject(options ? new Error(options.stderr) : error)
-        } else {
-          resolve(stdout)
-        }
-      })
-    })
+    return this.connection.exec(command)
   }
 }
 
