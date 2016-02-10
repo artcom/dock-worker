@@ -13,7 +13,7 @@
     "prepublish": "babel src --out-dir dist --source-maps",
     "debug": "npm run prepublish && node-debug dist/main.js",
     "start": "npm run prepublish && node dist/main.js",
-    "test": "eslint src && mocha --compilers js:babel/register"
+    "test": "eslint src && mocha --compilers js:babel-register"
   },
   "dependencies": {
     "bl": "^1.0.2",
@@ -29,8 +29,14 @@
     "yn": "^1.2.0"
   },
   "devDependencies": {
-    "babel": "^5.8.29",
+    "babel-cli": "^6.5.1",
     "babel-eslint": "^4.1.4",
+    "babel-plugin-syntax-flow": "^6.5.0",
+    "babel-plugin-transform-es2015-destructuring": "^6.5.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.5.0",
+    "babel-plugin-transform-es2015-parameters": "^6.5.0",
+    "babel-plugin-transform-flow-strip-types": "^6.5.0",
+    "babel-register": "^6.5.1",
     "chai": "^3.4.0",
     "chai-as-promised": "^5.1.0",
     "eslint": "^1.8.0",
