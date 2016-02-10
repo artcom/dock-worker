@@ -75,7 +75,7 @@ function createRow(app: AppData) {
     case "unknown":
       return [
         name(app.name),
-        colors.gray(" "),
+        colors.gray("·"),
         state(app, colors.gray),
         colors.gray(app.actual.version)
       ]
