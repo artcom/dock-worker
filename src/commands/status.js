@@ -55,13 +55,31 @@ function createTable(appNames, apps, spinner) {
 function createRow(app: AppData) {
   switch (app.status) {
     case "missing":
-      return [name(app.name), colors.red("✗"), colors.red("missing")]
+      return [
+        name(app.name),
+        colors.red("✗"),
+        colors.red("missing")
+      ]
+
     case "exists":
       const actions = deriveActions(app)
-      const indicator = actions.length === 0 ? colors.green("✓") : colors.red("✗")
-      return [name(app.name), indicator, state(app), version(app, actions), deploymentStatus(app, actions)]
+
+      return [
+        name(app.name),
+        actions.length === 0 ? colors.green("✓") : colors.red("✗"),
+        state(app),
+        version(app, actions),
+        deploymentStatus(app, actions)
+      ]
+
     case "unknown":
-      return [name(app.name), colors.gray(" "), state(app, colors.gray), colors.gray(app.actual.version)]
+      return [
+        name(app.name),
+        colors.gray(" "),
+        state(app, colors.gray),
+        colors.gray(app.actual.version)
+      ]
+
     default:
       return []
   }
