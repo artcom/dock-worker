@@ -28,8 +28,7 @@ const commands = {
   version
 }
 
-readFileAsync("Dockfile.json")
-  .then(JSON.parse)
+readDockfile()
   .then(function(dockfile) {
     const command = _.find(commands, (command, name) => options[name] === true)
     return command(dockfile, options)
@@ -38,3 +37,14 @@ readFileAsync("Dockfile.json")
     console.error(colors.red("ERROR: ") + error.message)
     process.exitCode = 1
   })
+
+function readDockfile() {
+  return readFileAsync("Dockfile.json")
+    .catch(function() {
+      throw new Error("No Dockfile.json in current working directory")
+    })
+    .then(JSON.parse)
+    .catch(function(error) {
+      throw new Error(`Syntax error in Dockfile.json: ${error.message}`)
+    })
+}

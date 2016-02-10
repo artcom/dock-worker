@@ -23,6 +23,10 @@ export default function(callback: EnvCommand): Command {
       .find(["name", options["<environment>"]])
       .value()
 
+    if (!environment) {
+      throw new Error(`Environment "${options["<environment>"]}" not found in Dockfile.json`)
+    }
+
     const descriptions = _.chain(dockfile.apps)
       .filter((app) => hasBeenSelected(app, options["<app>"]))
       .filter((app) => shouldBeDeployed(app, environment.name))
