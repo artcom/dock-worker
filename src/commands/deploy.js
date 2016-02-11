@@ -35,16 +35,17 @@ function deploy(
     (spinner) => colors.gray(`loading service list ${spinner}`),
     loadContext(descriptions, dokku, repoCache)
   ).then((context) =>
-    loadAndDisplayAppActions(context, descriptions)
+    loadAndDisplayAppActions(context, descriptions, options["<app>"])
   ).then((appActions) =>
     applyAppActions(appActions, dokku, repoCache, options["--yes"])
   )
 }
 
-function loadAndDisplayAppActions(context, descriptions) {
-  const appNames = context.listAppNames().filter((appName) =>
-    _.find(descriptions, ["name", appName])
-  )
+function loadAndDisplayAppActions(context, descriptions, selectedApps) {
+  const appNames = context.listAppNames().filter((appName) => {
+    const description = _.find(descriptions, ["name", appName])
+    return description && hasBeenSelected(description, selectedApps)
+  })
 
   const appActionsList: Array<AppActions> = appNames.map((appName) => ({ appName }))
 
@@ -65,6 +66,14 @@ function loadAndDisplayAppActions(context, descriptions) {
     (spinner) => printList(appActionsList, spinner),
     bluebird.map(appNames, deriveAppAction, { concurrency: 4 })
   ).then(() => appActionsList)
+}
+
+function hasBeenSelected(description: AppDescription, selectedApps: Array<string>) {
+  if (_.isEmpty(selectedApps)) {
+    return true
+  } else {
+    return _.includes(selectedApps, description.name)
+  }
 }
 
 function applyAppActions(appActionsList, dokku, repoCache, yes) {

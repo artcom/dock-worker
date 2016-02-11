@@ -28,7 +28,6 @@ export default function(callback: EnvCommand): Command {
     }
 
     const descriptions = _.chain(dockfile.apps)
-      .filter((app) => hasBeenSelected(app, options["<app>"]))
       .filter((app) => shouldBeDeployed(app, environment.name))
       .map((app) => configureAppForEnvironment(app, environment.name))
       .defaults({ config: {}, dockerOptions: {}, stopBeforeDeployment: false })
@@ -51,14 +50,6 @@ export default function(callback: EnvCommand): Command {
         dokku.disconnect()
         throw error
       })
-  }
-}
-
-function hasBeenSelected(description: AppDescription, selectedApps: Array<string>) {
-  if (_.isEmpty(selectedApps)) {
-    return true
-  } else {
-    return _.includes(selectedApps, description.name)
   }
 }
 
