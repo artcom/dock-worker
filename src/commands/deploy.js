@@ -31,14 +31,25 @@ function deploy(
   repoCache: RepoCache,
   options: any)
 {
+  const selectedApps = options["<app>"]
+  validateSelectedApps(descriptions, selectedApps)
+
   return showProgress(
     (spinner) => colors.gray(`loading service list ${spinner}`),
     loadContext(descriptions, dokku, repoCache)
   ).then((context) =>
-    loadAndDisplayAppActions(context, descriptions, options["<app>"])
+    loadAndDisplayAppActions(context, descriptions, selectedApps)
   ).then((appActions) =>
     applyAppActions(appActions, dokku, repoCache, options["--yes"])
   )
+}
+
+function validateSelectedApps(descriptions, selectedApps) {
+  selectedApps.forEach((appName) => {
+    if (!_.find(descriptions, ["name", appName])) {
+      throw new Error(`Unknown app "${appName}"`)
+    }
+  })
 }
 
 function loadAndDisplayAppActions(context, descriptions, selectedApps) {
