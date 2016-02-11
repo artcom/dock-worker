@@ -66,7 +66,7 @@ describe("deriveActions", function() {
       const actions = deriveActions({
         name: "app1",
         status: "exists",
-        deployed: true,
+        deployed: false,
         running: false,
         description: appDescription("app1", CURRENT_VERSION),
         actual: actualConfig("")
@@ -81,7 +81,7 @@ describe("deriveActions", function() {
       const actions = deriveActions({
         name: "app1",
         status: "exists",
-        deployed: true,
+        deployed: false,
         running: false,
         description: appDescription("app1", CURRENT_VERSION, {
           FOO: "bar"
@@ -102,7 +102,7 @@ describe("deriveActions", function() {
       const actions = deriveActions({
         name: "app1",
         status: "exists",
-        deployed: true,
+        deployed: false,
         running: false,
         description: appDescription("app1", CURRENT_VERSION, {
           FOO: "bar"
