@@ -41,10 +41,12 @@ readDockfile()
 function readDockfile() {
   return readFileAsync("Dockfile.json")
     .catch(function() {
-      throw new Error("No Dockfile.json in current working directory")
-    })
-    .then(JSON.parse)
-    .catch(function(error) {
-      throw new Error(`Syntax error in Dockfile.json: ${error.message}`)
+      throw new Error("Could not read Dockfile.json in current working directory")
+    }).then(function(content) {
+      try {
+        return JSON.parse(content)
+      } catch (error) {
+        throw new Error(`Syntax error in Dockfile.json: ${error.message}`)
+      }
     })
 }
