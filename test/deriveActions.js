@@ -151,6 +151,40 @@ describe("deriveActions", function() {
           StartAction
         ])
       })
+
+      it("should configure a running app", function() {
+        const actions = deriveActions({
+          name: "app1",
+          status: "exists",
+          deployed: true,
+          running: true,
+          description: appDescription("app1", CURRENT_VERSION, {
+            NEW_CONFIG: "value"
+          }),
+          actual: actualConfig(CURRENT_VERSION)
+        })
+
+        expect(actions).to.matchActionTypes([
+          ConfigAction
+        ])
+      })
+
+      it("should configure a stopped app", function() {
+        const actions = deriveActions({
+          name: "app1",
+          status: "exists",
+          deployed: true,
+          running: false,
+          description: appDescription("app1", CURRENT_VERSION, {}, {
+            "--some=option": ["build", "deploy"]
+          }),
+          actual: actualConfig(CURRENT_VERSION)
+        })
+
+        expect(actions).to.matchActionTypes([
+          DockerOptionAction
+        ])
+      })
     })
 
     context("that is out-of-date", function() {
@@ -237,11 +271,25 @@ describe("deriveActions", function() {
   })
 
   describe("unknown app", function() {
+    it("should ignore created unknown app", function() {
+      const actions = deriveActions({
+        name: "app1",
+        status: "unknown",
+        deployed: false,
+        running: false,
+        actual: actualConfig("")
+      })
+
+      expect(actions).to.be.empty
+    })
+
     it("should ignore running unknown app", function() {
       const actions = deriveActions({
         name: "app1",
         status: "unknown",
-        running: true
+        deployed: true,
+        running: true,
+        actual: actualConfig(CURRENT_VERSION)
       })
 
       expect(actions).to.be.empty
@@ -251,7 +299,9 @@ describe("deriveActions", function() {
       const actions = deriveActions({
         name: "app1",
         status: "unknown",
-        running: false
+        deployed: true,
+        running: false,
+        actual: actualConfig(CURRENT_VERSION)
       })
 
       expect(actions).to.be.empty
