@@ -38,7 +38,7 @@ function deploy(
     (spinner) => colors.gray(`loading service list ${spinner}`),
     loadContext(descriptions, dokku, repoCache)
   ).then((context) =>
-    loadAndDisplayAppActions(context, descriptions, selectedApps)
+    loadAppActions(context, descriptions, selectedApps)
   ).then((appActions) =>
     applyAppActions(appActions, dokku, repoCache, options["--yes"])
   )
@@ -52,7 +52,7 @@ function validateSelectedApps(descriptions, selectedApps) {
   })
 }
 
-function loadAndDisplayAppActions(context, descriptions, selectedApps) {
+function loadAppActions(context, descriptions, selectedApps) {
   const appNames = context.listAppNames().filter((appName) => {
     const description = _.find(descriptions, ["name", appName])
     return description && hasBeenSelected(description, selectedApps)
