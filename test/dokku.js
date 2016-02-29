@@ -76,7 +76,7 @@ describe("Dokku", function() {
     })
   })
 
-  describe("Config", function() {
+  describe("App Config", function() {
     it("should get the config", function() {
       this.mock.expects("sendCommand")
         .withArgs("config app1")
@@ -136,6 +136,69 @@ describe("Dokku", function() {
         .returns(Promise.resolve(""))
 
       return this.dokku.unsetConfig("app1", "FOO", "NUMBER")
+    })
+  })
+
+  describe("Global Config", function() {
+    it("should get the config", function() {
+      this.mock.expects("sendCommand")
+        .withArgs("config --global")
+        .returns(Promise.resolve(unindent(`
+          =====> --global config vars
+          DOKKU_DEFAULT_CHECKS_WAIT: 5
+          DOKKU_WAIT_TO_RETIRE:      0
+          URL:                   http://example.com/
+          NUMBER:                23
+          `
+        )))
+
+      return expect(this.dokku.globalConfig()).to.eventually.deep.equal({
+        URL: "http://example.com/",
+        NUMBER: "23"
+      })
+    })
+
+    it("should get an empty config", function() {
+      this.mock.expects("sendCommand")
+        .withArgs("config --global")
+        .returns(Promise.reject(new Error(unindent(`
+          no config vars for --global
+          `
+        ))))
+
+      return expect(this.dokku.globalConfig()).to.eventually.deep.equal({})
+    })
+
+    it("should set a single config variable", function() {
+      this.mock.expects("sendCommand")
+        .withArgs(`config:set --global FOO="bar"`)
+        .returns(Promise.resolve(""))
+
+      return this.dokku.setGlobalConfig({ FOO: "bar" })
+    })
+
+    it("should set multiple config variables", function() {
+      this.mock.expects("sendCommand")
+        .withArgs(`config:set --global FOO="bar" NUMBER="42"`)
+        .returns(Promise.resolve(""))
+
+      return this.dokku.setGlobalConfig({ FOO: "bar", NUMBER: 42 })
+    })
+
+    it("should unset a single config variable", function() {
+      this.mock.expects("sendCommand")
+        .withArgs("config:unset --global FOO")
+        .returns(Promise.resolve(""))
+
+      return this.dokku.unsetGlobalConfig("FOO")
+    })
+
+    it("should unset multiple config variables", function() {
+      this.mock.expects("sendCommand")
+        .withArgs("config:unset --global FOO NUMBER")
+        .returns(Promise.resolve(""))
+
+      return this.dokku.unsetGlobalConfig("FOO", "NUMBER")
     })
   })
 

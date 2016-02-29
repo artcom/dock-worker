@@ -70,6 +70,31 @@ export default class {
     return this.dokku("config:unset", app, ...keys)
   }
 
+  globalConfig(): Promise<Options> {
+    return this.dokku("config --global").catch((error) => {
+      if (error.message.endsWith(`no config vars for --global\n`)) {
+        return []
+      } else {
+        throw error
+      }
+    }).then((lines) =>
+      _.chain(lines)
+        .map(extractPair)
+        .reject(isDokkuConfig)
+        .fromPairs()
+        .value()
+    )
+  }
+
+  setGlobalConfig(config: { [key: string]: string }): Promise {
+    const params = _.map(config, (value, key) => `${key}="${value}"`)
+    return this.dokku("config:set --global", ...params)
+  }
+
+  unsetGlobalConfig(...keys: Array<string>): Promise {
+    return this.dokku("config:unset --global", ...keys)
+  }
+
   dockerOptions(app: string): Promise<Options> {
     return this.dokku("docker-options", app).then((lines) =>
       lines.reduce(({ options, phase }, line) => {
