@@ -71,28 +71,15 @@ export default class {
   }
 
   globalConfig(): Promise<Options> {
-    return this.dokku("config --global").catch((error) => {
-      if (error.message.endsWith(`no config vars for --global\n`)) {
-        return []
-      } else {
-        throw error
-      }
-    }).then((lines) =>
-      _.chain(lines)
-        .map(extractPair)
-        .reject(isDokkuConfig)
-        .fromPairs()
-        .value()
-    )
+    return this.config("--global")
   }
 
   setGlobalConfig(config: { [key: string]: string }): Promise {
-    const params = _.map(config, (value, key) => `${key}="${value}"`)
-    return this.dokku("config:set --global", ...params)
+    return this.setConfig("--global", config)
   }
 
   unsetGlobalConfig(...keys: Array<string>): Promise {
-    return this.dokku("config:unset --global", ...keys)
+    return this.unsetConfig("--global", ...keys)
   }
 
   dockerOptions(app: string): Promise<Options> {
