@@ -116,7 +116,7 @@ export function clone(repo: string, directory: string, options: RepoOptions = {}
 }
 
 function git(...params: Array<string>): Promise<Array<string>> {
-  return execFileAsync("git", params).then((stdout) => {
+  return execFileAsync("git", params, { maxBuffer: 2048 * 1024 }).then((stdout) => {
     const lines = stdout.split("\n")
     return _.reject(lines, _.isEmpty)
   })
