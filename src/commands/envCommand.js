@@ -77,6 +77,6 @@ function selectEnvironmentOptions(options: Options, environment: string): Option
         return value
       }
     })
-    .omit(_.isUndefined)
+    .omitBy(_.isUndefined)
     .value()
 }
