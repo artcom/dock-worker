@@ -1,0 +1,10 @@
+{
+  "extends": "artcom",
+  "parser": "babel-eslint",
+  "rules": {
+    "no-console": 0,
+    "no-duplicate-imports": 0,
+    "no-param-reassign": 0,
+    "no-use-before-define": 0
+  }
+}
