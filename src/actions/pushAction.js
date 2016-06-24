@@ -3,7 +3,7 @@
 import Dokku from "../dokku"
 import RepoCache from "../repoCache"
 
-import type {AppDescription} from "../types"
+import type { AppDescription } from "../types"
 
 export default class {
   /* jscs:disable disallowSemicolons */

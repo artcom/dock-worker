@@ -29,8 +29,8 @@ function deploy(
   descriptions: Array<AppDescription>,
   dokku: Dokku,
   repoCache: RepoCache,
-  options: any)
-{
+  options: any
+) {
   const selectedApps = options["<app>"]
   validateSelectedApps(descriptions, selectedApps)
 
@@ -141,6 +141,6 @@ function printName(appName: string): string {
 
 function printAction(action: Action): string {
   return _(action.describe())
-    .map((description) => "  " + description)
+    .map((description) => `  ${description}`)
     .join("\n")
 }

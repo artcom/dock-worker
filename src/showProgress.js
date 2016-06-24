@@ -4,7 +4,7 @@ import logUpdate from "log-update"
 export default function(message, promise) {
   const spinner = elegantSpinner()
 
-  const interval = setInterval(function() {
+  const interval = setInterval(() => {
     logUpdate(message(spinner()))
   }, 66)
 

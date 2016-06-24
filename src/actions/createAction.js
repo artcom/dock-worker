@@ -2,7 +2,7 @@
 
 import Dokku from "../dokku"
 
-import type {AppData} from "../appData"
+import type { AppData } from "../appData"
 
 export default class {
   /* jscs:disable disallowSemicolons */

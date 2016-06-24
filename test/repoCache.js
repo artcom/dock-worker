@@ -2,7 +2,7 @@
 
 import bluebird from "bluebird"
 import cp from "child_process"
-import chai, {expect} from "chai"
+import chai, { expect } from "chai"
 import chaiAsPromised from "chai-as-promised"
 import path from "path"
 import tmp from "tmp"

@@ -6,7 +6,7 @@ import url from "url"
 import Dokku from "../dokku"
 import RepoCache from "../repoCache"
 
-import type {AppDescription, Options} from "../types"
+import type { AppDescription, Options } from "../types"
 
 type Command = (dockfile: any, options: any) => Promise
 
@@ -18,7 +18,7 @@ type EnvCommand = (
 ) => Command
 
 export default function(callback: EnvCommand): Command {
-  return function(dockfile, options) {
+  return (dockfile, options) => {
     const environment = _.chain(dockfile.environments)
       .find(["name", options["<environment>"]])
       .value()

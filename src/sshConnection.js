@@ -27,8 +27,8 @@ export default class SshConnection {
   }
 
   exec(command: string): Promise<string> {
-    return this.connect.then(() => {
-      return new Promise((resolve, reject) => {
+    return this.connect.then(() =>
+      new Promise((resolve, reject) => {
         this.client.exec(command, (error, stream) => {
           if (error) {
             reject(error)
@@ -49,7 +49,7 @@ export default class SshConnection {
           })
         })
       })
-    })
+    )
   }
 
   close() {

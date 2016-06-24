@@ -8,7 +8,7 @@ import DockerOptionAction from "./dockerOptionAction"
 import PushAction from "./pushAction"
 import StartAction from "./startAction"
 
-import type {AppData} from "../appData"
+import type { AppData } from "../appData"
 
 export type Action = ConfigAction | CreateAction | DockerOptionAction | PushAction | StartAction
 

@@ -49,7 +49,7 @@ function stopApp(dokku, description) {
   return description.stopBeforeDeployment ? dokku.stop(description.name) : Promise.resolve()
 }
 
-const setConfig = function(dokku, description, changes) {
+function setConfig(dokku, description, changes) {
   if (_.isEmpty(changes)) {
     return Promise.resolve()
   }
@@ -62,7 +62,7 @@ const setConfig = function(dokku, description, changes) {
   return stopApp(dokku, description).then(() => dokku.setConfig(description.name, options))
 }
 
-const unsetConfig = function(dokku, description, changes) {
+function unsetConfig(dokku, description, changes) {
   if (_.isEmpty(changes)) {
     return Promise.resolve()
   }

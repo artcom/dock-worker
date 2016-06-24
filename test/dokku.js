@@ -1,7 +1,7 @@
 /* eslint-env mocha */
 
 import _ from "lodash"
-import chai, {expect} from "chai"
+import chai, { expect } from "chai"
 import chaiAsPromised from "chai-as-promised"
 import sinon from "sinon"
 
@@ -52,12 +52,12 @@ describe("Dokku", function() {
       this.mock.expects("sendCommand")
         .withArgs("ls")
         .returns(Promise.resolve(
-          /* jscs:disable maximumLineLength */
+          /* eslint-disable max-len */
           "-----> App Name           Container Type            Container Id              Status                    \n" +
           "some-app                  web                       26effc047c53              running                   \n" +
           "another-app               NOT_DEPLOYED              NOT_DEPLOYED              NOT_DEPLOYED              \n" +
           "stopped-app               web                       09d5ecb93b6d              stopped                   \n"
-          /* jscs:enable maximumLineLength */
+          /* eslint-enable max-len */
         ))
 
       return expect(this.dokku.ls()).to.eventually.deep.equal([
@@ -108,7 +108,7 @@ describe("Dokku", function() {
 
     it("should set a single config variable", function() {
       this.mock.expects("sendCommand")
-        .withArgs(`config:set app1 FOO="bar"`)
+        .withArgs('config:set app1 FOO="bar"')
         .returns(Promise.resolve(""))
 
       return this.dokku.setConfig("app1", { FOO: "bar" })
@@ -116,7 +116,7 @@ describe("Dokku", function() {
 
     it("should set multiple config variables", function() {
       this.mock.expects("sendCommand")
-        .withArgs(`config:set app1 FOO="bar" NUMBER="42"`)
+        .withArgs('config:set app1 FOO="bar" NUMBER="42"')
         .returns(Promise.resolve(""))
 
       return this.dokku.setConfig("app1", { FOO: "bar", NUMBER: 42 })

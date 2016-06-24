@@ -3,7 +3,7 @@
 import _ from "lodash"
 import bluebird from "bluebird"
 import colors from "colors/safe"
-import {docopt} from "docopt"
+import { docopt } from "docopt"
 import fs from "fs"
 
 import status from "./commands/status"
@@ -29,20 +29,21 @@ const commands = {
 }
 
 readDockfile()
-  .then(function(dockfile) {
+  .then(dockfile => {
     const command = _.find(commands, (command, name) => options[name] === true)
     return command(dockfile, options)
   })
-  .catch(function(error) {
+  .catch(error => {
     console.error(colors.red("ERROR: ") + error.message)
     process.exitCode = 1
   })
 
 function readDockfile() {
   return readFileAsync("Dockfile.json")
-    .catch(function() {
+    .catch(() => {
       throw new Error("Could not read Dockfile.json in current working directory")
-    }).then(function(content) {
+    })
+    .then(content => {
       try {
         return JSON.parse(content)
       } catch (error) {

@@ -11,6 +11,7 @@ import StartAction from "../src/actions/startAction"
 
 chai.use(function({ Assertion }) {
   Assertion.addMethod("matchActionTypes", function(types) {
+    // eslint-disable-next-line no-underscore-dangle
     const actions = this._obj
     new Assertion(actions).have.length(types.length, "wrong number of actions")
     actions.forEach((action, i) => new Assertion(action).is.instanceof(types[i]))

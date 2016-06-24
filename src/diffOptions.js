@@ -2,7 +2,7 @@
 
 import _ from "lodash"
 
-import type {Options} from "./types"
+import type { Options } from "./types"
 
 export type Change = Add | Remove | Update
 

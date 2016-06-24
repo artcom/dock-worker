@@ -61,7 +61,7 @@ function createRow(app: AppData) {
         colors.red("missing")
       ]
 
-    case "exists":
+    case "exists": {
       const actions = deriveActions(app)
 
       return [
@@ -71,6 +71,7 @@ function createRow(app: AppData) {
         version(app, actions),
         deploymentStatus(app, actions)
       ]
+    }
 
     case "unknown":
       return [

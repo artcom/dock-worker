@@ -4,7 +4,7 @@ import _ from "lodash"
 
 import SshConnection from "./sshConnection"
 
-import type {Options} from "./types"
+import type { Options } from "./types"
 
 export type Phase = "build" | "deploy" | "run"
 export type AppStatus = {

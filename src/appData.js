@@ -6,7 +6,7 @@ import bluebird from "bluebird"
 import Dokku from "./dokku"
 import RepoCache from "./repoCache"
 
-import type {Options, AppDescription} from "./types"
+import type { Options, AppDescription } from "./types"
 
 export type AppData = KnownAppData | UnknownAppData
 
