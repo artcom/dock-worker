@@ -20,7 +20,8 @@ export default class SshConnection {
       }).connect({
         host,
         username,
-        agent: process.env.SSH_AUTH_SOCK
+        agent: process.env.SSH_AUTH_SOCK,
+        readyTimeout: 30000
       })
     })
   }
