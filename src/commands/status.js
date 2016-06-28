@@ -9,6 +9,7 @@ import ConfigAction from "../actions/configAction"
 import DockerOptionAction from "../actions/dockerOptionAction"
 import PushAction from "../actions/pushAction"
 
+import ansiTable from "../ansiTable"
 import { loadContext } from "../appData"
 import Dokku from "../dokku"
 import envCommand from "./envCommand"
@@ -49,7 +50,7 @@ function createTable(appNames, apps, spinner) {
       : [name(appName), chalk.gray(spinner)]
   )
 
-  return table(rows)
+  return ansiTable(rows)
 }
 
 function createRow(app: AppData) {

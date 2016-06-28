@@ -1,10 +1,11 @@
 import chalk from "chalk"
-import table from "text-table"
+
+import ansiTable from "../ansiTable"
 
 export default function(dockfile) {
   const rows = dockfile.environments.map(environment =>
     [chalk.bold(environment.name), environment.host]
   )
 
-  console.log(table(rows))
+  console.log(ansiTable(rows))
 }
