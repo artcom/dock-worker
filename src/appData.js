@@ -146,7 +146,6 @@ class Context {
     return this.repoCache.getRepo(name)
       .then((repo) => repo.fetch(this.repoCache.DOKKU_REMOTE))
       .then((repo) => repo.showRef(`refs/remotes/${this.repoCache.DOKKU_REMOTE}/master`))
-      .catch(() => "not deployed yet")
   }
 }
 
