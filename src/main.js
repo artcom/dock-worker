@@ -2,7 +2,7 @@
 
 import _ from "lodash"
 import bluebird from "bluebird"
-import colors from "colors/safe"
+import chalk from "chalk"
 import { docopt } from "docopt"
 import fs from "fs"
 
@@ -34,7 +34,7 @@ readDockfile()
     return command(dockfile, options)
   })
   .catch(error => {
-    console.error(colors.red("ERROR: ") + error.message)
+    console.error(chalk.red("ERROR: ") + error.message)
     process.exitCode = 1
   })
 

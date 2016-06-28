@@ -1,7 +1,7 @@
 /* @flow */
 
 import bluebird from "bluebird"
-import colors from "colors/safe"
+import chalk from "chalk"
 import table from "text-table"
 
 import { deriveActions } from "../actions"
@@ -23,7 +23,7 @@ export default envCommand(status)
 
 function status(descriptions: Array<AppDescription>, dokku: Dokku, repoCache: RepoCache) {
   return showProgress(
-    (spinner) => colors.gray(`loading service list ${spinner}`),
+    (spinner) => chalk.gray(`loading service list ${spinner}`),
     loadContext(descriptions, dokku, repoCache)
   ).then((context) => {
     const appNames = context.listAppNames()
@@ -46,7 +46,7 @@ function createTable(appNames, apps, spinner) {
   const rows = appNames.map((appName) =>
     apps[appName]
       ? createRow(apps[appName])
-      : [name(appName), colors.gray(spinner)]
+      : [name(appName), chalk.gray(spinner)]
   )
 
   return table(rows)
@@ -57,8 +57,8 @@ function createRow(app: AppData) {
     case "missing":
       return [
         name(app.name),
-        colors.red("✗"),
-        colors.red("missing")
+        chalk.red("✗"),
+        chalk.red("missing")
       ]
 
     case "exists": {
@@ -66,7 +66,7 @@ function createRow(app: AppData) {
 
       return [
         name(app.name),
-        actions.length === 0 ? colors.green("✓") : colors.red("✗"),
+        actions.length === 0 ? chalk.green("✓") : chalk.red("✗"),
         state(app),
         version(app, actions),
         deploymentStatus(app, actions)
@@ -76,9 +76,9 @@ function createRow(app: AppData) {
     case "unknown":
       return [
         name(app.name),
-        colors.gray("·"),
-        state(app, colors.gray),
-        colors.gray(app.actual.version)
+        chalk.gray("·"),
+        state(app, chalk.gray),
+        chalk.gray(app.actual.version)
       ]
 
     default:
@@ -87,27 +87,27 @@ function createRow(app: AppData) {
 }
 
 function name(appName: string) {
-  return colors.bold(appName)
+  return chalk.bold(appName)
 }
 
 function state(app: AppData, overrideColor?: Function): string {
   if (app.deployed) {
     if (app.running) {
-      const color = overrideColor || colors.green
+      const color = overrideColor || chalk.green
       return color("running")
     } else {
-      const color = overrideColor || colors.red
+      const color = overrideColor || chalk.red
       return color("stopped")
     }
   } else {
-    const color = overrideColor || colors.red
+    const color = overrideColor || chalk.red
     return color("created")
   }
 }
 
 function version(app: AppData, actions: Array<Action>) {
   const outdated = actions.some((action) => action instanceof PushAction)
-  const color = outdated ? colors.red : colors.green
+  const color = outdated ? chalk.red : chalk.green
   return color(app.actual.version)
 }
 
@@ -122,5 +122,5 @@ function deploymentStatus(app: KnownAppData, actions: Array<Action>) {
     status.push("docker-options")
   }
 
-  return colors.red(status.join(", "))
+  return chalk.red(status.join(", "))
 }

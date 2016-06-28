@@ -2,7 +2,7 @@
 
 import _ from "lodash"
 import bluebird from "bluebird"
-import colors from "colors/safe"
+import chalk from "chalk"
 import read from "read"
 import yn from "yn"
 
@@ -35,7 +35,7 @@ function deploy(
   validateSelectedApps(descriptions, selectedApps)
 
   return showProgress(
-    (spinner) => colors.gray(`loading service list ${spinner}`),
+    (spinner) => chalk.gray(`loading service list ${spinner}`),
     loadContext(descriptions, dokku, repoCache)
   ).then((context) =>
     loadAppActions(context, descriptions, selectedApps)
@@ -112,9 +112,9 @@ function runActions(appActionsList, dokku, repoCache) {
 
     return bluebird.mapSeries(actions, (action) =>
       showProgress(
-        (spinner) => colors.gray(`${printAction(action)} ${spinner}`),
+        (spinner) => chalk.gray(`${printAction(action)} ${spinner}`),
         action.run(dokku, repoCache)
-      ).then(() => console.log(colors.cyan(printAction(action))))
+      ).then(() => console.log(chalk.cyan(printAction(action))))
     )
   })
 }
@@ -126,17 +126,17 @@ function printList(appActionsList: Array<AppActions>, spinner: string = ""): str
 
 function printAppActions({ appName, actions }: AppActions, spinner: string): string {
   if (!actions) {
-    return `${printName(appName)} ${colors.gray(spinner)}`
+    return `${printName(appName)} ${chalk.gray(spinner)}`
   }
 
-  const lines = actions.map((action) => colors.gray(printAction(action)))
+  const lines = actions.map((action) => chalk.gray(printAction(action)))
   lines.unshift(printName(appName))
 
   return lines.join("\n")
 }
 
 function printName(appName: string): string {
-  return colors.bold(appName)
+  return chalk.bold(appName)
 }
 
 function printAction(action: Action): string {
