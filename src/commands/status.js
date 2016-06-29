@@ -2,7 +2,6 @@
 
 import bluebird from "bluebird"
 import chalk from "chalk"
-import table from "text-table"
 
 import { deriveActions } from "../actions"
 import ConfigAction from "../actions/configAction"
