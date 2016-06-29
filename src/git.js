@@ -19,9 +19,7 @@ type Remotes = {[key: string]: {
 }}
 
 class Repo {
-  /* jscs:disable disallowSemicolons */
   directory: string;
-  /* jscs:enable disallowSemicolons */
 
   constructor(directory: string, bare: boolean = false) {
     this.directory = bare ? directory : path.join(directory, ".git")

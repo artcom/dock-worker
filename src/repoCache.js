@@ -5,13 +5,11 @@ import path from "path"
 import * as git from "./git"
 
 export default class RepoCache {
-  /* jscs:disable disallowSemicolons */
   ORIGIN_REMOTE: string;
   DOKKU_REMOTE: string;
 
   cacheDir: string;
   remoteUrl: string;
-  /* jscs:enable disallowSemicolons */
 
   constructor(remoteUrl: string, options: { cacheDir?: string } = {}) {
     this.ORIGIN_REMOTE = "origin"

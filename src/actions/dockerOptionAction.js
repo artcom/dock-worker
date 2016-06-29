@@ -10,10 +10,8 @@ import type { Change } from "../diffOptions"
 import type { AppDescription } from "../types"
 
 export default class {
-  /* jscs:disable disallowSemicolons */
   changes: Array<Change>;
   description: AppDescription;
-  /* jscs:enable disallowSemicolons */
 
   constructor(app: KnownAppData) {
     this.changes = diffOptions(app.description.dockerOptions, app.actual.dockerOptions)

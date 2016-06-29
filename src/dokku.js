@@ -15,11 +15,9 @@ export type AppStatus = {
 }
 
 export default class {
-  /* jscs:disable disallowSemicolons */
   connection: any;
   host: string;
   username: string;
-  /* jscs:enable disallowSemicolons */
 
   constructor(host: string, username: string = "dokku") {
     this.host = host

@@ -5,9 +5,7 @@ import Dokku from "../dokku"
 import type { AppData } from "../appData"
 
 export default class {
-  /* jscs:disable disallowSemicolons */
   name: string;
-  /* jscs:enable disallowSemicolons */
 
   constructor({ name }: AppData) {
     this.name = name

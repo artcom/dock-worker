@@ -34,7 +34,6 @@ type ActualConfig = {
 }
 
 class Context {
-  /* jscs:disable disallowSemicolons */
   descriptions: Array<AppDescription>;
   status: { [key: string]: string };
 
@@ -44,7 +43,6 @@ class Context {
 
   dokku: Dokku;
   repoCache: RepoCache;
-  /* jscs:enable disallowSemicolons */
 
   constructor(descriptions, dokku, repoCache) {
     this.descriptions = descriptions

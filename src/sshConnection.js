@@ -4,10 +4,8 @@ import { Client } from "ssh2"
 import BufferList from "bl"
 
 export default class SshConnection {
-  /* jscs:disable disallowSemicolons */
   client: Client;
   connect: Promise;
-  /* jscs:enable disallowSemicolons */
 
   constructor(username: string, host: string) {
     this.client = new Client()
