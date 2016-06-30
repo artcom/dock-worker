@@ -28,26 +28,28 @@ const commands = {
   version
 }
 
-readDockfile()
-  .then(dockfile => {
+main()
+
+async function main() {
+  try {
+    const dockfile = await readDockfile()
     const command = _.find(commands, (command, name) => options[name] === true)
     return command(dockfile, options)
-  })
-  .catch(error => {
+  } catch (error) {
     console.error(chalk.red("ERROR: ") + error.message)
     process.exitCode = 1
-  })
+  }
+}
 
-function readDockfile() {
-  return readFileAsync("Dockfile.json")
-    .catch(() => {
+async function readDockfile() {
+  try {
+    const content = await readFileAsync("Dockfile.json")
+    return JSON.parse(content)
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      throw new Error(`Syntax error in Dockfile.json: ${error.message}`)
+    } else {
       throw new Error("Could not read Dockfile.json in current working directory")
-    })
-    .then(content => {
-      try {
-        return JSON.parse(content)
-      } catch (error) {
-        throw new Error(`Syntax error in Dockfile.json: ${error.message}`)
-      }
-    })
+    }
+  }
 }

@@ -1,7 +1,6 @@
 /* @flow */
 
 import _ from "lodash"
-import bluebird from "bluebird"
 
 import Dokku from "./dokku"
 import RepoCache from "./repoCache"
@@ -50,22 +49,21 @@ class Context {
     this.repoCache = repoCache
   }
 
-  initialize(): Promise<Context> {
-    return this.dokku.ls().then((list) => {
-      const available = _.map(list, "name")
-      const defined = _.map(this.descriptions, "name")
+  async initialize(): Promise<Context> {
+    const list = await this.dokku.ls()
+    const available = _.map(list, "name")
+    const defined = _.map(this.descriptions, "name")
 
-      this.status = _.chain(list)
-        .map(({ name, status }) => [name, status])
-        .fromPairs()
-        .value()
+    this.status = _.chain(list)
+      .map(({ name, status }) => [name, status])
+      .fromPairs()
+      .value()
 
-      this.missingApps = _.difference(defined, available)
-      this.existingApps = _.intersection(defined, available)
-      this.unknownApps = _.difference(available, defined)
+    this.missingApps = _.difference(defined, available)
+    this.existingApps = _.intersection(defined, available)
+    this.unknownApps = _.difference(available, defined)
 
-      return this
-    })
+    return this
   }
 
   listAppNames(): Array<string> {
@@ -90,8 +88,8 @@ class Context {
     }
   }
 
-  missingAppData(description: AppDescription): Promise<KnownAppData> {
-    return Promise.resolve({
+  async missingAppData(description: AppDescription): Promise<KnownAppData> {
+    return {
       name: description.name,
       status: "missing",
       deployed: false,
@@ -102,48 +100,48 @@ class Context {
         config: {},
         dockerOptions: {}
       }
-    })
+    }
   }
 
-  existingAppData(description: AppDescription, status: string): Promise<KnownAppData> {
+  async existingAppData(description: AppDescription, status: string): Promise<KnownAppData> {
     const deployed = status !== "NOT_DEPLOYED"
     const running = status === "running"
 
-    return bluebird.props({
-      version: deployed ? this.actualVersion(description.name) : "",
-      config: this.dokku.config(description.name),
-      dockerOptions: this.dokku.dockerOptions(description.name)
-    }).then((actual) => ({
+    return {
       name: description.name,
       status: "exists",
       deployed,
       running,
       description,
-      actual
-    }))
+      actual: {
+        version: deployed ? await this.actualVersion(description.name) : "",
+        config: await this.dokku.config(description.name),
+        dockerOptions: await this.dokku.dockerOptions(description.name)
+      }
+    }
   }
 
-  unknownAppData(name: string, status: string): Promise<UnknownAppData> {
+  async unknownAppData(name: string, status: string): Promise<UnknownAppData> {
     const deployed = status !== "NOT_DEPLOYED"
     const running = status === "running"
 
-    return bluebird.props({
-      version: deployed ? this.actualVersion(name) : "",
-      config: this.dokku.config(name),
-      dockerOptions: this.dokku.dockerOptions(name)
-    }).then((actual) => ({
+    return {
       name,
       status: "unknown",
       deployed,
       running,
-      actual
-    }))
+      actual: {
+        version: deployed ? await this.actualVersion(name) : "",
+        config: await this.dokku.config(name),
+        dockerOptions: await this.dokku.dockerOptions(name)
+      }
+    }
   }
 
-  actualVersion(name: string): Promise<string> {
-    return this.repoCache.getRepo(name)
-      .then((repo) => repo.fetch(this.repoCache.DOKKU_REMOTE))
-      .then((repo) => repo.showRef(`refs/remotes/${this.repoCache.DOKKU_REMOTE}/master`))
+  async actualVersion(name: string): Promise<string> {
+    const repo = await this.repoCache.getRepo(name)
+    await repo.fetch(this.repoCache.DOKKU_REMOTE)
+    return await repo.showRef(`refs/remotes/${this.repoCache.DOKKU_REMOTE}/master`)
   }
 }
 

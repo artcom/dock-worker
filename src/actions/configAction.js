@@ -22,11 +22,11 @@ export default class {
     return this.changes.map(describeChange)
   }
 
-  run(dokku: Dokku): Promise {
+  async run(dokku: Dokku): Promise {
     const [unset, set] = _.partition(this.changes, (change) => change.type === "remove")
 
-    return setConfig(dokku, this.description, set)
-      .then(() => unsetConfig(dokku, this.description, unset))
+    await setConfig(dokku, this.description, set)
+    await unsetConfig(dokku, this.description, unset)
   }
 }
 
@@ -43,13 +43,15 @@ function describeChange(change: Change): string {
   }
 }
 
-function stopApp(dokku, description) {
-  return description.stopBeforeDeployment ? dokku.stop(description.name) : Promise.resolve()
+async function stopApp(dokku, description) {
+  if (description.stopBeforeDeployment) {
+    await dokku.stop(description.name)
+  }
 }
 
-function setConfig(dokku, description, changes) {
+async function setConfig(dokku, description, changes) {
   if (_.isEmpty(changes)) {
-    return Promise.resolve()
+    return
   }
 
   const options = _.chain(changes)
@@ -57,14 +59,17 @@ function setConfig(dokku, description, changes) {
     .fromPairs()
     .value()
 
-  return stopApp(dokku, description).then(() => dokku.setConfig(description.name, options))
+  await stopApp(dokku, description)
+  await dokku.setConfig(description.name, options)
 }
 
-function unsetConfig(dokku, description, changes) {
+async function unsetConfig(dokku, description, changes) {
   if (_.isEmpty(changes)) {
-    return Promise.resolve()
+    return
   }
 
   const vars = _.map(changes, "key")
-  return stopApp(dokku, description).then(() => dokku.unsetConfig(description.name, ...vars))
+
+  await stopApp(dokku, description)
+  await dokku.unsetConfig(description.name, ...vars)
 }

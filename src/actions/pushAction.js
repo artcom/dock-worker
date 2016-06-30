@@ -16,17 +16,16 @@ export default class {
     return [`deploy ${this.description.version}`]
   }
 
-  run(dokku: Dokku, repoCache: RepoCache): Promise {
-    const stopApp = this.description.stopBeforeDeployment
-      ? dokku.stop(this.description.name)
-      : Promise.resolve()
+  async run(dokku: Dokku, repoCache: RepoCache): Promise {
+    if (this.description.stopBeforeDeployment) {
+      await dokku.stop(this.description.name)
+    }
 
     const { ORIGIN_REMOTE, DOKKU_REMOTE } = repoCache
 
-    return stopApp
-      .then(() => repoCache.getRepo(this.description.name))
-      .then((repo) => repo.ensureRemote(ORIGIN_REMOTE, this.description.repo))
-      .then((repo) => repo.fetch(ORIGIN_REMOTE))
-      .then((repo) => repo.push(DOKKU_REMOTE, `${this.description.version}:refs/heads/master`))
+    const repo = await repoCache.getRepo(this.description.name)
+    await repo.ensureRemote(ORIGIN_REMOTE, this.description.repo)
+    await repo.fetch(ORIGIN_REMOTE)
+    await repo.push(DOKKU_REMOTE, `${this.description.version}:refs/heads/master`)
   }
 }

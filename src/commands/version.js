@@ -4,8 +4,8 @@ import path from "path"
 
 const readFileAsync = bluebird.promisify(fs.readFile)
 
-export default function() {
-  return readFileAsync(path.join(__dirname, "../../package.json"))
-    .then(JSON.parse)
-    .then((pkg) => console.log(pkg.version))
+export default async function() {
+  const json = await readFileAsync(path.join(__dirname, "../../package.json"))
+  const pkg = JSON.parse(json)
+  console.log(pkg.version)
 }

@@ -21,25 +21,27 @@ import type { AppDescription } from "../types"
 
 export default envCommand(status)
 
-function status(descriptions: Array<AppDescription>, dokku: Dokku, repoCache: RepoCache) {
-  return showProgress(
+async function status(descriptions: Array<AppDescription>, dokku: Dokku, repoCache: RepoCache) {
+  const context = await showProgress(
     (spinner) => chalk.gray(`loading service list ${spinner}`),
     loadContext(descriptions, dokku, repoCache)
-  ).then((context) => {
-    const appNames = context.listAppNames()
-    const apps = {}
+  )
 
-    function updateApp(app) {
-      apps[app.name] = app
-    }
+  const appNames = context.listAppNames()
+  const apps = {}
 
-    return showProgress(
-      (spinner) => createTable(appNames, apps, spinner),
-      bluebird.map(appNames, (appName) => context.loadAppData(appName).then(updateApp), {
-        concurrency: 4
-      })
-    ).then(() => console.log(createTable(appNames, apps)))
-  })
+  function updateApp(app) {
+    apps[app.name] = app
+  }
+
+  await showProgress(
+    (spinner) => createTable(appNames, apps, spinner),
+    bluebird.map(appNames, (appName) => context.loadAppData(appName).then(updateApp), {
+      concurrency: 4
+    })
+  )
+
+  console.log(createTable(appNames, apps))
 }
 
 function createTable(appNames, apps, spinner) {

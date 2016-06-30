@@ -24,30 +24,30 @@ export default class SshConnection {
     })
   }
 
-  exec(command: string): Promise<string> {
-    return this.connect.then(() =>
-      new Promise((resolve, reject) => {
-        this.client.exec(command, (error, stream) => {
-          if (error) {
-            reject(error)
+  async exec(command: string): Promise<string> {
+    await this.connect
+
+    return new Promise((resolve, reject) => {
+      this.client.exec(command, (error, stream) => {
+        if (error) {
+          reject(error)
+        }
+
+        const stdout = new BufferList()
+        const stderr = new BufferList()
+
+        stream.pipe(stdout)
+        stream.stderr.pipe(stderr)
+
+        stream.on("close", (code) => {
+          if (code === 0) {
+            resolve(stdout.toString())
+          } else {
+            reject(new Error(stderr.toString()))
           }
-
-          const stdout = new BufferList()
-          const stderr = new BufferList()
-
-          stream.pipe(stdout)
-          stream.stderr.pipe(stderr)
-
-          stream.on("close", (code) => {
-            if (code === 0) {
-              resolve(stdout.toString())
-            } else {
-              reject(new Error(stderr.toString()))
-            }
-          })
         })
       })
-    )
+    })
   }
 
   close() {

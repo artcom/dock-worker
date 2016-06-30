@@ -15,10 +15,10 @@ type EnvCommand = (
   dokku: Dokku,
   repoCache: RepoCache,
   options: any
-) => Command
+) => Promise
 
 export default function(callback: EnvCommand): Command {
-  return (dockfile, options) => {
+  return async function(dockfile, options) {
     const environment = _.chain(dockfile.environments)
       .find(["name", options["<environment>"]])
       .value()
@@ -41,15 +41,11 @@ export default function(callback: EnvCommand): Command {
       host: environment.host
     }))
 
-    return callback(descriptions, dokku, repoCache, options)
-      .then((result) => {
-        dokku.disconnect()
-        return result
-      })
-      .catch((error) => {
-        dokku.disconnect()
-        throw error
-      })
+    try {
+      return await callback(descriptions, dokku, repoCache, options)
+    } finally {
+      dokku.disconnect()
+    }
   }
 }
 

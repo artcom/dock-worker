@@ -59,7 +59,7 @@ describe("Actions", function() {
   })
 
   describe("config", function() {
-    it("should configure environment variables", function() {
+    it("should configure environment variables", async function() {
       const appData = {
         name: "app1",
         status: "deployed",
@@ -78,12 +78,11 @@ describe("Actions", function() {
           .returns(Promise.resolve())
       ]
 
-      return action.run(this.dokku).then(() => {
-        sinon.assert.callOrder(...calls)
-      })
+      await action.run(this.dokku)
+      sinon.assert.callOrder(...calls)
     })
 
-    it("should configure environment variables for apps that must be stopped", function() {
+    it("should configure environment variables for apps that must be stopped", async function() {
       const appData = {
         name: "app1",
         status: "deployed",
@@ -108,14 +107,13 @@ describe("Actions", function() {
           .returns(Promise.resolve())
       ]
 
-      return action.run(this.dokku).then(() => {
-        sinon.assert.callOrder(...calls)
-      })
+      await action.run(this.dokku)
+      sinon.assert.callOrder(...calls)
     })
   })
 
   describe("docker options", function() {
-    it("should configure docker options", function() {
+    it("should configure docker options", async function() {
       const appData = {
         name: "app1",
         status: "deployed",
@@ -143,12 +141,11 @@ describe("Actions", function() {
           .returns(Promise.resolve())
       ]
 
-      return action.run(this.dokku).then(() => {
-        sinon.assert.callOrder(...calls)
-      })
+      await action.run(this.dokku)
+      sinon.assert.callOrder(...calls)
     })
 
-    it("should configure docker options for apps that must be stopped", function() {
+    it("should configure docker options for apps that must be stopped", async function() {
       const appData = {
         name: "app1",
         status: "deployed",
@@ -179,9 +176,8 @@ describe("Actions", function() {
           .returns(Promise.resolve())
       ]
 
-      return action.run(this.dokku).then(() => {
-        sinon.assert.callOrder(...calls)
-      })
+      await action.run(this.dokku)
+      sinon.assert.callOrder(...calls)
     })
   })
 })

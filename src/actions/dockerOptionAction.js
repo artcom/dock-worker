@@ -1,7 +1,5 @@
 /* @flow */
 
-import bluebird from "bluebird"
-
 import diffOptions from "../diffOptions"
 import Dokku from "../dokku"
 
@@ -22,17 +20,19 @@ export default class {
     return this.changes.map(describeChange)
   }
 
-  run(dokku: Dokku): Promise {
+  async run(dokku: Dokku): Promise {
     const appName = this.description.name
 
-    return bluebird.each(this.changes, (change) => applyChange(dokku, appName, change))
-      .then(() => {
-        if (this.description.stopBeforeDeployment) {
-          return dokku.stop(appName).then(() => dokku.start(appName))
-        } else {
-          return dokku.restart(appName)
-        }
-      })
+    for (const change of this.changes) {
+      await applyChange(dokku, appName, change)
+    }
+
+    if (this.description.stopBeforeDeployment) {
+      await dokku.stop(appName)
+      await dokku.start(appName)
+    } else {
+      await dokku.restart(appName)
+    }
   }
 }
 
@@ -48,25 +48,25 @@ function describeChange(change: Change): string {
   }
 }
 
-function applyChange(dokku: Dokku, appName: string, change: Change): Promise {
+async function applyChange(dokku: Dokku, appName: string, change: Change): Promise {
   switch (change.type) {
     case "add": {
       const { key, value } = change
-      return dokku.addDockerOption(appName, key, value)
+      await dokku.addDockerOption(appName, key, value)
+      break
     }
 
     case "update": {
       const { key, value, oldValue } = change
-      return dokku.removeDockerOption(appName, key, oldValue)
-        .then(() => dokku.addDockerOption(appName, key, value))
+      await dokku.removeDockerOption(appName, key, oldValue)
+      await dokku.addDockerOption(appName, key, value)
+      break
     }
 
     case "remove": {
       const { key, oldValue } = change
-      return dokku.removeDockerOption(appName, key, oldValue)
+      await dokku.removeDockerOption(appName, key, oldValue)
+      break
     }
-
-    default:
-      return Promise.resolve()
   }
 }

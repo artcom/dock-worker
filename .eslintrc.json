@@ -2,6 +2,7 @@
   "extends": "artcom",
   "parser": "babel-eslint",
   "rules": {
+    "func-names": 0,
     "no-console": 0,
     "no-duplicate-imports": 0,
     "no-param-reassign": 0,
