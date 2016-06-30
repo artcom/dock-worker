@@ -1,6 +1,9 @@
 /* @flow */
 
-import _ from "lodash"
+import find from "lodash/find"
+import isPlainObject from "lodash/isPlainObject"
+import mapValues from "lodash/mapValues"
+import omitBy from "lodash/omitBy"
 import url from "url"
 
 import Dokku from "../dokku"
@@ -19,19 +22,15 @@ type EnvCommand = (
 
 export default function(callback: EnvCommand): Command {
   return async function(dockfile, options) {
-    const environment = _.chain(dockfile.environments)
-      .find(["name", options["<environment>"]])
-      .value()
+    const environment = find(dockfile.environments, ["name", options["<environment>"]])
 
     if (!environment) {
       throw new Error(`Environment "${options["<environment>"]}" not found in Dockfile.json`)
     }
 
-    const descriptions = _.chain(dockfile.apps)
-      .filter((app) => shouldBeDeployed(app, environment.name))
-      .map((app) => configureAppForEnvironment(app, environment.name))
-      .defaults({ config: {}, dockerOptions: {}, stopBeforeDeployment: false })
-      .value()
+    const descriptions = dockfile.apps
+      .filter(app => shouldBeDeployed(app, environment.name))
+      .map(app => configureAppForEnvironment(app, environment.name))
 
     const dokku = new Dokku(environment.host)
     const repoCache = new RepoCache(url.format({
@@ -51,7 +50,7 @@ export default function(callback: EnvCommand): Command {
 
 function shouldBeDeployed(description: AppDescription, environment: string) {
   if (description.environments) {
-    return _.includes(description.environments, environment)
+    return description.environments.includes(environment)
   } else {
     return true
   }
@@ -65,14 +64,13 @@ function configureAppForEnvironment(description: AppDescription, environment: st
 }
 
 function selectEnvironmentOptions(options: Options, environment: string): Options {
-  return _(options)
-    .mapValues((value) => {
-      if (_.isPlainObject(value)) {
-        return value[environment]
-      } else {
-        return value
-      }
-    })
-    .omitBy(_.isUndefined)
-    .value()
+  const envOptions = mapValues(options, value => {
+    if (isPlainObject(value)) {
+      return value[environment]
+    } else {
+      return value
+    }
+  })
+
+  return omitBy(envOptions, option => option === undefined)
 }

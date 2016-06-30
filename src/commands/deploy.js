@@ -1,8 +1,8 @@
 /* @flow */
 
-import _ from "lodash"
 import bluebird from "bluebird"
 import chalk from "chalk"
+import find from "lodash/find"
 import read from "read"
 import yn from "yn"
 
@@ -44,7 +44,7 @@ async function deploy(
 
 function validateSelectedApps(descriptions, selectedApps) {
   selectedApps.forEach((appName) => {
-    if (!_.find(descriptions, ["name", appName])) {
+    if (!find(descriptions, ["name", appName])) {
       throw new Error(`Unknown app "${appName}"`)
     }
   })

@@ -1,6 +1,8 @@
 /* @flow */
 
-import _ from "lodash"
+import fromPairs from "lodash/fromPairs"
+import map from "lodash/map"
+import partition from "lodash/partition"
 
 import diffOptions from "../diffOptions"
 import Dokku from "../dokku"
@@ -23,7 +25,7 @@ export default class {
   }
 
   async run(dokku: Dokku): Promise {
-    const [unset, set] = _.partition(this.changes, (change) => change.type === "remove")
+    const [unset, set] = partition(this.changes, change => change.type === "remove")
 
     await setConfig(dokku, this.description, set)
     await unsetConfig(dokku, this.description, unset)
@@ -50,25 +52,22 @@ async function stopApp(dokku, description) {
 }
 
 async function setConfig(dokku, description, changes) {
-  if (_.isEmpty(changes)) {
+  if (changes.length === 0) {
     return
   }
 
-  const options = _.chain(changes)
-    .map(({ key, value }) => [key, value])
-    .fromPairs()
-    .value()
+  const options = fromPairs(changes.map(({ key, value }) => [key, value]))
 
   await stopApp(dokku, description)
   await dokku.setConfig(description.name, options)
 }
 
 async function unsetConfig(dokku, description, changes) {
-  if (_.isEmpty(changes)) {
+  if (changes.length === 0) {
     return
   }
 
-  const vars = _.map(changes, "key")
+  const vars = map(changes, "key")
 
   await stopApp(dokku, description)
   await dokku.unsetConfig(description.name, ...vars)

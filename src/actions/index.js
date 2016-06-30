@@ -1,6 +1,6 @@
 /* @flow */
 
-import _ from "lodash"
+import isEqual from "lodash/isEqual"
 
 import ConfigAction from "./configAction"
 import CreateAction from "./createAction"
@@ -20,11 +20,11 @@ export function deriveActions(app: AppData): Array<Action> {
       actions.push(new CreateAction(app))
     }
 
-    if (!_.isEqual(app.description.config, app.actual.config)) {
+    if (!isEqual(app.description.config, app.actual.config)) {
       actions.push(new ConfigAction(app))
     }
 
-    if (!_.isEqual(app.description.dockerOptions, app.actual.dockerOptions)) {
+    if (!isEqual(app.description.dockerOptions, app.actual.dockerOptions)) {
       actions.push(new DockerOptionAction(app))
     }
 
@@ -32,7 +32,7 @@ export function deriveActions(app: AppData): Array<Action> {
       actions.push(new PushAction(app.description))
     }
 
-    if (!app.running && _.isEmpty(actions)) {
+    if (!app.running && actions.length === 0) {
       actions.push(new StartAction(app))
     }
   }

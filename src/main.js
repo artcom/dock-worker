@@ -1,9 +1,9 @@
 #! /usr/bin/env node
 
-import _ from "lodash"
 import bluebird from "bluebird"
 import chalk from "chalk"
 import { docopt } from "docopt"
+import find from "lodash/find"
 import fs from "fs"
 
 import status from "./commands/status"
@@ -33,7 +33,7 @@ main()
 async function main() {
   try {
     const dockfile = await readDockfile()
-    const command = _.find(commands, (command, name) => options[name] === true)
+    const command = find(commands, (command, name) => options[name] === true)
     return command(dockfile, options)
   } catch (error) {
     console.error(chalk.red("ERROR: ") + error.message)

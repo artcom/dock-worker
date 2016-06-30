@@ -1,6 +1,5 @@
 /* eslint-env mocha */
 
-import _ from "lodash"
 import chai, { expect } from "chai"
 import chaiAsPromised from "chai-as-promised"
 import sinon from "sinon"
@@ -255,10 +254,7 @@ describe("Dokku", function() {
 })
 
 function unindent(string) {
-  const lines = _.chain(string)
-    .split("\n")
-    .drop(1)
-    .value()
+  const lines = string.split("\n").slice(1)
 
   const [indentation] = lines[0].match(/\s*/)
 

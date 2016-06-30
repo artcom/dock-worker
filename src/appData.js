@@ -1,8 +1,13 @@
 /* @flow */
 
-import _ from "lodash"
 import bluebird from "bluebird"
 import chalk from "chalk"
+import difference from "lodash/difference"
+import find from "lodash/find"
+import flatten from "lodash/flatten"
+import intersection from "lodash/intersection"
+import map from "lodash/map"
+import fromPairs from "lodash/fromPairs"
 
 import Dokku from "./dokku"
 import RepoCache from "./repoCache"
@@ -54,21 +59,18 @@ class Context {
 
   async initialize(): Promise {
     const list = await this.dokku.ls()
-    const available = _.map(list, "name")
-    const defined = _.map(this.descriptions, "name")
+    const available = map(list, "name")
+    const defined = map(this.descriptions, "name")
 
-    this.status = _.chain(list)
-      .map(({ name, status }) => [name, status])
-      .fromPairs()
-      .value()
+    this.status = fromPairs(list.map(({ name, status }) => [name, status]))
 
-    this.missingApps = _.difference(defined, available)
-    this.existingApps = _.intersection(defined, available)
-    this.unknownApps = _.difference(available, defined)
+    this.missingApps = difference(defined, available)
+    this.existingApps = intersection(defined, available)
+    this.unknownApps = difference(available, defined)
   }
 
   listAppNames(): Array<string> {
-    return _.flatten([
+    return flatten([
       this.missingApps,
       this.existingApps,
       this.unknownApps
@@ -76,13 +78,13 @@ class Context {
   }
 
   loadAppData(name: string): Promise<AppData> {
-    if (_.includes(this.missingApps, name)) {
-      const config = _.find(this.descriptions, { name })
+    if (this.missingApps.includes(name)) {
+      const config = find(this.descriptions, { name })
       return this.missingAppData(config)
-    } else if (_.includes(this.existingApps, name)) {
-      const config = _.find(this.descriptions, { name })
+    } else if (this.existingApps.includes(name)) {
+      const config = find(this.descriptions, { name })
       return this.existingAppData(config, this.status[name])
-    } else if (_.includes(this.unknownApps, name)) {
+    } else if (this.unknownApps.includes(name)) {
       return this.unknownAppData(name, this.status[name])
     } else {
       return Promise.reject()

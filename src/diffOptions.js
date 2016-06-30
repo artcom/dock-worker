@@ -1,6 +1,9 @@
 /* @flow */
 
-import _ from "lodash"
+import difference from "lodash/difference"
+import flatten from "lodash/flatten"
+import intersection from "lodash/intersection"
+import isEqual from "lodash/isEqual"
 
 import type { Options } from "./types"
 
@@ -28,15 +31,14 @@ type Update = {
 export default function diffOptions(expected: Options, deployed: Options): Array<Change> {
   const { existing, missing, additional } = diffKeys(Object.keys(deployed), Object.keys(expected))
 
-  const updates = _.chain(existing)
-    .reject((key) => _.isEqual(deployed[key], expected[key]))
-    .map((key) => ({
+  const updates = existing
+    .filter(key => !isEqual(deployed[key], expected[key]))
+    .map(key => ({
       type: "update",
       key,
       oldValue: deployed[key],
       value: expected[key]
     }))
-    .value()
 
   const adds = missing.map((key) => ({
     type: "add",
@@ -50,7 +52,7 @@ export default function diffOptions(expected: Options, deployed: Options): Array
     oldValue: deployed[key]
   }))
 
-  return _.flatten([
+  return flatten([
     updates,
     adds,
     removes
@@ -59,8 +61,8 @@ export default function diffOptions(expected: Options, deployed: Options): Array
 
 function diffKeys(deployed: Array<string>, expected: Array<string>) {
   return {
-    existing: _.intersection(deployed, expected),
-    missing: _.difference(expected, deployed),
-    additional: _.difference(deployed, expected)
+    existing: intersection(deployed, expected),
+    missing: difference(expected, deployed),
+    additional: difference(deployed, expected)
   }
 }

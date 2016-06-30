@@ -1,6 +1,8 @@
 /* @flow */
 
-import _ from "lodash"
+import fromPairs from "lodash/fromPairs"
+import map from "lodash/map"
+import union from "lodash/union"
 
 import SshConnection from "./sshConnection"
 
@@ -50,17 +52,14 @@ export default class {
       } else {
         throw error
       }
-    }).then((lines) =>
-      _.chain(lines)
-        .map(extractPair)
-        .reject(isDokkuConfig)
-        .fromPairs()
-        .value()
-    )
+    }).then((lines) => {
+      const pairs = lines.map(extractPair).filter(isRelevantConfig)
+      return fromPairs(pairs)
+    })
   }
 
   setConfig(app: string, config: { [key: string]: string }): Promise {
-    const params = _.map(config, (value, key) => `${key}="${value}"`)
+    const params = map(config, (value, key) => `${key}="${value}"`)
     return this.dokku("config:set", app, ...params)
   }
 
@@ -76,9 +75,9 @@ export default class {
         if (match) {
           return { options, phase: match[1].toLowerCase() }
         } else {
-          const option = _.trim(line)
+          const option = line.trim()
           const phases = options[option] || []
-          options[option] = _.union(phases, [phase])
+          options[option] = union(phases, [phase])
 
           return { options, phase }
         }
@@ -115,7 +114,7 @@ export default class {
   dokku(...params: Array<string>): Promise<Array<string>> {
     return this.sendCommand(params.join(" ")).then((stdout) => {
       const lines = stdout.split("\n")
-      return _.reject(lines, unnecessaryLine)
+      return lines.filter(isRelevantLine)
     })
   }
 
@@ -128,8 +127,8 @@ export default class {
   }
 }
 
-function unnecessaryLine(line) {
-  return line === "" || line.startsWith("=====>") || line.startsWith("----->")
+function isRelevantLine(line) {
+  return line !== "" && !line.startsWith("=====>") && !line.startsWith("----->")
 }
 
 function extractStatus(line) {
@@ -145,11 +144,11 @@ function extractStatus(line) {
 
 function extractPair(line) {
   const tokens = line.split(":")
-  return [_.head(tokens), _.trim(_.tail(tokens).join(":"))]
+  return [tokens[0], tokens.slice(1).join(":").trim()]
 }
 
-function isDokkuConfig(pair) {
-  return pair[0].startsWith("DOKKU_")
+function isRelevantConfig(pair) {
+  return !pair[0].startsWith("DOKKU_")
 }
 
 const phaseLine = /^(Build|Deploy|Run) options/

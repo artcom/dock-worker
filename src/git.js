@@ -1,10 +1,10 @@
 /* @flow */
 
-import _ from "lodash"
 import bluebird from "bluebird"
 import cp from "child_process"
 import fs from "fs"
 import path from "path"
+import set from "lodash/set"
 
 const execFileAsync = bluebird.promisify(cp.execFile)
 const statAsync = bluebird.promisify(fs.stat)
@@ -50,7 +50,7 @@ class Repo {
 
         if (match) {
           const [, remote, url, type] = match
-          _.set(remotes, [remote, type], url)
+          set(remotes, [remote, type], url)
         }
 
         return remotes
@@ -116,7 +116,7 @@ export function clone(repo: string, directory: string, options: RepoOptions = {}
 function git(...params: Array<string>): Promise<Array<string>> {
   return execFileAsync("git", params, { maxBuffer: 2048 * 1024 }).then((stdout) => {
     const lines = stdout.split("\n")
-    return _.reject(lines, _.isEmpty)
+    return lines.filter(line => line.length > 0)
   })
 }
 
