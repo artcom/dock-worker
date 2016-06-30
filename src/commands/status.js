@@ -1,6 +1,5 @@
 /* @flow */
 
-import bluebird from "bluebird"
 import chalk from "chalk"
 
 import { deriveActions } from "../actions"
@@ -9,11 +8,10 @@ import DockerOptionAction from "../actions/dockerOptionAction"
 import PushAction from "../actions/pushAction"
 
 import ansiTable from "../ansiTable"
-import { loadContext } from "../appData"
+import { loadAppData } from "../appData"
 import Dokku from "../dokku"
 import envCommand from "./envCommand"
 import RepoCache from "../repoCache"
-import showProgress from "../showProgress"
 
 import type { Action } from "../actions"
 import type { AppData, KnownAppData } from "../appData"
@@ -22,35 +20,12 @@ import type { AppDescription } from "../types"
 export default envCommand(status)
 
 async function status(descriptions: Array<AppDescription>, dokku: Dokku, repoCache: RepoCache) {
-  const context = await showProgress(
-    (spinner) => chalk.gray(`loading service list ${spinner}`),
-    loadContext(descriptions, dokku, repoCache)
-  )
-
-  const appNames = context.listAppNames()
-  const apps = {}
-
-  function updateApp(app) {
-    apps[app.name] = app
-  }
-
-  await showProgress(
-    (spinner) => createTable(appNames, apps, spinner),
-    bluebird.map(appNames, (appName) => context.loadAppData(appName).then(updateApp), {
-      concurrency: 4
-    })
-  )
-
-  console.log(createTable(appNames, apps))
+  const apps = await loadAppData(descriptions, dokku, repoCache)
+  console.log(createTable(apps))
 }
 
-function createTable(appNames, apps, spinner) {
-  const rows = appNames.map((appName) =>
-    apps[appName]
-      ? createRow(apps[appName])
-      : [name(appName), chalk.gray(spinner)]
-  )
-
+function createTable(apps) {
+  const rows = apps.map(createRow)
   return ansiTable(rows)
 }
 

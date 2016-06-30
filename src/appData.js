@@ -1,9 +1,12 @@
 /* @flow */
 
 import _ from "lodash"
+import bluebird from "bluebird"
+import chalk from "chalk"
 
 import Dokku from "./dokku"
 import RepoCache from "./repoCache"
+import showProgress from "./showProgress"
 
 import type { Options, AppDescription } from "./types"
 
@@ -49,7 +52,7 @@ class Context {
     this.repoCache = repoCache
   }
 
-  async initialize(): Promise<Context> {
+  async initialize(): Promise {
     const list = await this.dokku.ls()
     const available = _.map(list, "name")
     const defined = _.map(this.descriptions, "name")
@@ -62,8 +65,6 @@ class Context {
     this.missingApps = _.difference(defined, available)
     this.existingApps = _.intersection(defined, available)
     this.unknownApps = _.difference(available, defined)
-
-    return this
   }
 
   listAppNames(): Array<string> {
@@ -145,11 +146,38 @@ class Context {
   }
 }
 
-export function loadContext(
+export async function loadAppData(
   descriptions: Array<AppDescription>,
   dokku: Dokku,
-  repoCache: RepoCache
-): Promise<Context> {
+  repoCache: RepoCache,
+  selectedApps: Array<string> = []
+): Promise<Array<AppData>> {
   const context = new Context(descriptions, dokku, repoCache)
-  return context.initialize()
+  const loadingListMessage = (spinner) => chalk.gray(`loading service list ${spinner}`)
+  await showProgress(loadingListMessage, context.initialize())
+
+  const appNames = context.listAppNames()
+    .filter(appName => selectedApps.length === 0 || selectedApps.includes(appName))
+
+  const inProgress = new Set()
+  let completed = 0
+
+  const loadingDataMessage = (spinner) => {
+    const services = Array
+      .from(inProgress)
+      .map(appName => `${chalk.bold(appName)} ${spinner}`)
+
+    const count = `(${completed}/${appNames.length})`
+    return chalk.gray([`loading service data ${count}`, ...services].join("\n"))
+  }
+
+  return await showProgress(loadingDataMessage, bluebird.map(appNames, async function(appName) {
+    inProgress.add(appName)
+    const appData = await context.loadAppData(appName)
+    inProgress.delete(appName)
+    completed += 1
+    return appData
+  }, {
+    concurrency: 4
+  }))
 }

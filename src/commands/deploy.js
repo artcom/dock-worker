@@ -7,7 +7,7 @@ import read from "read"
 import yn from "yn"
 
 import { deriveActions } from "../actions"
-import { loadContext } from "../appData"
+import { loadAppData } from "../appData"
 import Dokku from "../dokku"
 import envCommand from "./envCommand"
 import RepoCache from "../repoCache"
@@ -20,7 +20,7 @@ const readAsync = bluebird.promisify(read)
 
 type AppActions = {
   appName: string,
-  actions?: Array<Action>
+  actions: Array<Action>
 }
 
 export default envCommand(deploy)
@@ -34,12 +34,11 @@ async function deploy(
   const selectedApps = options["<app>"]
   validateSelectedApps(descriptions, selectedApps)
 
-  const context = await showProgress(
-    (spinner) => chalk.gray(`loading service list ${spinner}`),
-    loadContext(descriptions, dokku, repoCache)
-  )
+  const apps = await loadAppData(descriptions, dokku, repoCache, selectedApps)
+  const appActions = apps
+    .map(app => ({ appName: app.name, actions: deriveActions(app) }))
+    .filter(({ actions }) => actions.length > 0)
 
-  const appActions = await loadAppActions(context, descriptions, selectedApps)
   await applyAppActions(appActions, dokku, repoCache, options["--yes"])
 }
 
@@ -49,42 +48,6 @@ function validateSelectedApps(descriptions, selectedApps) {
       throw new Error(`Unknown app "${appName}"`)
     }
   })
-}
-
-async function loadAppActions(context, descriptions, selectedApps) {
-  const appNames = context.listAppNames().filter((appName) => {
-    const description = _.find(descriptions, ["name", appName])
-    return description && hasBeenSelected(description, selectedApps)
-  })
-
-  const appActionsList: Array<AppActions> = appNames.map((appName) => ({ appName }))
-
-  async function deriveAppAction(appName) {
-    const appData = await context.loadAppData(appName)
-    const actions = deriveActions(appData)
-
-    if (actions.length > 0) {
-      const appActions = _.find(appActionsList, { appName })
-      appActions.actions = actions
-    } else {
-      _.remove(appActionsList, { appName })
-    }
-  }
-
-  await showProgress(
-    (spinner) => printList(appActionsList, spinner),
-    bluebird.map(appNames, deriveAppAction, { concurrency: 4 })
-  )
-
-  return appActionsList
-}
-
-function hasBeenSelected(description: AppDescription, selectedApps: Array<string>) {
-  if (_.isEmpty(selectedApps)) {
-    return true
-  } else {
-    return _.includes(selectedApps, description.name)
-  }
 }
 
 async function applyAppActions(appActionsList, dokku, repoCache, yes) {
@@ -119,20 +82,13 @@ function runActions(appActionsList, dokku, repoCache) {
   })
 }
 
-function printList(appActionsList: Array<AppActions>, spinner: string = ""): string {
-  const lines = appActionsList.map((appActions) => printAppActions(appActions, spinner))
-  return lines.join("\n")
+function printList(appActionsList: Array<AppActions>): string {
+  return appActionsList.map(printAppActions).join("\n")
 }
 
-function printAppActions({ appName, actions }: AppActions, spinner: string): string {
-  if (!actions) {
-    return `${printName(appName)} ${chalk.gray(spinner)}`
-  }
-
-  const lines = actions.map((action) => chalk.gray(printAction(action)))
-  lines.unshift(printName(appName))
-
-  return lines.join("\n")
+function printAppActions({ appName, actions }: AppActions): string {
+  const lines = actions.map(action => chalk.gray(printAction(action)))
+  return [printName(appName), ...lines].join("\n")
 }
 
 function printName(appName: string): string {
@@ -140,7 +96,7 @@ function printName(appName: string): string {
 }
 
 function printAction(action: Action): string {
-  return _(action.describe())
-    .map((description) => `  ${description}`)
+  return action.describe()
+    .map(description => `  ${description}`)
     .join("\n")
 }
