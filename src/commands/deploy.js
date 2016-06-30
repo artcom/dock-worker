@@ -63,23 +63,20 @@ async function applyAppActions(appActionsList, dokku, repoCache, yes) {
 }
 
 async function askForConfirmation() {
-  const input = readAsync({ prompt: "apply changes (y/N)?" })
+  const input = await readAsync({ prompt: "apply changes (y/N)?" })
   return yn(input)
 }
 
-function runActions(appActionsList, dokku, repoCache) {
-  return bluebird.mapSeries(appActionsList, ({ appName, actions }) => {
+async function runActions(appActionsList, dokku, repoCache) {
+  for (const { appName, actions } of appActionsList) {
     console.log(printName(appName))
 
-    return bluebird.mapSeries(actions, async function (action) {
-      await showProgress(
-        (spinner) => chalk.gray(`${printAction(action)} ${spinner}`),
-        action.run(dokku, repoCache)
-      )
-
+    for (const action of actions) {
+      const message = (spinner) => chalk.gray(`${printAction(action)} ${spinner}`)
+      await showProgress(message, action.run(dokku, repoCache))
       console.log(chalk.cyan(printAction(action)))
-    })
-  })
+    }
+  }
 }
 
 function printList(appActionsList: Array<AppActions>): string {
