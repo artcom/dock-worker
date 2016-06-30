@@ -41,7 +41,7 @@ export default function(callback: EnvCommand): Command {
     }))
 
     try {
-      return await callback(descriptions, dokku, repoCache, options)
+      await callback(descriptions, dokku, repoCache, options)
     } finally {
       dokku.disconnect()
     }

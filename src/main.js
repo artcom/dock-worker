@@ -34,7 +34,7 @@ async function main() {
   try {
     const dockfile = await readDockfile()
     const command = find(commands, (command, name) => options[name] === true)
-    return command(dockfile, options)
+    await command(dockfile, options)
   } catch (error) {
     console.error(chalk.red("ERROR: ") + error.message)
     process.exitCode = 1
