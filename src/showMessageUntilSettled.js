@@ -1,26 +1,17 @@
 import elegantSpinner from "elegant-spinner"
 import logUpdate from "log-update"
 
-export default function(message, promise) {
+export default async function(message, promise) {
   const spinner = elegantSpinner()
 
   const interval = setInterval(() => {
     logUpdate(message(spinner()))
   }, 66)
 
-  function stop() {
+  try {
+    return await promise
+  } finally {
     clearInterval(interval)
     logUpdate.clear()
   }
-
-  return promise.then(
-    result => {
-      stop()
-      return result
-    },
-    error => {
-      stop()
-      throw error
-    }
-  )
 }
