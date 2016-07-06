@@ -110,6 +110,12 @@ class Context {
     const deployed = status !== "NOT_DEPLOYED"
     const running = status === "running"
 
+    const [version, config, dockerOptions] = await Promise.all([
+      deployed ? this.actualVersion(description.name) : "",
+      this.dokku.config(description.name),
+      this.dokku.dockerOptions(description.name)
+    ])
+
     return {
       name: description.name,
       status: "exists",
@@ -117,9 +123,9 @@ class Context {
       running,
       description,
       actual: {
-        version: deployed ? await this.actualVersion(description.name) : "",
-        config: await this.dokku.config(description.name),
-        dockerOptions: await this.dokku.dockerOptions(description.name)
+        version,
+        config,
+        dockerOptions
       }
     }
   }
@@ -128,15 +134,21 @@ class Context {
     const deployed = status !== "NOT_DEPLOYED"
     const running = status === "running"
 
+    const [version, config, dockerOptions] = await Promise.all([
+      deployed ? this.actualVersion(name) : "",
+      this.dokku.config(name),
+      this.dokku.dockerOptions(name)
+    ])
+
     return {
       name,
       status: "unknown",
       deployed,
       running,
       actual: {
-        version: deployed ? await this.actualVersion(name) : "",
-        config: await this.dokku.config(name),
-        dockerOptions: await this.dokku.dockerOptions(name)
+        version,
+        config,
+        dockerOptions
       }
     }
   }
