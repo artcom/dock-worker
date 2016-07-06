@@ -14,11 +14,14 @@ import version from "./commands/version"
 const readFileAsync = bluebird.promisify(fs.readFile)
 
 const options = docopt(`
-  usage:
-    dock <environment> status
-    dock <environment> deploy [--yes] [<app>...]
-    dock environments
+  Usage:
+    dock <environment> status [options]
+    dock <environment> deploy [--yes] [<app>...] [options]
+    dock environments [options]
     dock version
+
+  Options:
+    -f FILE --file=FILE     Dockfile path [default: Dockfile.json]
 `)
 
 const commands = {
@@ -32,7 +35,7 @@ main()
 
 async function main() {
   try {
-    const dockfile = await readDockfile()
+    const dockfile = await readDockfile(options["--file"])
     const command = find(commands, (command, name) => options[name] === true)
     await command(dockfile, options)
   } catch (error) {
@@ -41,15 +44,15 @@ async function main() {
   }
 }
 
-async function readDockfile() {
+async function readDockfile(file) {
   try {
-    const content = await readFileAsync("Dockfile.json")
+    const content = await readFileAsync(file)
     return JSON.parse(content)
   } catch (error) {
     if (error instanceof SyntaxError) {
-      throw new Error(`Syntax error in Dockfile.json: ${error.message}`)
+      throw new Error(`Syntax error in ${file}: ${error.message}`)
     } else {
-      throw new Error("Could not read Dockfile.json in current working directory")
+      throw new Error(`Could not read ${file}`)
     }
   }
 }
