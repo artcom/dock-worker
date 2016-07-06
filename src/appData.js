@@ -11,7 +11,7 @@ import fromPairs from "lodash/fromPairs"
 
 import Dokku from "./dokku"
 import RepoCache from "./repoCache"
-import showProgress from "./showProgress"
+import showMessageUntilSettled from "./showMessageUntilSettled"
 
 import type { Options, AppDescription } from "./types"
 
@@ -155,16 +155,24 @@ export async function loadAppData(
   selectedApps: Array<string> = []
 ): Promise<Array<AppData>> {
   const context = new Context(descriptions, dokku, repoCache)
-  const loadingListMessage = (spinner) => chalk.gray(`loading service list ${spinner}`)
-  await showProgress(loadingListMessage, context.initialize())
+  await initializeWithMessage(context)
 
   const appNames = context.listAppNames()
     .filter(appName => selectedApps.length === 0 || selectedApps.includes(appName))
 
+  return await loadAppDataWithMessage(context, appNames)
+}
+
+function initializeWithMessage(context) {
+  const message = (spinner) => chalk.gray(`loading service list ${spinner}`)
+  return showMessageUntilSettled(message, context.initialize())
+}
+
+function loadAppDataWithMessage(context, appNames) {
   const inProgress = new Set()
   let completed = 0
 
-  const loadingDataMessage = (spinner) => {
+  const message = (spinner) => {
     const services = Array
       .from(inProgress)
       .map(appName => `${chalk.bold(appName)} ${spinner}`)
@@ -173,7 +181,7 @@ export async function loadAppData(
     return chalk.gray([`loading service data ${count}`, ...services].join("\n"))
   }
 
-  return await showProgress(loadingDataMessage, bluebird.map(appNames, async function(appName) {
+  return showMessageUntilSettled(message, bluebird.map(appNames, async function(appName) {
     inProgress.add(appName)
     const appData = await context.loadAppData(appName)
     inProgress.delete(appName)

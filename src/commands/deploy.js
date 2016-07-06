@@ -11,7 +11,7 @@ import { loadAppData } from "../appData"
 import Dokku from "../dokku"
 import envCommand from "./envCommand"
 import RepoCache from "../repoCache"
-import showProgress from "../showProgress"
+import showMessageUntilSettled from "../showMessageUntilSettled"
 
 import type { Action } from "../actions"
 import type { AppDescription } from "../types"
@@ -73,7 +73,7 @@ async function runActions(appActionsList, dokku, repoCache) {
 
     for (const action of actions) {
       const message = (spinner) => chalk.gray(`${printAction(action)} ${spinner}`)
-      await showProgress(message, action.run(dokku, repoCache))
+      await showMessageUntilSettled(message, action.run(dokku, repoCache))
       console.log(chalk.cyan(printAction(action)))
     }
   }
