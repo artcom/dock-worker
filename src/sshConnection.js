@@ -5,7 +5,7 @@ import BufferList from "bl"
 
 export default class SshConnection {
   client: Client;
-  connect: Promise;
+  connect: Promise<>;
 
   constructor(username: string, host: string) {
     this.client = new Client()

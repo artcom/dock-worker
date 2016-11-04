@@ -57,7 +57,7 @@ class Context {
     this.repoCache = repoCache
   }
 
-  async initialize(): Promise {
+  async initialize(): Promise<> {
     const list = await this.dokku.ls()
     const available = map(list, "name")
     const defined = map(this.descriptions, "name")

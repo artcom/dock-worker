@@ -41,7 +41,7 @@ export default class {
     return this.dokku("ls").then((lines) => lines.map(extractStatus))
   }
 
-  create(app: string): Promise {
+  create(app: string): Promise<> {
     return this.dokku("apps:create", app)
   }
 
@@ -58,12 +58,12 @@ export default class {
     })
   }
 
-  setConfig(app: string, config: { [key: string]: string }): Promise {
+  setConfig(app: string, config: { [key: string]: string }): Promise<> {
     const params = map(config, (value, key) => `${key}="${value}"`)
     return this.dokku("config:set", app, ...params)
   }
 
-  unsetConfig(app: string, ...keys: Array<string>): Promise {
+  unsetConfig(app: string, ...keys: Array<string>): Promise<> {
     return this.dokku("config:unset", app, ...keys)
   }
 
@@ -85,15 +85,15 @@ export default class {
     )
   }
 
-  addDockerOption(app: string, option: string, phases: Array<Phase>): Promise {
+  addDockerOption(app: string, option: string, phases: Array<Phase>): Promise<> {
     return this.dokku("docker-options:add", app, phases.join(","), option)
   }
 
-  removeDockerOption(app: string, option: string, phases: Array<Phase>): Promise {
+  removeDockerOption(app: string, option: string, phases: Array<Phase>): Promise<> {
     return this.dokku("docker-options:remove", app, phases.join(","), option)
   }
 
-  stop(app: string): Promise {
+  stop(app: string): Promise<> {
     return this.dokku("ps:stop", app).catch((error) => {
       if (!error.message.endsWith(`App ${app} has not been deployed\n`)) {
         throw error
@@ -101,11 +101,11 @@ export default class {
     })
   }
 
-  start(app: string): Promise {
+  start(app: string): Promise<> {
     return this.dokku("ps:start", app)
   }
 
-  restart(app: string): Promise {
+  restart(app: string): Promise<> {
     return this.dokku("ps:restart", app)
   }
 

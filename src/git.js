@@ -18,7 +18,7 @@ type Remotes = {[key: string]: {
   push: string
 }}
 
-class Repo {
+export class Repo {
   directory: string;
 
   constructor(directory: string, bare: boolean = false) {

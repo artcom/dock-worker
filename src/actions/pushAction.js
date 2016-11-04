@@ -16,7 +16,7 @@ export default class {
     return [`deploy ${this.description.version}`]
   }
 
-  async run(dokku: Dokku, repoCache: RepoCache): Promise {
+  async run(dokku: Dokku, repoCache: RepoCache): Promise<> {
     if (this.description.stopBeforeDeployment) {
       await dokku.stop(this.description.name)
     }
