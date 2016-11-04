@@ -8,6 +8,7 @@ import { readDockfile } from "./dockfile"
 
 import status from "./commands/status"
 import deploy from "./commands/deploy"
+import pin from "./commands/pin"
 import environments from "./commands/environments"
 import version from "./commands/version"
 
@@ -15,6 +16,7 @@ const options = docopt(`
   Usage:
     dock <environment> status [options]
     dock <environment> deploy [--yes] [<app>...] [options]
+    dock <environment> pin [<app>...] [options]
     dock environments [options]
     dock version
 
@@ -25,6 +27,7 @@ const options = docopt(`
 const commands = {
   status,
   deploy,
+  pin,
   environments,
   version
 }
@@ -33,7 +36,7 @@ main()
 
 async function main() {
   try {
-    const dockfile = await readDockfile(options["--file"])
+    const dockfile = await readDockfile(options)
     const command = find(commands, (command, name) => options[name] === true)
     await command(dockfile, options)
   } catch (error) {
