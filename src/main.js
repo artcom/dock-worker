@@ -1,17 +1,15 @@
 #! /usr/bin/env node
 
-import bluebird from "bluebird"
 import chalk from "chalk"
 import { docopt } from "docopt"
 import find from "lodash/find"
-import fs from "fs"
+
+import { readDockfile } from "./dockfile"
 
 import status from "./commands/status"
 import deploy from "./commands/deploy"
 import environments from "./commands/environments"
 import version from "./commands/version"
-
-const readFileAsync = bluebird.promisify(fs.readFile)
 
 const options = docopt(`
   Usage:
@@ -41,18 +39,5 @@ async function main() {
   } catch (error) {
     console.error(chalk.red("ERROR: ") + error.message)
     process.exitCode = 1
-  }
-}
-
-async function readDockfile(file) {
-  try {
-    const content = await readFileAsync(file)
-    return JSON.parse(content)
-  } catch (error) {
-    if (error instanceof SyntaxError) {
-      throw new Error(`Syntax error in ${file}: ${error.message}`)
-    } else {
-      throw new Error(`Could not read ${file}`)
-    }
   }
 }
