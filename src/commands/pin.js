@@ -7,7 +7,7 @@ import read from "read"
 import yn from "yn"
 
 import { loadAppData } from "../appData"
-import { readDockfile, writeDockfile } from "../dockfile"
+import { readDockfile, updateDockfile } from "../dockfile"
 import Dokku from "../dokku"
 import envCommand from "./envCommand"
 import RepoCache from "../repoCache"
@@ -65,6 +65,6 @@ async function handleDifferentVersions(appName, app, options) {
     const dockfile = await readDockfile(options)
     const description = find(dockfile.apps, ["name", app.name])
     description.version = app.actual.version
-    await writeDockfile(dockfile, options)
+    await updateDockfile(dockfile, options)
   }
 }
