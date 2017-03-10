@@ -1,16 +1,19 @@
 /* @flow */
 
-import isEqual from "lodash/isEqual"
-
-import ConfigAction from "./configAction"
-import CreateAction from "./createAction"
-import DockerOptionAction from "./dockerOptionAction"
-import PushAction from "./pushAction"
-import StartAction from "./startAction"
+import { needsConfigAction, makeConfigAction } from "./configAction"
+import { needsCreateAction, makeCreateAction } from "./createAction"
+import { needsDockerOptionAction, makeDockerOptionAction } from "./dockerOptionAction"
+import { needsPushAction, makePushAction } from "./pushAction"
+import { needsStartAction, makeStartAction } from "./startAction"
 
 import type { AppData } from "../appData"
+import type Dokku from "../dokku"
+import type RepoCache from "../repoCache"
 
-export type Action = ConfigAction | CreateAction | DockerOptionAction | PushAction | StartAction
+export type Action = {
+  describe: () => Array<string>,
+  run: (dokku: Dokku, repoCache: RepoCache) => Promise<>
+}
 
 export function deriveActions(app: AppData): Array<Action> {
   if (app.status === "unknown") {
@@ -19,24 +22,24 @@ export function deriveActions(app: AppData): Array<Action> {
 
   const actions = []
 
-  if (app.status === "missing") {
-    actions.push(new CreateAction(app))
+  if (needsCreateAction(app)) {
+    actions.push(makeCreateAction(app))
   }
 
-  if (!isEqual(app.description.config, app.actual.config)) {
-    actions.push(new ConfigAction(app))
+  if (needsConfigAction(app)) {
+    actions.push(makeConfigAction(app))
   }
 
-  if (!isEqual(app.description.dockerOptions, app.actual.dockerOptions)) {
-    actions.push(new DockerOptionAction(app))
+  if (needsDockerOptionAction(app)) {
+    actions.push(makeDockerOptionAction(app))
   }
 
-  if (app.description.version !== app.actual.version) {
-    actions.push(new PushAction(app.description))
+  if (needsPushAction(app)) {
+    actions.push(makePushAction(app))
   }
 
-  if (!app.running && actions.length === 0) {
-    actions.push(new StartAction(app))
+  if (needsStartAction(app, actions)) {
+    actions.push(makeStartAction(app))
   }
 
   return actions

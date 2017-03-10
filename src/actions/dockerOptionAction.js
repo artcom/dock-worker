@@ -1,5 +1,7 @@
 /* @flow */
 
+import isEqual from "lodash/isEqual"
+
 import diffOptions from "../diffOptions"
 import Dokku from "../dokku"
 
@@ -7,7 +9,19 @@ import type { KnownAppData } from "../appData"
 import type { Change } from "../diffOptions"
 import type { AppDescription } from "../types"
 
-export default class {
+export function needsDockerOptionAction(app: KnownAppData): boolean {
+  return !isEqual(app.description.dockerOptions, app.actual.dockerOptions)
+}
+
+export function makeDockerOptionAction(app: KnownAppData): DockerOptionAction {
+  return new DockerOptionAction(app)
+}
+
+export function isDockerOptionAction(action: any): boolean {
+  return action instanceof DockerOptionAction
+}
+
+class DockerOptionAction {
   changes: Array<Change>;
   description: AppDescription;
 

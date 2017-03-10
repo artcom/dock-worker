@@ -3,9 +3,9 @@
 import chalk from "chalk"
 
 import { deriveActions } from "../actions"
-import ConfigAction from "../actions/configAction"
-import DockerOptionAction from "../actions/dockerOptionAction"
-import PushAction from "../actions/pushAction"
+import { isConfigAction } from "../actions/configAction"
+import { isDockerOptionAction } from "../actions/dockerOptionAction"
+import { isPushAction } from "../actions/pushAction"
 
 import ansiTable from "../ansiTable"
 import { loadAppData } from "../appData"
@@ -83,7 +83,7 @@ function state(app: AppData, overrideColor?: Function): string {
 }
 
 function version(app: AppData, actions: Array<Action>) {
-  const outdated = actions.some((action) => action instanceof PushAction)
+  const outdated = actions.some(isPushAction)
   const color = outdated ? chalk.red : chalk.green
   return color(app.actual.version)
 }
@@ -91,11 +91,11 @@ function version(app: AppData, actions: Array<Action>) {
 function deploymentStatus(app: KnownAppData, actions: Array<Action>) {
   const status = []
 
-  if (actions.some((action) => action instanceof ConfigAction)) {
+  if (actions.some(isConfigAction)) {
     status.push("config")
   }
 
-  if (actions.some((action) => action instanceof DockerOptionAction)) {
+  if (actions.some(isDockerOptionAction)) {
     status.push("docker-options")
   }
 

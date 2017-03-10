@@ -1,6 +1,7 @@
 /* @flow */
 
 import fromPairs from "lodash/fromPairs"
+import isEqual from "lodash/isEqual"
 import map from "lodash/map"
 import partition from "lodash/partition"
 
@@ -11,7 +12,19 @@ import type { KnownAppData } from "../appData"
 import type { Change } from "../diffOptions"
 import type { AppDescription } from "../types"
 
-export default class {
+export function needsConfigAction(app: KnownAppData): boolean {
+  return !isEqual(app.description.config, app.actual.config)
+}
+
+export function makeConfigAction(app: KnownAppData): ConfigAction {
+  return new ConfigAction(app)
+}
+
+export function isConfigAction(action: any): boolean {
+  return action instanceof ConfigAction
+}
+
+class ConfigAction {
   changes: Array<Change>;
   description: AppDescription;
 

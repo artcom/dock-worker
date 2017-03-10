@@ -3,13 +3,26 @@
 import Dokku from "../dokku"
 import RepoCache from "../repoCache"
 
+import type { KnownAppData } from "../appData"
 import type { AppDescription } from "../types"
 
-export default class {
+export function needsPushAction(app: KnownAppData): boolean {
+  return app.description.version !== app.actual.version
+}
+
+export function makePushAction(app: KnownAppData): PushAction {
+  return new PushAction(app)
+}
+
+export function isPushAction(action: any) {
+  return action instanceof PushAction
+}
+
+class PushAction {
   description: AppDescription;
 
-  constructor(description: AppDescription) {
-    this.description = description
+  constructor(app: KnownAppData) {
+    this.description = app.description
   }
 
   describe(): Array<string> {

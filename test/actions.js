@@ -2,9 +2,9 @@
 
 import sinon from "sinon"
 
-import ConfigAction from "../src/actions/configAction"
-import CreateAction from "../src/actions/createAction"
-import DockerOptionAction from "../src/actions/dockerOptionAction"
+import { makeConfigAction } from "../src/actions/configAction"
+import { makeCreateAction } from "../src/actions/createAction"
+import { makeDockerOptionAction } from "../src/actions/dockerOptionAction"
 import Dokku from "../src/dokku"
 
 describe("Actions", function() {
@@ -48,7 +48,7 @@ describe("Actions", function() {
 
   describe("create", function() {
     it("should create an app", function() {
-      const action = new CreateAction({ name: "new-app" })
+      const action = makeCreateAction({ name: "new-app" })
 
       this.mock.expects("create")
         .withExactArgs("new-app")
@@ -67,7 +67,7 @@ describe("Actions", function() {
         actual: this.actual
       }
 
-      const action = new ConfigAction(appData)
+      const action = makeConfigAction(appData)
 
       const calls = [
         this.mock.expects("setConfig")
@@ -90,7 +90,7 @@ describe("Actions", function() {
         actual: this.actual
       }
 
-      const action = new ConfigAction(appData)
+      const action = makeConfigAction(appData)
 
       const calls = [
         this.mock.expects("stop")
@@ -121,7 +121,7 @@ describe("Actions", function() {
         actual: this.actual
       }
 
-      const action = new DockerOptionAction(appData)
+      const action = makeDockerOptionAction(appData)
 
       const calls = [
         this.mock.expects("removeDockerOption")
@@ -153,7 +153,7 @@ describe("Actions", function() {
         actual: this.actual
       }
 
-      const action = new DockerOptionAction(appData)
+      const action = makeDockerOptionAction(appData)
 
       const calls = [
         this.mock.expects("removeDockerOption")

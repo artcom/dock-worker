@@ -3,18 +3,18 @@
 import chai, { expect } from "chai"
 
 import { deriveActions } from "../src/actions"
-import ConfigAction from "../src/actions/configAction"
-import CreateAction from "../src/actions/createAction"
-import DockerOptionAction from "../src/actions/dockerOptionAction"
-import PushAction from "../src/actions/pushAction"
-import StartAction from "../src/actions/startAction"
+import { isConfigAction } from "../src/actions/configAction"
+import { isCreateAction } from "../src/actions/createAction"
+import { isDockerOptionAction } from "../src/actions/dockerOptionAction"
+import { isPushAction } from "../src/actions/pushAction"
+import { isStartAction } from "../src/actions/startAction"
 
 chai.use(function({ Assertion }) {
   Assertion.addMethod("matchActionTypes", function(types) {
     // eslint-disable-next-line no-underscore-dangle
     const actions = this._obj
     new Assertion(actions).have.length(types.length, "wrong number of actions")
-    actions.forEach((action, i) => new Assertion(action).is.instanceof(types[i]))
+    actions.forEach((action, i) => new Assertion(types[i](action)).is.true)
   })
 })
 
@@ -34,8 +34,8 @@ describe("deriveActions", function() {
       })
 
       expect(actions).to.matchActionTypes([
-        CreateAction,
-        PushAction
+        isCreateAction,
+        isPushAction
       ])
     })
 
@@ -54,10 +54,10 @@ describe("deriveActions", function() {
       })
 
       expect(actions).to.matchActionTypes([
-        CreateAction,
-        ConfigAction,
-        DockerOptionAction,
-        PushAction
+        isCreateAction,
+        isConfigAction,
+        isDockerOptionAction,
+        isPushAction
       ])
     })
   })
@@ -74,7 +74,7 @@ describe("deriveActions", function() {
       })
 
       expect(actions).to.matchActionTypes([
-        PushAction
+        isPushAction
       ])
     })
 
@@ -93,9 +93,9 @@ describe("deriveActions", function() {
       })
 
       expect(actions).to.matchActionTypes([
-        ConfigAction,
-        DockerOptionAction,
-        PushAction
+        isConfigAction,
+        isDockerOptionAction,
+        isPushAction
       ])
     })
 
@@ -118,7 +118,7 @@ describe("deriveActions", function() {
       })
 
       expect(actions).to.matchActionTypes([
-        PushAction
+        isPushAction
       ])
     })
   })
@@ -149,7 +149,7 @@ describe("deriveActions", function() {
         })
 
         expect(actions).to.matchActionTypes([
-          StartAction
+          isStartAction
         ])
       })
 
@@ -166,7 +166,7 @@ describe("deriveActions", function() {
         })
 
         expect(actions).to.matchActionTypes([
-          ConfigAction
+          isConfigAction
         ])
       })
 
@@ -183,7 +183,7 @@ describe("deriveActions", function() {
         })
 
         expect(actions).to.matchActionTypes([
-          DockerOptionAction
+          isDockerOptionAction
         ])
       })
     })
@@ -200,7 +200,7 @@ describe("deriveActions", function() {
         })
 
         expect(actions).to.matchActionTypes([
-          PushAction
+          isPushAction
         ])
       })
 
@@ -215,7 +215,7 @@ describe("deriveActions", function() {
         })
 
         expect(actions).to.matchActionTypes([
-          PushAction
+          isPushAction
         ])
       })
 
@@ -238,9 +238,9 @@ describe("deriveActions", function() {
         })
 
         expect(actions).to.matchActionTypes([
-          ConfigAction,
-          DockerOptionAction,
-          PushAction
+          isConfigAction,
+          isDockerOptionAction,
+          isPushAction
         ])
       })
 
@@ -263,9 +263,9 @@ describe("deriveActions", function() {
         })
 
         expect(actions).to.matchActionTypes([
-          ConfigAction,
-          DockerOptionAction,
-          PushAction
+          isConfigAction,
+          isDockerOptionAction,
+          isPushAction
         ])
       })
     })
