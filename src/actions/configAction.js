@@ -24,7 +24,7 @@ export default class {
     return this.changes.map(describeChange)
   }
 
-  async run(dokku: Dokku): Promise {
+  async run(dokku: Dokku): Promise<> {
     const [unset, set] = partition(this.changes, change => change.type === "remove")
 
     await setConfig(dokku, this.description, set)

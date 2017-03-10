@@ -15,7 +15,7 @@ export default class {
     return [`create ${this.name}`]
   }
 
-  run(dokku: Dokku): Promise {
+  run(dokku: Dokku): Promise<> {
     return dokku.create(this.name)
   }
 }

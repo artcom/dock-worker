@@ -77,6 +77,8 @@ class Repo {
   }
 }
 
+export type RepoType = Repo
+
 export function repo(directory: string, options: RepoOptions = {}): Promise<Repo> {
   if (options.bare) {
     return statAsync(path.join(directory, "HEAD")).then((stats) => {

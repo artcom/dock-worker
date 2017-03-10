@@ -15,7 +15,7 @@ export default class {
     return [`start ${this.name}`]
   }
 
-  run(dokku: Dokku): Promise {
+  run(dokku: Dokku): Promise<> {
     return dokku.start(this.name)
   }
 }

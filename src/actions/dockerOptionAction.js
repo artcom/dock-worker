@@ -20,7 +20,7 @@ export default class {
     return this.changes.map(describeChange)
   }
 
-  async run(dokku: Dokku): Promise {
+  async run(dokku: Dokku): Promise<> {
     const appName = this.description.name
 
     for (const change of this.changes) {
@@ -48,7 +48,7 @@ function describeChange(change: Change): string {
   }
 }
 
-async function applyChange(dokku: Dokku, appName: string, change: Change): Promise {
+async function applyChange(dokku: Dokku, appName: string, change: Change): Promise<> {
   switch (change.type) {
     case "add": {
       const { key, value } = change

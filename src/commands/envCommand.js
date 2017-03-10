@@ -11,14 +11,14 @@ import RepoCache from "../repoCache"
 
 import type { AppDescription, Options } from "../types"
 
-type Command = (dockfile: any, options: any) => Promise
+type Command = (dockfile: any, options: any) => Promise<>
 
 type EnvCommand = (
   descriptions: Array<AppDescription>,
   dokku: Dokku,
   repoCache: RepoCache,
   options: any
-) => Promise
+) => Promise<>
 
 export default function(callback: EnvCommand): Command {
   return async function(dockfile, options) {

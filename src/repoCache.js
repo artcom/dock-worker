@@ -19,7 +19,7 @@ export default class RepoCache {
     this.remoteUrl = remoteUrl
   }
 
-  getRepo(name: string): Promise {
+  getRepo(name: string): Promise<git.RepoType> {
     const localPath = path.resolve(this.cacheDir, name)
 
     return git.repo(localPath, { bare: true })
