@@ -53,7 +53,7 @@ export default class {
         throw error
       }
     }).then((lines) => {
-      const pairs = lines.map(extractPair).filter(isRelevantConfig)
+      const pairs = lines.map(extractPair)
       return fromPairs(pairs)
     })
   }
@@ -145,10 +145,6 @@ function extractStatus(line) {
 function extractPair(line) {
   const tokens = line.split(":")
   return [tokens[0], tokens.slice(1).join(":").trim()]
-}
-
-function isRelevantConfig(pair) {
-  return !pair[0].startsWith("DOKKU_")
 }
 
 const phaseLine = /^(Build|Deploy|Run) options/

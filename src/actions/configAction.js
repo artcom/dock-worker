@@ -1,7 +1,6 @@
 /* @flow */
 
 import fromPairs from "lodash/fromPairs"
-import isEqual from "lodash/isEqual"
 import map from "lodash/map"
 import partition from "lodash/partition"
 
@@ -13,7 +12,7 @@ import type { Change } from "../diffOptions"
 import type { AppDescription } from "../types"
 
 export function needsConfigAction(app: KnownAppData): boolean {
-  return !isEqual(app.description.config, app.actual.config)
+  return computeChanges(app).length > 0
 }
 
 export function makeConfigAction(app: KnownAppData): ConfigAction {
@@ -29,7 +28,7 @@ class ConfigAction {
   description: AppDescription;
 
   constructor(app: KnownAppData) {
-    this.changes = diffOptions(app.description.config, app.actual.config)
+    this.changes = computeChanges(app)
     this.description = app.description
   }
 
@@ -43,6 +42,16 @@ class ConfigAction {
     await setConfig(dokku, this.description, set)
     await unsetConfig(dokku, this.description, unset)
   }
+}
+
+function computeChanges(app: KnownAppData): Array<Change> {
+  return diffOptions(app.description.config, app.actual.config).filter(change =>
+    !(change.type === "remove" && isDokkuConfig(change.key))
+  )
+}
+
+function isDokkuConfig(key) {
+  return key === "NO_VHOST" || key.startsWith("DOKKU_")
 }
 
 function describeChange(change: Change): string {

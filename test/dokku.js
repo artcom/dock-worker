@@ -89,6 +89,8 @@ describe("Dokku", function() {
         )))
 
       return expect(this.dokku.config("app1")).to.eventually.deep.equal({
+        DOKKU_DOCKERFILE_PORT: "8000",
+        DOKKU_NGINX_PORT: "80",
         URL: "http://example.com/",
         NUMBER: "23"
       })

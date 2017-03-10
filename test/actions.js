@@ -19,7 +19,9 @@ describe("Actions", function() {
       config: {
         SHOULD_CHANGE: "to this",
         SHOULD_ADD: "new value",
-        SHOULD_KEEP: "existing value"
+        SHOULD_KEEP: "existing value",
+        DOKKU_SHOULD_ADD: "new dokku value",
+        DOKKU_SHOULD_CHANGE: "to dokku value"
       },
       dockerOptions: {
         "--should-change": ["deploy", "run"],
@@ -33,7 +35,9 @@ describe("Actions", function() {
       config: {
         SHOULD_CHANGE: "from this",
         SHOULD_REMOVE: "old value",
-        SHOULD_KEEP: "existing value"
+        SHOULD_KEEP: "existing value",
+        DOKKU_SHOULD_IGNORE: "dokku value",
+        DOKKU_SHOULD_CHANGE: "from dokku value"
       },
       dockerOptions: {
         "--should-change": ["build"],
@@ -71,7 +75,12 @@ describe("Actions", function() {
 
       const calls = [
         this.mock.expects("setConfig")
-          .withExactArgs("app1", { SHOULD_ADD: "new value", SHOULD_CHANGE: "to this" })
+          .withExactArgs("app1", {
+            SHOULD_ADD: "new value",
+            SHOULD_CHANGE: "to this",
+            DOKKU_SHOULD_ADD: "new dokku value",
+            DOKKU_SHOULD_CHANGE: "to dokku value"
+          })
           .returns(Promise.resolve()),
         this.mock.expects("unsetConfig")
           .withExactArgs("app1", "SHOULD_REMOVE")
@@ -97,7 +106,12 @@ describe("Actions", function() {
           .withExactArgs("app1")
           .returns(Promise.resolve()),
         this.mock.expects("setConfig")
-          .withExactArgs("app1", { SHOULD_ADD: "new value", SHOULD_CHANGE: "to this" })
+          .withExactArgs("app1", {
+            SHOULD_ADD: "new value",
+            SHOULD_CHANGE: "to this",
+            DOKKU_SHOULD_ADD: "new dokku value",
+            DOKKU_SHOULD_CHANGE: "to dokku value"
+          })
           .returns(Promise.resolve()),
         this.mock.expects("stop")
           .withExactArgs("app1")
