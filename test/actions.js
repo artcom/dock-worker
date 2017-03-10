@@ -51,7 +51,7 @@ describe("Actions", function() {
       const action = new CreateAction({ name: "new-app" })
 
       this.mock.expects("create")
-        .withArgs("new-app")
+        .withExactArgs("new-app")
         .returns(Promise.resolve())
 
       return action.run(this.dokku)
@@ -71,10 +71,10 @@ describe("Actions", function() {
 
       const calls = [
         this.mock.expects("setConfig")
-          .withArgs("app1", { SHOULD_ADD: "new value", SHOULD_CHANGE: "to this" })
+          .withExactArgs("app1", { SHOULD_ADD: "new value", SHOULD_CHANGE: "to this" })
           .returns(Promise.resolve()),
         this.mock.expects("unsetConfig")
-          .withArgs("app1", "SHOULD_REMOVE")
+          .withExactArgs("app1", "SHOULD_REMOVE")
           .returns(Promise.resolve())
       ]
 
@@ -94,16 +94,16 @@ describe("Actions", function() {
 
       const calls = [
         this.mock.expects("stop")
-          .withArgs("app1")
+          .withExactArgs("app1")
           .returns(Promise.resolve()),
         this.mock.expects("setConfig")
-          .withArgs("app1", { SHOULD_ADD: "new value", SHOULD_CHANGE: "to this" })
+          .withExactArgs("app1", { SHOULD_ADD: "new value", SHOULD_CHANGE: "to this" })
           .returns(Promise.resolve()),
         this.mock.expects("stop")
-          .withArgs("app1")
+          .withExactArgs("app1")
           .returns(Promise.resolve()),
         this.mock.expects("unsetConfig")
-          .withArgs("app1", "SHOULD_REMOVE")
+          .withExactArgs("app1", "SHOULD_REMOVE")
           .returns(Promise.resolve())
       ]
 
@@ -125,19 +125,19 @@ describe("Actions", function() {
 
       const calls = [
         this.mock.expects("removeDockerOption")
-          .withArgs("app1", "--should-change", ["build"])
+          .withExactArgs("app1", "--should-change", ["build"])
           .returns(Promise.resolve()),
         this.mock.expects("addDockerOption")
-          .withArgs("app1", "--should-change", ["deploy", "run"])
+          .withExactArgs("app1", "--should-change", ["deploy", "run"])
           .returns(Promise.resolve()),
         this.mock.expects("addDockerOption")
-          .withArgs("app1", "--should-add", ["deploy", "run"])
+          .withExactArgs("app1", "--should-add", ["deploy", "run"])
           .returns(Promise.resolve()),
         this.mock.expects("removeDockerOption")
-          .withArgs("app1", "--should-remove", ["build", "deploy", "run"])
+          .withExactArgs("app1", "--should-remove", ["build", "deploy", "run"])
           .returns(Promise.resolve()),
         this.mock.expects("restart")
-          .withArgs("app1")
+          .withExactArgs("app1")
           .returns(Promise.resolve())
       ]
 
@@ -157,22 +157,22 @@ describe("Actions", function() {
 
       const calls = [
         this.mock.expects("removeDockerOption")
-          .withArgs("app1", "--should-change", ["build"])
+          .withExactArgs("app1", "--should-change", ["build"])
           .returns(Promise.resolve()),
         this.mock.expects("addDockerOption")
-          .withArgs("app1", "--should-change", ["deploy", "run"])
+          .withExactArgs("app1", "--should-change", ["deploy", "run"])
           .returns(Promise.resolve()),
         this.mock.expects("addDockerOption")
-          .withArgs("app1", "--should-add", ["deploy", "run"])
+          .withExactArgs("app1", "--should-add", ["deploy", "run"])
           .returns(Promise.resolve()),
         this.mock.expects("removeDockerOption")
-          .withArgs("app1", "--should-remove", ["build", "deploy", "run"])
+          .withExactArgs("app1", "--should-remove", ["build", "deploy", "run"])
           .returns(Promise.resolve()),
         this.mock.expects("stop")
-          .withArgs("app1")
+          .withExactArgs("app1")
           .returns(Promise.resolve()),
         this.mock.expects("start")
-          .withArgs("app1")
+          .withExactArgs("app1")
           .returns(Promise.resolve())
       ]
 
