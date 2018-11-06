@@ -1,5 +1,3 @@
-/* @flow */
-
 import find from "lodash/find"
 import isPlainObject from "lodash/isPlainObject"
 import mapValues from "lodash/mapValues"

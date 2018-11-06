@@ -1,5 +1,3 @@
-/* @flow */
-
 import isEqual from "lodash/isEqual"
 
 import diffOptions from "../diffOptions"

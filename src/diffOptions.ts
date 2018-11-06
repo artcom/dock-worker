@@ -1,11 +1,9 @@
-/* @flow */
-
 import difference from "lodash/difference"
 import flatten from "lodash/flatten"
 import intersection from "lodash/intersection"
 import isEqual from "lodash/isEqual"
 
-import type { Options } from "./types"
+import { Options } from "./types"
 
 export type Change = Add | Remove | Update
 

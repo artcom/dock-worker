@@ -1,5 +1,3 @@
-/* @flow */
-
 import Dokku from "../dokku"
 
 import type { AppData } from "../appData"

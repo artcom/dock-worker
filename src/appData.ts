@@ -1,5 +1,3 @@
-/* @flow */
-
 import bluebird from "bluebird"
 import chalk from "chalk"
 import difference from "lodash/difference"

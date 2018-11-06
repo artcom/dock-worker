@@ -1,13 +1,11 @@
-/* @flow */
-
-import bluebird from "bluebird"
+import Bluebird from "bluebird"
 import cp from "child_process"
 import fs from "fs"
 import path from "path"
 import set from "lodash/set"
 
-const execFileAsync = bluebird.promisify(cp.execFile)
-const statAsync = bluebird.promisify(fs.stat)
+const execFileAsync = Bluebird.promisify(cp.execFile)
+const statAsync = Bluebird.promisify(fs.stat)
 
 type RepoOptions = {
   bare?: boolean
@@ -79,7 +77,7 @@ class Repo {
 
 export type RepoType = Repo
 
-export function repo(directory: string, options: RepoOptions = {}): Promise<Repo> {
+export function repo(directory: string, options: RepoOptions = {}): Bluebird<Repo> {
   if (options.bare) {
     return statAsync(path.join(directory, "HEAD")).then(stats => {
       if (stats.isFile()) {

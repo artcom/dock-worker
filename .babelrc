@@ -1,9 +1,10 @@
 {
+  "presets": [
+    "@babel/env",
+    "@babel/typescript"
+  ],
   "plugins": [
-    "syntax-async-functions",
-    "syntax-flow",
-    "transform-async-to-generator",
-    "transform-es2015-modules-commonjs",
-    "transform-flow-strip-types"
+    "@babel/proposal-class-properties",
+    "@babel/proposal-object-rest-spread"
   ]
 }

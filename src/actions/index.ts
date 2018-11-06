@@ -1,14 +1,12 @@
-/* @flow */
-
 import { needsConfigAction, makeConfigAction } from "./configAction"
 import { needsCreateAction, makeCreateAction } from "./createAction"
 import { needsDockerOptionAction, makeDockerOptionAction } from "./dockerOptionAction"
 import { needsPushAction, makePushAction } from "./pushAction"
 import { needsStartAction, makeStartAction } from "./startAction"
 
-import type { AppData } from "../appData"
-import type Dokku from "../dokku"
-import type RepoCache from "../repoCache"
+import { AppData } from "../appData"
+import Dokku from "../dokku"
+import RepoCache from "../repoCache"
 
 export type Action = {
   describe: () => Array<string>,

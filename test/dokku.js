@@ -60,18 +60,10 @@ describe("Dokku", function() {
         ))
 
       return expect(this.dokku.ls()).to.eventually.deep.equal([
-        { name: "some-app", type: "web", id: "26effc047c53", status: "running" },
+        { name: "some-app", deployed: true, running: true, id: "26effc047c53" },
         { name: "another-app", type: "NOT_DEPLOYED", id: "NOT_DEPLOYED", status: "NOT_DEPLOYED" },
         { name: "stopped-app", type: "web", id: "09d5ecb93b6d", status: "stopped" }
       ])
-    })
-
-    it("should create an app", function() {
-      this.mock.expects("sendCommand")
-        .withArgs("apps:create new-app")
-        .returns(Promise.resolve(""))
-
-      return this.dokku.create("new-app")
     })
   })
 

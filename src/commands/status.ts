@@ -1,5 +1,3 @@
-/* @flow */
-
 import chalk from "chalk"
 
 import { deriveActions } from "../actions"
@@ -13,9 +11,9 @@ import Dokku from "../dokku"
 import envCommand from "./envCommand"
 import RepoCache from "../repoCache"
 
-import type { Action } from "../actions"
-import type { AppData, KnownAppData } from "../appData"
-import type { AppDescription } from "../types"
+import { Action } from "../actions"
+import { AppData, KnownAppData } from "../appData"
+import { AppDescription } from "../types"
 
 export default envCommand(status)
 

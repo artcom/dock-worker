@@ -1,5 +1,3 @@
-/* @flow */
-
 import fromPairs from "lodash/fromPairs"
 import map from "lodash/map"
 import partition from "lodash/partition"

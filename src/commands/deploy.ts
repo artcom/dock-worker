@@ -1,5 +1,3 @@
-/* @flow */
-
 import bluebird from "bluebird"
 import chalk from "chalk"
 import find from "lodash/find"

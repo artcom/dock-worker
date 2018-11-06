@@ -1,5 +1,3 @@
-/* @flow */
-
 import { Client } from "ssh2"
 import BufferList from "bl"
 
