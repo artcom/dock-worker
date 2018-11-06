@@ -43,7 +43,7 @@ async function deploy(
 }
 
 function validateSelectedApps(descriptions, selectedApps) {
-  selectedApps.forEach((appName) => {
+  selectedApps.forEach(appName => {
     if (!find(descriptions, ["name", appName])) {
       throw new Error(`Unknown app "${appName}"`)
     }
@@ -72,7 +72,7 @@ async function runActions(appActionsList, dokku, repoCache) {
     console.log(printName(appName))
 
     for (const action of actions) {
-      const message = (spinner) => chalk.gray(`${printAction(action)} ${spinner}`)
+      const message = spinner => chalk.gray(`${printAction(action)} ${spinner}`)
       await showMessageUntilSettled(message, action.run(dokku, repoCache))
       console.log(chalk.cyan(printAction(action)))
     }

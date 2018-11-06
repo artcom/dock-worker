@@ -176,7 +176,7 @@ export async function loadAppData(
 }
 
 function initializeWithMessage(context) {
-  const message = (spinner) => chalk.gray(`loading service list ${spinner}`)
+  const message = spinner => chalk.gray(`loading service list ${spinner}`)
   return showMessageUntilSettled(message, context.initialize())
 }
 
@@ -184,7 +184,7 @@ function loadAppDataWithMessage(context, appNames) {
   const inProgress = new Set()
   let completed = 0
 
-  const message = (spinner) => {
+  const message = spinner => {
     const services = Array
       .from(inProgress)
       .map(appName => `${chalk.bold(appName)} ${spinner}`)
@@ -193,7 +193,7 @@ function loadAppDataWithMessage(context, appNames) {
     return chalk.gray([`loading service data ${count}`, ...services].join("\n"))
   }
 
-  return showMessageUntilSettled(message, bluebird.map(appNames, async function(appName) {
+  return showMessageUntilSettled(message, bluebird.map(appNames, async appName => {
     inProgress.add(appName)
     const appData = await context.loadAppData(appName)
     inProgress.delete(appName)

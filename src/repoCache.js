@@ -24,6 +24,6 @@ export default class RepoCache {
 
     return git.repo(localPath, { bare: true })
       .catch(() => git.init(localPath, { bare: true }))
-      .then((repo) => repo.ensureRemote(this.DOKKU_REMOTE, `${this.remoteUrl}/${name}`))
+      .then(repo => repo.ensureRemote(this.DOKKU_REMOTE, `${this.remoteUrl}/${name}`))
   }
 }

@@ -13,7 +13,7 @@ export default class SshConnection {
     this.connect = new Promise((resolve, reject) => {
       this.client.on("ready", () => {
         resolve()
-      }).on("error", (error) => {
+      }).on("error", error => {
         reject(error)
       }).connect({
         host,
@@ -39,7 +39,7 @@ export default class SshConnection {
         stream.pipe(stdout)
         stream.stderr.pipe(stderr)
 
-        stream.on("close", (code) => {
+        stream.on("close", code => {
           if (code === 0) {
             resolve(stdout.toString())
           } else {

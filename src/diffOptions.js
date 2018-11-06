@@ -40,13 +40,13 @@ export default function diffOptions(expected: Options, deployed: Options): Array
       value: expected[key]
     }))
 
-  const adds = missing.map((key) => ({
+  const adds = missing.map(key => ({
     type: "add",
     key,
     value: expected[key]
   }))
 
-  const removes = additional.map((key) => ({
+  const removes = additional.map(key => ({
     type: "remove",
     key,
     oldValue: deployed[key]

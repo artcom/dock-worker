@@ -38,7 +38,7 @@ export default class {
   }
 
   ls(): Promise<Array<AppStatus>> {
-    return this.dokku("ls").then((lines) => lines.map(extractStatus))
+    return this.dokku("ls").then(lines => lines.map(extractStatus))
   }
 
   create(app: string): Promise<> {
@@ -46,13 +46,13 @@ export default class {
   }
 
   config(app: string): Promise<Options> {
-    return this.dokku("config", app).catch((error) => {
+    return this.dokku("config", app).catch(error => {
       if (error.message.endsWith(`no config vars for ${app}\n`)) {
         return []
       } else {
         throw error
       }
-    }).then((lines) => {
+    }).then(lines => {
       const pairs = lines.map(extractPair)
       return fromPairs(pairs)
     })
@@ -68,7 +68,7 @@ export default class {
   }
 
   dockerOptions(app: string): Promise<Options> {
-    return this.dokku("docker-options", app).then((lines) =>
+    return this.dokku("docker-options", app).then(lines =>
       lines.reduce(({ options, phase }, line) => {
         const match = line.match(phaseLine)
 
@@ -94,7 +94,7 @@ export default class {
   }
 
   stop(app: string): Promise<> {
-    return this.dokku("ps:stop", app).catch((error) => {
+    return this.dokku("ps:stop", app).catch(error => {
       if (!error.message.endsWith(`App ${app} has not been deployed\n`)) {
         throw error
       }
@@ -112,7 +112,7 @@ export default class {
   // PRIVATE
 
   dokku(...params: Array<string>): Promise<Array<string>> {
-    return this.sendCommand(params.join(" ")).then((stdout) => {
+    return this.sendCommand(params.join(" ")).then(stdout => {
       const lines = stdout.split("\n")
       return lines.filter(isRelevantLine)
     })
@@ -132,7 +132,7 @@ function isRelevantLine(line) {
 }
 
 function extractStatus(line) {
-  const columns = line.split(/\s+/).filter((column) => column !== "")
+  const columns = line.split(/\s+/).filter(column => column !== "")
 
   if (columns.length !== 4) {
     throw new Error(`unexpected Dokku output (${line})`)
