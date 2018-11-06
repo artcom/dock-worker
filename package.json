@@ -16,36 +16,36 @@
     "test": "eslint src && mocha --compilers js:babel-register"
   },
   "dependencies": {
-    "bl": "^1.0.2",
+    "bl": "^2.1.2",
     "bluebird": "^3.0.5",
-    "chalk": "^1.1.3",
+    "chalk": "^2.4.1",
     "docopt": "^0.6.2",
     "elegant-spinner": "^1.0.1",
     "lodash": "^4.0.1",
-    "log-update": "^1.0.2",
+    "log-update": "^2.3.0",
     "read": "^1.0.7",
-    "ssh2": "^0.5.0",
-    "strip-ansi": "^3.0.1",
+    "ssh2": "^0.6.1",
+    "strip-ansi": "^5.0.0",
     "text-table": "^0.2.0",
-    "yn": "^1.2.0"
+    "yn": "^2.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.5.1",
-    "babel-eslint": "^6.1.0",
+    "babel-eslint": "^10.0.1",
     "babel-plugin-syntax-async-functions": "^6.8.0",
     "babel-plugin-syntax-flow": "^6.5.0",
     "babel-plugin-transform-async-to-generator": "^6.8.0",
     "babel-plugin-transform-es2015-modules-commonjs": "^6.5.0",
     "babel-plugin-transform-flow-strip-types": "^6.5.0",
     "babel-register": "^6.5.1",
-    "chai": "^3.4.0",
-    "chai-as-promised": "^5.1.0",
-    "eslint": "^2.13.1",
-    "eslint-config-artcom": "^0.3.3",
-    "eslint-plugin-import": "^1.9.2",
-    "mocha": "^2.3.3",
-    "sinon": "^1.17.2",
-    "tmp": "0.0.28"
+    "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
+    "eslint": "^5.8.0",
+    "eslint-config-artcom": "^0.9.1",
+    "eslint-plugin-import": "^2.14.0",
+    "mocha": "^5.2.0",
+    "sinon": "^7.1.1",
+    "tmp": "0.0.33"
   },
   "license": "MIT"
 }
