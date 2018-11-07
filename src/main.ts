@@ -1,7 +1,7 @@
 #! /usr/bin/env node
 
 import bluebird from "bluebird"
-import * as chalk from "chalk"
+import chalk from "chalk"
 import { docopt } from "docopt"
 import find from "lodash/find"
 import fs from "fs"

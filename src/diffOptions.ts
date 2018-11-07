@@ -4,6 +4,7 @@ import intersection from "lodash/intersection"
 import isEqual from "lodash/isEqual"
 
 import { Options } from "./types"
+import { Dictionary } from "lodash";
 
 export type Change = Add | Remove | Update
 
@@ -26,7 +27,7 @@ type Update = {
   value: any
 }
 
-export default function diffOptions(expected: Options, deployed: Options): Array<Change> {
+export default function diffOptions(expected: Options, deployed: Dictionary<{}>): Array<Change> {
   const { existing, missing, additional } = diffKeys(Object.keys(deployed), Object.keys(expected))
 
   const updates = existing

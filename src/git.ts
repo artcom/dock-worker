@@ -1,11 +1,11 @@
-import Bluebird from "bluebird"
-import cp from "child_process"
+import { execFile } from "child_process"
+import { promisify } from "util"
 import fs from "fs"
 import path from "path"
 import set from "lodash/set"
 
-const execFileAsync = Bluebird.promisify(cp.execFile)
-const statAsync = Bluebird.promisify(fs.stat)
+const execFileAsync = promisify(execFile)
+const statAsync = promisify(fs.stat)
 
 type RepoOptions = {
   bare?: boolean
@@ -77,7 +77,7 @@ class Repo {
 
 export type RepoType = Repo
 
-export function repo(directory: string, options: RepoOptions = {}): Bluebird<Repo> {
+export function repo(directory: string, options: RepoOptions = {}): Promise<Repo> {
   if (options.bare) {
     return statAsync(path.join(directory, "HEAD")).then(stats => {
       if (stats.isFile()) {
@@ -114,7 +114,7 @@ export function clone(repo: string, directory: string, options: RepoOptions = {}
 }
 
 function git(...params: Array<string>): Promise<Array<string>> {
-  return execFileAsync("git", params, { maxBuffer: 2048 * 1024 }).then(stdout => {
+  return execFileAsync("git", params, { maxBuffer: 2048 * 1024 }).then(({stdout}) => {
     const lines = stdout.split("\n")
     return lines.filter(line => line.length > 0)
   })

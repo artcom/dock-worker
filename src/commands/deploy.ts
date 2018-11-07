@@ -1,5 +1,5 @@
 import bluebird from "bluebird"
-import * as chalk from "chalk"
+import chalk from "chalk"
 import find from "lodash/find"
 import read from "read"
 import yn from "yn"
