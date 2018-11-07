@@ -5,6 +5,7 @@ import union from "lodash/union"
 import SshConnection from "./sshConnection"
 
 import { Options } from "./types"
+import { Dictionary } from "lodash"
 
 export type Phase = "build" | "deploy" | "run"
 export type AppStatus = {
@@ -43,7 +44,7 @@ export default class {
     return this.dokku("apps:create", app)
   }
 
-  config(app: string): Promise<Options> {
+  config(app: string): Promise<Dictionary<{}>> {
     return this.dokku("config", app).catch(error => {
       if (error.message.endsWith(`no config vars for ${app}\n`)) {
         return []
@@ -91,7 +92,7 @@ export default class {
     return this.dokku("docker-options:remove", app, phases.join(","), option)
   }
 
-  stop(app: string): Promise<Array<string>> | never {
+  stop(app: string): Promise<Array<string> | void> {
     return this.dokku("ps:stop", app).catch(error => {
       if (!error.message.endsWith(`App ${app} has not been deployed\n`)) {
         throw error

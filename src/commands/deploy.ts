@@ -1,5 +1,5 @@
 import bluebird from "bluebird"
-import chalk from "chalk"
+import * as chalk from "chalk"
 import find from "lodash/find"
 import read from "read"
 import yn from "yn"
@@ -11,8 +11,8 @@ import envCommand from "./envCommand"
 import RepoCache from "../repoCache"
 import showMessageUntilSettled from "../showMessageUntilSettled"
 
-import type { Action } from "../actions"
-import type { AppDescription } from "../types"
+import { Action } from "../actions"
+import { AppDescription } from "../types"
 
 const readAsync = bluebird.promisify(read)
 

@@ -8,9 +8,9 @@ import { AppData } from "../appData"
 import Dokku from "../dokku"
 import RepoCache from "../repoCache"
 
-export type Action = {
+type Action = {
   describe: () => Array<string>,
-  run: (dokku: Dokku, repoCache: RepoCache) => Promise<>
+  run: (dokku: Dokku, repoCache: RepoCache) => Promise<void>
 }
 
 export function deriveActions(app: AppData): Array<Action> {

@@ -3,7 +3,7 @@ import BufferList from "bl"
 
 export default class SshConnection {
   client: Client;
-  connect: Promise<>;
+  connect: Promise<void | Error>;
 
   constructor(username: string, host: string) {
     this.client = new Client()
@@ -22,7 +22,7 @@ export default class SshConnection {
     })
   }
 
-  async exec(command: string): Promise<string> {
+  async exec(command: string): Promise<String | any> {
     await this.connect
 
     return new Promise((resolve, reject) => {

@@ -7,16 +7,16 @@ import url from "url"
 import Dokku from "../dokku"
 import RepoCache from "../repoCache"
 
-import type { AppDescription, Options } from "../types"
+import { AppDescription, Options } from "../types"
 
-type Command = (dockfile: any, options: any) => Promise<>
+export type Command = (dockfile: any, options: any) => any
 
 type EnvCommand = (
   descriptions: Array<AppDescription>,
   dokku: Dokku,
   repoCache: RepoCache,
   options: any
-) => Promise<>
+) => any
 
 export default function(callback: EnvCommand): Command {
   return async function(dockfile, options) {

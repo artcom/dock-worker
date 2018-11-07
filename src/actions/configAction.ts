@@ -5,9 +5,9 @@ import partition from "lodash/partition"
 import diffOptions from "../diffOptions"
 import Dokku from "../dokku"
 
-import type { KnownAppData } from "../appData"
-import type { Change } from "../diffOptions"
-import type { AppDescription } from "../types"
+import { KnownAppData } from "../appData"
+import { Change } from "../diffOptions"
+import { AppDescription } from "../types"
 
 export function needsConfigAction(app: KnownAppData): boolean {
   return computeChanges(app).length > 0
@@ -34,7 +34,7 @@ class ConfigAction {
     return this.changes.map(describeChange)
   }
 
-  async run(dokku: Dokku): Promise<> {
+  async run(dokku: Dokku): Promise<void> {
     const [unset, set] = partition(this.changes, change => change.type === "remove")
 
     await setConfig(dokku, this.description, set)

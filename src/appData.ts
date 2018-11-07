@@ -11,15 +11,16 @@ import Dokku from "./dokku"
 import RepoCache from "./repoCache"
 import showMessageUntilSettled from "./showMessageUntilSettled"
 
-import type { Options, AppDescription } from "./types"
+import { AppDescription } from "./types"
+import { Dictionary } from "lodash";
 
 export type AppData = KnownAppData | UnknownAppData
 
 export type KnownAppData = {
   name: string,
   status: "missing" | "exists",
-  deployed: bool,
-  running: bool,
+  deployed: Boolean,
+  running: Boolean,
   description: AppDescription,
   actual: ActualConfig
 }
@@ -27,15 +28,15 @@ export type KnownAppData = {
 export type UnknownAppData = {
   name: string,
   status: "unknown",
-  deployed: bool,
-  running: bool,
+  deployed: Boolean,
+  running: Boolean,
   actual: ActualConfig
 }
 
 type ActualConfig = {
   version: string,
-  config: Options,
-  dockerOptions: Options
+  config: Dictionary<{}>,
+  dockerOptions: Dictionary<{}>
 }
 
 class Context {
@@ -55,7 +56,7 @@ class Context {
     this.repoCache = repoCache
   }
 
-  async initialize(): Promise<> {
+  async initialize(): Promise<void> {
     const list = await this.dokku.ls()
     const available = map(list, "name")
     const defined = map(this.descriptions, "name")

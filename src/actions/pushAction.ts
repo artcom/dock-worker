@@ -3,8 +3,8 @@
 import Dokku from "../dokku"
 import RepoCache from "../repoCache"
 
-import type { KnownAppData } from "../appData"
-import type { AppDescription } from "../types"
+import { KnownAppData } from "../appData"
+import { AppDescription } from "../types"
 
 export function needsPushAction(app: KnownAppData): boolean {
   return app.description.version !== app.actual.version
@@ -29,7 +29,7 @@ class PushAction {
     return [`deploy ${this.description.version}`]
   }
 
-  async run(dokku: Dokku, repoCache: RepoCache): Promise<> {
+  async run(dokku: Dokku, repoCache: RepoCache): Promise<void> {
     if (this.description.stopBeforeDeployment) {
       await dokku.stop(this.description.name)
     }

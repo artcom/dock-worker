@@ -3,9 +3,9 @@ import isEqual from "lodash/isEqual"
 import diffOptions from "../diffOptions"
 import Dokku from "../dokku"
 
-import type { KnownAppData } from "../appData"
-import type { Change } from "../diffOptions"
-import type { AppDescription } from "../types"
+import { KnownAppData } from "../appData"
+import { Change } from "../diffOptions"
+import { AppDescription } from "../types"
 
 export function needsDockerOptionAction(app: KnownAppData): boolean {
   return !isEqual(app.description.dockerOptions, app.actual.dockerOptions)
@@ -32,7 +32,7 @@ class DockerOptionAction {
     return this.changes.map(describeChange)
   }
 
-  async run(dokku: Dokku): Promise<> {
+  async run(dokku: Dokku): Promise<void> {
     const appName = this.description.name
 
     for (const change of this.changes) {
@@ -60,7 +60,7 @@ function describeChange(change: Change): string {
   }
 }
 
-async function applyChange(dokku: Dokku, appName: string, change: Change): Promise<> {
+async function applyChange(dokku: Dokku, appName: string, change: Change): Promise<void> {
   switch (change.type) {
     case "add": {
       const { key, value } = change
