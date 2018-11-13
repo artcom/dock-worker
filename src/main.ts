@@ -23,7 +23,7 @@ const options = docopt(`
 
   Options:
     -f FILE --file=FILE     Dockfile path [default: Dockfile.json]
-`)
+`, {})
 
 const commands = {
   status,
