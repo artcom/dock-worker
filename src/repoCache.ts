@@ -1,7 +1,5 @@
 import path from "path"
 
-import Bluebird from "bluebird"
-
 import * as git from "./git"
 
 export default class RepoCache {
@@ -19,7 +17,7 @@ export default class RepoCache {
     this.remoteUrl = remoteUrl
   }
 
-  getRepo(name: string): Bluebird<git.RepoType> {
+  getRepo(name: string): Promise<git.RepoType> {
     const localPath = path.resolve(this.cacheDir, name)
 
     return git.repo(localPath, { bare: true })

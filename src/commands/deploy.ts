@@ -1,8 +1,8 @@
-import bluebird from "bluebird"
 import chalk from "chalk"
 import find from "lodash/find"
-import read from "read"
+import read from "read-promise"
 import yn from "yn"
+import { promisify } from "util"
 
 import { deriveActions } from "../actions"
 import { loadAppData } from "../appData"
@@ -13,8 +13,6 @@ import showMessageUntilSettled from "../showMessageUntilSettled"
 
 import { Action } from "../actions"
 import { AppDescription } from "../types"
-
-const readAsync = bluebird.promisify(read)
 
 type AppActions = {
   appName: string,
@@ -61,7 +59,7 @@ async function applyAppActions(appActionsList, dokku, repoCache, yes) {
 }
 
 async function askForConfirmation() {
-  const input = await readAsync({ prompt: "apply changes (y/N)?" })
+  const input = await read({ prompt: "apply changes (y/N)?" })
   return yn(input)
 }
 

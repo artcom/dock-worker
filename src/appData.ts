@@ -1,4 +1,3 @@
-import bluebird from "bluebird"
 import chalk from "chalk"
 import difference from "lodash/difference"
 import find from "lodash/find"
@@ -11,8 +10,7 @@ import Dokku from "./dokku"
 import RepoCache from "./repoCache"
 import showMessageUntilSettled from "./showMessageUntilSettled"
 
-import { AppDescription } from "./types"
-import { Dictionary } from "lodash";
+import { AppDescription, Options } from "./types"
 
 export type AppData = KnownAppData | UnknownAppData
 
@@ -35,8 +33,8 @@ export type UnknownAppData = {
 
 type ActualConfig = {
   version: string,
-  config: Dictionary<{}>,
-  dockerOptions: Dictionary<{}>
+  config: Options,
+  dockerOptions: Options
 }
 
 class Context {
@@ -192,13 +190,13 @@ function loadAppDataWithMessage(context, appNames) {
     return chalk.gray([`loading service data ${count}`, ...services].join("\n"))
   }
 
-  return showMessageUntilSettled(message, bluebird.map(appNames, async appName => {
+  const appDataQue = appNames.map(async appName => {
     inProgress.add(appName)
     const appData = await context.loadAppData(appName)
     inProgress.delete(appName)
     completed += 1
     return appData
-  }, {
-    concurrency: 4
-  }))
+  })
+
+  return showMessageUntilSettled(message, Promise.all(appDataQue))
 }

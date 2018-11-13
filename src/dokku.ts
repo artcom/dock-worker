@@ -5,8 +5,7 @@ import union from "lodash/union"
 import SshConnection from "./sshConnection"
 
 import { Options } from "./types"
-import { Dictionary } from "lodash"
-
+ 
 export type Phase = "build" | "deploy" | "run"
 export type AppStatus = {
   name: string,
@@ -44,14 +43,8 @@ export default class {
     return this.dokku("apps:create", app)
   }
 
-  config(app: string): Promise<Dictionary<{}>> {
-    return this.dokku("config", app).catch(error => {
-      if (error.message.endsWith(`no config vars for ${app}\n`)) {
-        return []
-      } else {
-        throw error
-      }
-    }).then(lines => {
+  config(app: string): Promise<Options> {
+    return this.dokku("config", app).then(lines => {
       const pairs = lines.map(extractPair)
       return fromPairs(pairs)
     })
@@ -141,7 +134,7 @@ function extractStatus(line) {
   return { name, type, id, status }
 }
 
-function extractPair(line) {
+function extractPair(line: string) {
   const tokens = line.split(":")
   return [tokens[0], tokens.slice(1).join(":").trim()]
 }

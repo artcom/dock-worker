@@ -1,10 +1,9 @@
 #! /usr/bin/env node
-
-import bluebird from "bluebird"
 import chalk from "chalk"
 import { docopt } from "docopt"
 import find from "lodash/find"
 import fs from "fs"
+import { promisify } from "util"
 
 import status from "./commands/status"
 import deploy from "./commands/deploy"
@@ -13,7 +12,7 @@ import version from "./commands/version"
 
 import { Command } from "./commands/envCommand"
 
-const readFileAsync = bluebird.promisify(fs.readFile)
+const readFileAsync = promisify(fs.readFile)
 
 const options = docopt(`
   Usage:

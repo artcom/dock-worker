@@ -1,8 +1,8 @@
-import bluebird from "bluebird"
 import fs from "fs"
 import path from "path"
+import { promisify } from "util"
 
-const readFileAsync = bluebird.promisify(fs.readFile)
+const readFileAsync = promisify(fs.readFile)
 
 export default async function() {
   const json = await readFileAsync(path.join(__dirname, "../../package.json"))

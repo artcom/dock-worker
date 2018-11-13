@@ -1,16 +1,16 @@
 /* eslint-env mocha */
-
-import bluebird from "bluebird"
 import cp from "child_process"
 import { expect } from "chai"
 import path from "path"
 import tmp from "tmp"
 import url from "url"
 
+import { promisify } from "util"
+
 import RepoCache from "../src/repoCache"
 
-const execFileAsync = bluebird.promisify(cp.execFile)
-const tmpDirAsync = bluebird.promisify(tmp.dir)
+const execFileAsync = promisify(cp.execFile)
+const tmpDirAsync = promisify(tmp.dir)
 
 describe("Repo Cache", function() {
   beforeEach(async function() {
