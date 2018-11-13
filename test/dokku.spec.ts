@@ -1,5 +1,3 @@
-/* eslint-env mocha */
-
 import chai, { expect } from "chai"
 import chaiAsPromised from "chai-as-promised"
 import sinon from "sinon"

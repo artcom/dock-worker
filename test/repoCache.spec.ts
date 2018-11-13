@@ -1,9 +1,14 @@
-/* eslint-env mocha */
 import cp from "child_process"
 import { expect } from "chai"
 import path from "path"
 import tmp from "tmp"
 import url from "url"
+
+declare module 'util' {
+  export function promisify<T>(
+    func: (data: any, cb: (err: NodeJS.ErrnoException, data?: T) => void,
+  ) => void): (...input: any[]) => Promise<T>;
+}
 
 import { promisify } from "util"
 

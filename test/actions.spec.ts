@@ -1,11 +1,11 @@
-/* eslint-env mocha */
-
 import sinon from "sinon"
 
 import { makeConfigAction } from "../src/actions/configAction"
 import { makeCreateAction } from "../src/actions/createAction"
 import { makeDockerOptionAction } from "../src/actions/dockerOptionAction"
 import Dokku from "../src/dokku"
+
+import { AppData } from "../src/appData"
 
 describe("Actions", function() {
   beforeEach(function() {
@@ -64,11 +64,13 @@ describe("Actions", function() {
 
   describe("config", function() {
     it("should configure environment variables", async function() {
-      const appData = {
+      const appData: AppData = {
         name: "app1",
         status: "deployed",
+        deployed: true,
         description: this.description,
-        actual: this.actual
+        actual: this.actual,
+        running: true
       }
 
       const action = makeConfigAction(appData)
@@ -92,9 +94,11 @@ describe("Actions", function() {
     })
 
     it("should configure environment variables for apps that must be stopped", async function() {
-      const appData = {
+      const appData: AppData = {
         name: "app1",
         status: "deployed",
+        deployed: true,
+        running: true,
         description: Object.assign(this.description, { stopBeforeDeployment: true }),
         actual: this.actual
       }
@@ -128,9 +132,11 @@ describe("Actions", function() {
 
   describe("docker options", function() {
     it("should configure docker options", async function() {
-      const appData = {
+      const appData: AppData = {
         name: "app1",
         status: "deployed",
+        deployed: true,
+        running: true,
         description: this.description,
         actual: this.actual
       }
@@ -160,9 +166,11 @@ describe("Actions", function() {
     })
 
     it("should configure docker options for apps that must be stopped", async function() {
-      const appData = {
+      const appData: AppData = {
         name: "app1",
         status: "deployed",
+        deployed: true,
+        running: true,
         description: Object.assign(this.description, { stopBeforeDeployment: true }),
         actual: this.actual
       }

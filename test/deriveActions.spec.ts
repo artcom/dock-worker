@@ -1,6 +1,4 @@
-/* eslint-env mocha */
-
-import chai, { expect } from "chai"
+import Chai, { expect } from "chai"
 
 import { deriveActions } from "../src/actions"
 import { isConfigAction } from "../src/actions/configAction"
@@ -9,7 +7,15 @@ import { isDockerOptionAction } from "../src/actions/dockerOptionAction"
 import { isPushAction } from "../src/actions/pushAction"
 import { isStartAction } from "../src/actions/startAction"
 
-chai.use(function({ Assertion }) {
+declare global {
+  export namespace Chai {
+    interface Assertion {
+      matchActionTypes(actions: Array<any>)
+    }
+  }
+}
+
+Chai.use(function({ Assertion }) {
   Assertion.addMethod("matchActionTypes", function(types) {
     // eslint-disable-next-line no-underscore-dangle
     const actions = this._obj
@@ -316,6 +322,7 @@ function appDescription(appName, version, config = {}, dockerOptions = {}) {
     repo: `git@github.com:artcom/${appName}.git`,
     version,
     config,
+    environments: [],
     dockerOptions,
     stopBeforeDeployment: false
   }
