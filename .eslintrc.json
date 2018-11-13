@@ -1,6 +1,6 @@
 {
   "extends": "artcom",
-  "parser": "babel-eslint",
+  "parser": "typescript-eslint-parser",
   "rules": {
     "func-names": 0,
     "no-console": 0,

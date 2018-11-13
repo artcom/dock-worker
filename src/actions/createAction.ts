@@ -6,7 +6,7 @@ export function needsCreateAction(app: AppData): boolean {
   return app.status === "missing"
 }
 
-export function makeCreateAction(app: AppData): CreateAction {
+export function makeCreateAction(app): CreateAction {
   return new CreateAction(app)
 }
 
@@ -17,7 +17,7 @@ export function isCreateAction(action: any): boolean {
 class CreateAction {
   name: string;
 
-  constructor({ name }: AppData) {
+  constructor({ name }: {name: string}) {
     this.name = name
   }
 

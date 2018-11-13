@@ -10,10 +10,10 @@
     "dock": "dist/main.js"
   },
   "scripts": {
-    "prepublishOnly": "babel src --out-dir dist --source-maps",
+    "prepublishOnly": "npm run build",
     "debug": "npm run prepublishOnly && node-debug dist/main.js",
     "start": "npm run prepublishOnly && node dist/main.js",
-    "test": "eslint src && mocha --compilers js:@babel/register",
+    "test": "npm run type-check && mocha -r ts-node/register test/**/*.ts",
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
     "build": "npm run build:types && npm run build:js",
@@ -21,7 +21,6 @@
     "build:js": "babel src --out-dir dist --extensions \".ts,.tsx\" --source-maps inline"
   },
   "dependencies": {
-    "@babel/register": "^7.0.0",
     "bl": "^2.1.2",
     "chalk": "^2.4.1",
     "docopt": "^0.6.2",
@@ -39,11 +38,18 @@
     "@babel/core": "^7.1.2",
     "@babel/plugin-proposal-class-properties": "^7.1.0",
     "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/plugin-transform-runtime": "^7.1.0",
     "@babel/preset-env": "^7.1.0",
     "@babel/preset-typescript": "^7.1.0",
+    "@babel/register": "^7.0.0",
+    "@babel/runtime": "^7.1.5",
     "@types/lodash": "^4.14.118",
     "@types/node": "^10.12.2",
-    "babel-eslint": "^10.0.1",
+    "@types/chai": "^4.1.7",
+    "@types/chai-as-promised": "^7.1.0",
+    "@types/mocha": "^5.2.5",
+    "@types/sinon": "^5.0.5",
+    "@types/tmp": "0.0.33",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "eslint": "^5.8.0",
@@ -52,7 +58,9 @@
     "mocha": "^5.2.0",
     "sinon": "^7.1.1",
     "tmp": "0.0.33",
-    "typescript": "^3.1.5"
+    "ts-node": "^7.0.1",
+    "typescript": "^3.1.5",
+    "typescript-eslint-parser": "^20.1.1"
   },
   "license": "MIT"
 }

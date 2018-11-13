@@ -1,5 +1,3 @@
-/* @flow */
-
 import Dokku from "../dokku"
 import RepoCache from "../repoCache"
 

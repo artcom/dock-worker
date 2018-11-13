@@ -16,7 +16,7 @@ export type AppData = KnownAppData | UnknownAppData
 
 export type KnownAppData = {
   name: string,
-  status: "missing" | "exists",
+  status: "missing" | "exists" | "deployed",
   deployed: Boolean,
   running: Boolean,
   description: AppDescription,
