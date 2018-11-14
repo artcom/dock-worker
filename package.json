@@ -11,7 +11,7 @@
   },
   "scripts": {
     "prepublishOnly": "npm run build",
-    "debug": "npm run prepublishOnly && node-debug dist/main.js",
+    "debug": "npm run prepublishOnly && node --inspect-brk dist/main.js",
     "start": "npm run prepublishOnly && node dist/main.js",
     "test": "npm run type-check && mocha -r ts-node/register test/**/*.ts",
     "type-check": "tsc --noEmit",
