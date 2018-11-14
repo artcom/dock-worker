@@ -9,6 +9,7 @@ import fromPairs from "lodash/fromPairs"
 import Dokku from "./dokku"
 import RepoCache from "./repoCache"
 import showMessageUntilSettled from "./showMessageUntilSettled"
+import mapPromiseWithConcurrency from "./mapPromiseWithConcurrency"
 
 import { AppDescription, Options } from "./types"
 
@@ -190,13 +191,13 @@ function loadAppDataWithMessage(context, appNames) {
     return chalk.gray([`loading service data ${count}`, ...services].join("\n"))
   }
 
-  const appDataQue = appNames.map(async appName => {
+  const loadAppData = async appName => {
     inProgress.add(appName)
     const appData = await context.loadAppData(appName)
     inProgress.delete(appName)
     completed += 1
     return appData
-  })
+  }
 
-  return showMessageUntilSettled(message, Promise.all(appDataQue))
+  return showMessageUntilSettled(message, mapPromiseWithConcurrency(appNames, loadAppData, 5))
 }
