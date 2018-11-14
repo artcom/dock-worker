@@ -28,7 +28,7 @@ export default class SshConnection {
     return new Promise((resolve, reject) => {
       this.client.exec(command, (error, stream) => {
         if (error) {
-          reject(error)
+          return reject(error)
         }
 
         const stdout = new BufferList()
