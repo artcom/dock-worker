@@ -12,10 +12,14 @@ export default (data: Array<any>, runner: (arg1: any) => Promise<any>, concurren
           results.push(result)
           running--
           process.nextTick(run)
-        }).catch(reject)
+        }).catch(error => {
+          running--
+          process.nextTick(run)
+          reject(error)
+        })
       }
 
-      if (que.length === 0) {
+      if (que.length === 0 && running === 0) {
         resolve(results)
       }
     }
