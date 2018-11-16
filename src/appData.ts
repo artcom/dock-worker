@@ -39,15 +39,15 @@ type ActualConfig = {
 }
 
 class Context {
-  descriptions: Array<AppDescription>;
-  status: { [key: string]: string };
+  descriptions: Array<AppDescription>
+  status: { [key: string]: string }
 
-  missingApps: Array<string>;
-  existingApps: Array<string>;
-  unknownApps: Array<string>;
+  missingApps: Array<string>
+  existingApps: Array<string>
+  unknownApps: Array<string>
 
-  dokku: Dokku;
-  repoCache: RepoCache;
+  dokku: Dokku
+  repoCache: RepoCache
 
   constructor(descriptions, dokku, repoCache) {
     this.descriptions = descriptions

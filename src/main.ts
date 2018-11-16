@@ -10,7 +10,9 @@ import deploy from "./commands/deploy"
 import environments from "./commands/environments"
 import version from "./commands/version"
 
-import { Command } from "./commands/envCommand"
+import { EnvCommand } from "./commands/envCommand"
+
+import { Dockfile } from "./types"
 
 const readFileAsync = promisify(fs.readFile)
 
@@ -36,8 +38,8 @@ main()
 
 async function main() {
   try {
-    const dockfile = await readDockfile(options["--file"])
-    const command: Command = find(commands, (command, name) => options[name] === true)
+    const dockfile: Dockfile = await readDockfile(options["--file"])
+    const command: EnvCommand = find(commands, (command, name) => options[name] === true)
     await command(dockfile, options)
   } catch (error) {
     console.error(chalk.red("ERROR: ") + error.message)
@@ -45,15 +47,15 @@ async function main() {
   }
 }
 
-async function readDockfile(file) {
+async function readDockfile(file): Promise<Dockfile> {
   try {
-    const content = await readFileAsync(file)
+    const content: Buffer = await readFileAsync(file)
     return JSON.parse(content.toString())
   } catch (error) {
     if (error instanceof SyntaxError) {
       throw new Error(`Syntax error in ${file}: ${error.message}`)
     } else {
-      throw new Error(`Could not read ${file}`)
+      throw new Error(`Could not read ${file}: ${error.message}`)
     }
   }
 }

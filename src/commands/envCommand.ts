@@ -7,18 +7,18 @@ import url from "url"
 import Dokku from "../dokku"
 import RepoCache from "../repoCache"
 
-import { AppDescription, Options } from "../types"
+import { AppDescription, Options, Dockfile } from "../types"
 
-export type Command = (dockfile: any, options: any) => any
+export type EnvCommand = (dockfile: Dockfile, options: any) => any
 
-type EnvCommand = (
+type Command = (
   descriptions: Array<AppDescription>,
   dokku: Dokku,
   repoCache: RepoCache,
   options: any
 ) => any
 
-export default function(callback: EnvCommand): Command {
+export default function(callback: Command): EnvCommand {
   return async function(dockfile, options) {
     const environment = find(dockfile.environments, ["name", options["<environment>"]])
 

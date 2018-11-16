@@ -37,7 +37,7 @@ async function deploy(
   await applyAppActions(appActions, dokku, repoCache, options["--yes"])
 }
 
-function validateSelectedApps(descriptions, selectedApps) {
+function validateSelectedApps(descriptions: Array<AppDescription>, selectedApps): void {
   selectedApps.forEach(appName => {
     if (!find(descriptions, ["name", appName])) {
       throw new Error(`Unknown app "${appName}"`)
