@@ -30,10 +30,7 @@ export default class {
   }
 
   apps(): Promise<Array<string>> {
-    return this.dokku("apps:list").then(stdout => {
-      const lines = stdout.split("\n")
-      return lines.filter(isRelevantLine)
-    })
+    return this.dokku("apps:list").then(filterRelevantLines)
   }
 
   async ls(): Promise<Array<AppStatus>> {
@@ -44,17 +41,11 @@ export default class {
   }
 
   create(app: string): Promise<Array<string>> {
-    return this.dokku("apps:create", app).then(stdout => {
-      const lines = stdout.split("\n")
-      return lines.filter(isRelevantLine)
-    })
+    return this.dokku("apps:create", app).then(filterRelevantLines)
   }
 
   config(app: string): Promise<Options> {
-    return this.dokku("config", app).then(stdout => {
-      const lines = stdout.split("\n")
-      return lines.filter(isRelevantLine)
-    }).then(lines => {
+    return this.dokku("config", app).then(filterRelevantLines).then(lines => {
       const pairs = lines.map(extractPair)
       return fromPairs(pairs)
     })
@@ -62,24 +53,15 @@ export default class {
 
   setConfig(app: string, config: { [key: string]: string }): Promise<Array<string>> {
     const params = map(config, (value, key) => `${key}="${value}"`)
-    return this.dokku("config:set", app, ...params).then(stdout => {
-      const lines = stdout.split("\n")
-      return lines.filter(isRelevantLine)
-    })
+    return this.dokku("config:set", app, ...params).then(filterRelevantLines)
   }
 
   unsetConfig(app: string, ...keys: Array<string>): Promise<Array<string>> {
-    return this.dokku("config:unset", app, ...keys).then(stdout => {
-      const lines = stdout.split("\n")
-      return lines.filter(isRelevantLine)
-    })
+    return this.dokku("config:unset", app, ...keys).then(filterRelevantLines)
   }
 
   dockerOptions(app: string): Promise<Options> {
-    return this.dokku("docker-options", app).then(stdout => {
-      const lines = stdout.split("\n")
-      return lines.filter(isRelevantLine)
-    }).then(lines =>
+    return this.dokku("docker-options", app).then(filterRelevantLines).then(lines =>
       lines.reduce(({ options, phase }, line) => {
         const match = line.match(phaseLine)
 
@@ -97,24 +79,15 @@ export default class {
   }
 
   addDockerOption(app: string, option: string, phases: Array<Phase>): Promise<Array<string>> {
-    return this.dokku("docker-options:add", app, phases.join(","), option).then(stdout => {
-      const lines = stdout.split("\n")
-      return lines.filter(isRelevantLine)
-    })
+    return this.dokku("docker-options:add", app, phases.join(","), option).then(filterRelevantLines)
   }
 
   removeDockerOption(app: string, option: string, phases: Array<Phase>): Promise<Array<string>> {
-    return this.dokku("docker-options:remove", app, phases.join(","), option).then(stdout => {
-      const lines = stdout.split("\n")
-      return lines.filter(isRelevantLine)
-    })
+    return this.dokku("docker-options:remove", app, phases.join(","), option).then(filterRelevantLines)
   }
 
   stop(app: string): Promise<Array<string> | void> {
-    return this.dokku("ps:stop", app).then(stdout => {
-      const lines = stdout.split("\n")
-      return lines.filter(isRelevantLine)
-    }).catch(error => {
+    return this.dokku("ps:stop", app).then(filterRelevantLines).catch(error => {
       if (!error.message.endsWith(`App ${app} has not been deployed\n`)) {
         throw error
       }
@@ -122,17 +95,11 @@ export default class {
   }
 
   start(app: string): Promise<Array<string>> {
-    return this.dokku("ps:start", app).then(stdout => {
-      const lines = stdout.split("\n")
-      return lines.filter(isRelevantLine)
-    })
+    return this.dokku("ps:start", app).then(filterRelevantLines)
   }
 
   restart(app: string): Promise<Array<string>> {
-    return this.dokku("ps:restart", app).then(stdout => {
-      const lines = stdout.split("\n")
-      return lines.filter(isRelevantLine)
-    })
+    return this.dokku("ps:restart", app).then(filterRelevantLines)
   }
 
   // PRIVATE
@@ -150,7 +117,12 @@ export default class {
   }
 }
 
-function isRelevantLine(line) {
+function filterRelevantLines(stdout: string): Array<string> {
+  const lines = stdout.split("\n")
+  return lines.filter(isRelevantLine)
+}
+
+function isRelevantLine(line: string) {
   return line !== "" && !line.startsWith("=====>") && !line.startsWith("----->")
 }
 
