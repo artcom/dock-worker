@@ -9,8 +9,6 @@ import { Options } from "./types"
 export type Phase = "build" | "deploy" | "run"
 export type AppStatus = {
   name: string,
-  type: string,
-  id: string,
   status: string
 }
 
@@ -32,19 +30,31 @@ export default class {
   }
 
   apps(): Promise<Array<string>> {
-    return this.dokku("apps")
+    return this.dokku("apps:list").then(stdout => {
+      const lines = stdout.split("\n")
+      return lines.filter(isRelevantLine)
+    })
   }
 
-  ls(): Promise<Array<AppStatus>> {
-    return this.dokku("ls").then(lines => lines.map(extractStatus))
+  async ls(): Promise<Array<AppStatus>> {
+    const fullReport = await this.dokku("ps:report")
+    const reports = extractReports(fullReport)
+    const status = reports.map(extractStatus)
+    return status
   }
 
   create(app: string): Promise<Array<string>> {
-    return this.dokku("apps:create", app)
+    return this.dokku("apps:create", app).then(stdout => {
+      const lines = stdout.split("\n")
+      return lines.filter(isRelevantLine)
+    })
   }
 
   config(app: string): Promise<Options> {
-    return this.dokku("config", app).then(lines => {
+    return this.dokku("config", app).then(stdout => {
+      const lines = stdout.split("\n")
+      return lines.filter(isRelevantLine)
+    }).then(lines => {
       const pairs = lines.map(extractPair)
       return fromPairs(pairs)
     })
@@ -52,15 +62,24 @@ export default class {
 
   setConfig(app: string, config: { [key: string]: string }): Promise<Array<string>> {
     const params = map(config, (value, key) => `${key}="${value}"`)
-    return this.dokku("config:set", app, ...params)
+    return this.dokku("config:set", app, ...params).then(stdout => {
+      const lines = stdout.split("\n")
+      return lines.filter(isRelevantLine)
+    })
   }
 
   unsetConfig(app: string, ...keys: Array<string>): Promise<Array<string>> {
-    return this.dokku("config:unset", app, ...keys)
+    return this.dokku("config:unset", app, ...keys).then(stdout => {
+      const lines = stdout.split("\n")
+      return lines.filter(isRelevantLine)
+    })
   }
 
   dockerOptions(app: string): Promise<Options> {
-    return this.dokku("docker-options", app).then(lines =>
+    return this.dokku("docker-options", app).then(stdout => {
+      const lines = stdout.split("\n")
+      return lines.filter(isRelevantLine)
+    }).then(lines =>
       lines.reduce(({ options, phase }, line) => {
         const match = line.match(phaseLine)
 
@@ -78,15 +97,24 @@ export default class {
   }
 
   addDockerOption(app: string, option: string, phases: Array<Phase>): Promise<Array<string>> {
-    return this.dokku("docker-options:add", app, phases.join(","), option)
+    return this.dokku("docker-options:add", app, phases.join(","), option).then(stdout => {
+      const lines = stdout.split("\n")
+      return lines.filter(isRelevantLine)
+    })
   }
 
   removeDockerOption(app: string, option: string, phases: Array<Phase>): Promise<Array<string>> {
-    return this.dokku("docker-options:remove", app, phases.join(","), option)
+    return this.dokku("docker-options:remove", app, phases.join(","), option).then(stdout => {
+      const lines = stdout.split("\n")
+      return lines.filter(isRelevantLine)
+    })
   }
 
   stop(app: string): Promise<Array<string> | void> {
-    return this.dokku("ps:stop", app).catch(error => {
+    return this.dokku("ps:stop", app).then(stdout => {
+      const lines = stdout.split("\n")
+      return lines.filter(isRelevantLine)
+    }).catch(error => {
       if (!error.message.endsWith(`App ${app} has not been deployed\n`)) {
         throw error
       }
@@ -94,20 +122,23 @@ export default class {
   }
 
   start(app: string): Promise<Array<string>> {
-    return this.dokku("ps:start", app)
+    return this.dokku("ps:start", app).then(stdout => {
+      const lines = stdout.split("\n")
+      return lines.filter(isRelevantLine)
+    })
   }
 
   restart(app: string): Promise<Array<string>> {
-    return this.dokku("ps:restart", app)
+    return this.dokku("ps:restart", app).then(stdout => {
+      const lines = stdout.split("\n")
+      return lines.filter(isRelevantLine)
+    })
   }
 
   // PRIVATE
 
-  dokku(...params: Array<string>): Promise<Array<string>> {
-    return this.sendCommand(params.join(" ")).then(stdout => {
-      const lines = stdout.split("\n")
-      return lines.filter(isRelevantLine)
-    })
+  dokku(...params: Array<string>): Promise<string> {
+    return this.sendCommand(params.join(" "))
   }
 
   sendCommand(command: string): Promise<string> {
@@ -123,15 +154,23 @@ function isRelevantLine(line) {
   return line !== "" && !line.startsWith("=====>") && !line.startsWith("----->")
 }
 
-function extractStatus(line) {
-  const columns = line.split(/\s+/).filter(column => column !== "")
+function extractReports(reportList: string): Array<string> {
+  return reportList
+    .split("=====>")
+    .filter(report => report !== "")
+}
 
-  if (columns.length !== 4) {
-    throw new Error(`unexpected Dokku output (${line})`)
-  }
+function extractStatus(report: string): AppStatus {
+  const lines = report
+    .split("\n")
+    .filter(report => report !== "")
+    .map(line => line.trim())
 
-  const [name, type, id, status] = columns
-  return { name, type, id, status }
+    const nameRegEx = /^\S+/
+
+    const name = nameRegEx.exec(lines[0])[0]
+    const status = lines[lines.length-1].split(/\s+/)[2]
+    return { name, status }
 }
 
 function extractPair(line: string) {
