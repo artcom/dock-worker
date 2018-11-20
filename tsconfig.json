@@ -1,10 +1,11 @@
 {
+  "compileOnSave": true,
   "compilerOptions": {
+    "module": "commonjs",
     "outDir": "./dist",
     "declaration": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "target": "esnext"
+    "esModuleInterop": true,
+    "target": "es2018"
   },
   "include": [
     "./src/**/*"

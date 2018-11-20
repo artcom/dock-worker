@@ -1,4 +1,4 @@
 {
   "extends": "artcom/mocha",
-  "parser": "babel-eslint"
+  "parser": "typescript-eslint-parser"
 }

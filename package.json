@@ -16,9 +16,7 @@
     "test": "npm run type-check && mocha -r ts-node/register test/**/*.ts",
     "type-check": "tsc --noEmit",
     "type-check:watch": "npm run type-check -- --watch",
-    "build": "npm run build:types && npm run build:js",
-    "build:types": "tsc --emitDeclarationOnly",
-    "build:js": "babel src --out-dir dist --extensions \".ts,.tsx\" --source-maps inline"
+    "build": "rm -rf ./dist && tsc"
   },
   "dependencies": {
     "bl": "^2.1.2",
@@ -34,15 +32,6 @@
     "yn": "^2.0.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.1.5",
-    "@babel/core": "^7.1.6",
-    "@babel/plugin-proposal-class-properties": "^7.1.0",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
-    "@babel/plugin-transform-runtime": "^7.1.0",
-    "@babel/preset-env": "^7.1.6",
-    "@babel/preset-typescript": "^7.1.0",
-    "@babel/register": "^7.0.0",
-    "@babel/runtime": "^7.1.5",
     "@types/bl": "^2.1.0",
     "@types/chai": "^4.1.7",
     "@types/chai-as-promised": "^7.1.0",
