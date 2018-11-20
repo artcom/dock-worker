@@ -1,10 +1,9 @@
 import isEqual from "lodash/isEqual"
 
-import diffOptions from "../diffOptions"
+import diffOptions, { Change } from "../diffOptions"
 import Dokku from "../dokku"
 
 import { KnownAppData } from "../appData"
-import { Change } from "../diffOptions"
 import { AppDescription } from "../types"
 
 export function needsDockerOptionAction(app: KnownAppData): boolean {

@@ -3,14 +3,13 @@ import find from "lodash/find"
 import read from "read-promise"
 import yn from "yn"
 
-import { deriveActions } from "../actions"
+import { deriveActions, Action } from "../actions"
 import { loadAppData } from "../appData"
 import Dokku from "../dokku"
 import envCommand from "./envCommand"
 import RepoCache from "../repoCache"
 import showMessageUntilSettled from "../showMessageUntilSettled"
 
-import { Action } from "../actions"
 import { AppDescription } from "../types"
 
 type AppActions = {

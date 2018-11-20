@@ -5,7 +5,7 @@ import union from "lodash/union"
 import SshConnection from "./sshConnection"
 
 import { Options } from "./types"
- 
+
 export type Phase = "build" | "deploy" | "run"
 export type AppStatus = {
   name: string,
@@ -79,11 +79,13 @@ export default class {
   }
 
   addDockerOption(app: string, option: string, phases: Array<Phase>): Promise<Array<string>> {
-    return this.dokku("docker-options:add", app, phases.join(","), option).then(filterRelevantLines)
+    return this.dokku("docker-options:add", app, phases.join(","), option)
+      .then(filterRelevantLines)
   }
 
   removeDockerOption(app: string, option: string, phases: Array<Phase>): Promise<Array<string>> {
-    return this.dokku("docker-options:remove", app, phases.join(","), option).then(filterRelevantLines)
+    return this.dokku("docker-options:remove", app, phases.join(","), option)
+      .then(filterRelevantLines)
   }
 
   stop(app: string): Promise<Array<string> | void> {
@@ -138,11 +140,11 @@ function extractStatus(report: string): AppStatus {
     .filter(report => report !== "")
     .map(line => line.trim())
 
-    const nameRegEx = /^\S+/
+  const nameRegEx = /^\S+/
 
-    const name = nameRegEx.exec(lines[0])[0]
-    const status = lines[lines.length-1].split(/\s+/)[2]
-    return { name, status }
+  const name = nameRegEx.exec(lines[0])[0]
+  const status = lines[lines.length - 1].split(/\s+/)[2]
+  return { name, status }
 }
 
 function extractPair(line: string) {

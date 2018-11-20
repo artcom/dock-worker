@@ -2,11 +2,10 @@ import fromPairs from "lodash/fromPairs"
 import map from "lodash/map"
 import partition from "lodash/partition"
 
-import diffOptions from "../diffOptions"
+import diffOptions, { Change } from "../diffOptions"
 import Dokku from "../dokku"
 
 import { KnownAppData } from "../appData"
-import { Change } from "../diffOptions"
 import { AppDescription } from "../types"
 
 export function needsConfigAction(app: KnownAppData): boolean {

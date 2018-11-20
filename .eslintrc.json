@@ -1,11 +1,15 @@
 {
   "extends": "artcom",
   "parser": "typescript-eslint-parser",
+  "plugins": ["typescript"],
   "rules": {
+    "typescript/no-unused-vars": 1,
+    "import/no-unresolved": 1,
     "func-names": 0,
     "no-console": 0,
     "no-duplicate-imports": 0,
     "no-param-reassign": 0,
-    "no-use-before-define": 0
+    "no-use-before-define": 0,
+    "no-loop-func": 0
   }
 }

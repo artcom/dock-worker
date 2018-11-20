@@ -1,4 +1,4 @@
-import Chai, { expect } from "chai"
+import chai, { expect } from "chai"
 
 import { deriveActions } from "../src/actions"
 import { isConfigAction } from "../src/actions/configAction"
@@ -15,7 +15,7 @@ declare global {
   }
 }
 
-Chai.use(function({ Assertion }) {
+chai.use(function({ Assertion }) {
   Assertion.addMethod("matchActionTypes", function(types) {
     // eslint-disable-next-line no-underscore-dangle
     const actions = this._obj

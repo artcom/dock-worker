@@ -1,18 +1,16 @@
 import chalk from "chalk"
 
-import { deriveActions } from "../actions"
+import { deriveActions, Action } from "../actions"
 import { isConfigAction } from "../actions/configAction"
 import { isDockerOptionAction } from "../actions/dockerOptionAction"
 import { isPushAction } from "../actions/pushAction"
 
 import ansiTable from "../ansiTable"
-import { loadAppData } from "../appData"
+import { loadAppData, AppData, KnownAppData } from "../appData"
 import Dokku from "../dokku"
 import envCommand from "./envCommand"
 import RepoCache from "../repoCache"
 
-import { Action } from "../actions"
-import { AppData, KnownAppData } from "../appData"
 import { AppDescription } from "../types"
 
 export default envCommand(status)
