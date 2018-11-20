@@ -19,7 +19,7 @@ describe("Dokku", function() {
   describe("Apps", function() {
     it("should list apps", function() {
       this.mock.expects("sendCommand")
-        .withArgs("apps")
+        .withArgs("apps:list")
         .returns(Promise.resolve(unindent(`
           =====> My Apps
           app1
@@ -47,20 +47,35 @@ describe("Dokku", function() {
   describe("List", function() {
     it("should list apps and status", function() {
       this.mock.expects("sendCommand")
-        .withArgs("ls")
-        .returns(Promise.resolve(
-          /* eslint-disable max-len */
-          "-----> App Name           Container Type            Container Id              Status                    \n" +
-          "some-app                  web                       26effc047c53              running                   \n" +
-          "another-app               NOT_DEPLOYED              NOT_DEPLOYED              NOT_DEPLOYED              \n" +
-          "stopped-app               web                       09d5ecb93b6d              stopped                   \n"
-          /* eslint-enable max-len */
-        ))
+        .withArgs("ps:report")
+        .returns(Promise.resolve(unindent(`
+      =====> some-app ps information
+      Processes:                     1
+      Deployed:                      true
+      Running:                       true
+      Restore:                       true
+      Restart policy:                on-failure:10
+      Status web.1:                  running    (CID: 2f818a9ee175)
+      =====> another-app ps information
+      Processes:                     1
+      Deployed:                      true
+      Running:                       true
+      Restore:                       true
+      Restart policy:                on-failure:10
+      Status web.1:                  NOT_DEPLOYED    (CID: 144e2e87db76)
+      =====> stopped-app ps information
+      Processes:                     1
+      Deployed:                      true
+      Running:                       true
+      Restore:                       true
+      Restart policy:                on-failure:10
+      Status web.1:                  stopped    (CID: 4aecce531f56)
+      `)))
 
       return expect(this.dokku.ls()).to.eventually.deep.equal([
-        { name: "some-app", deployed: true, running: true, id: "26effc047c53" },
-        { name: "another-app", type: "NOT_DEPLOYED", id: "NOT_DEPLOYED", status: "NOT_DEPLOYED" },
-        { name: "stopped-app", type: "web", id: "09d5ecb93b6d", status: "stopped" }
+        { name: "some-app", status: "running" },
+        { name: "another-app", status: "NOT_DEPLOYED" },
+        { name: "stopped-app", status: "stopped" }
       ])
     })
   })
@@ -251,6 +266,6 @@ function unindent(string) {
   const [indentation] = lines[0].match(/\s*/)
 
   return lines
-    .map((line) => line.substring(indentation.length))
+    .map(line => line.substring(indentation.length))
     .join("\n")
 }
