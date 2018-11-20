@@ -4,7 +4,7 @@
   "plugins": ["import", "typescript"],
   "rules": {
     "typescript/no-unused-vars": 1,
-    "import/no-unresolved": 1,
+    "import/no-unresolved": 0,
     "func-names": 0,
     "no-console": 0,
     "no-duplicate-imports": 0,
