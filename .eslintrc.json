@@ -12,5 +12,10 @@
     "no-param-reassign": 0,
     "no-use-before-define": 0,
     "no-loop-func": 0
+  },
+  "settings": {
+    "import/resolver": {
+      "typescript": {}
+    }
   }
 }
