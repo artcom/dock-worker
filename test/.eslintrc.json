@@ -1,4 +1,15 @@
 {
   "extends": "artcom/mocha",
-  "parser": "typescript-eslint-parser"
+  "parser": "typescript-eslint-parser",
+  "plugins": ["import", "typescript"],
+  "rules": {
+    "typescript/no-unused-vars": 2,
+    "import/no-unresolved": 0,
+    "func-names": 0,
+    "no-console": 0,
+    "no-duplicate-imports": 0,
+    "no-param-reassign": 0,
+    "no-use-before-define": 0,
+    "no-loop-func": 0
+  }
 }
