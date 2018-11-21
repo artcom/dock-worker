@@ -1,4 +1,6 @@
-export type Options = {[key: string]: string}
+import { Dictionary } from "lodash"
+
+export type Options = Dictionary<{}>
 
 export type AppDescription = {
   name: string,

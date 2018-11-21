@@ -105,9 +105,7 @@ describe("Dokku", function() {
       this.mock.expects("sendCommand")
         .withArgs("config app1")
         .returns(Promise.reject(new Error(unindent(`
-          FAILED: app app1 does not exist: <nil>
-          `
-        ))))
+          FAILED: app app1 does not exist: <nil>`))))
 
       return expect(this.dokku.config("app1")).to.eventually.deep.equal({})
     })

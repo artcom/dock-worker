@@ -13,7 +13,7 @@ export type AppStatus = {
 }
 
 export default class {
-  connection: any;
+  connection: SshConnection;
   host: string;
   username: string;
 
@@ -40,15 +40,24 @@ export default class {
     return status
   }
 
-  create(app: string): Promise<Array<string>> {
+  create(app: string): Promise<String[]> {
     return this.dokku("apps:create", app).then(filterRelevantLines)
   }
 
   config(app: string): Promise<Options> {
-    return this.dokku("config", app).then(filterRelevantLines).then(lines => {
-      const pairs = lines.map(extractPair)
-      return fromPairs(pairs)
-    })
+    return this.dokku("config", app)
+      .catch(error => {
+        if (error.message.endsWith(`app ${app} does not exist: <nil>`)) {
+          return ""
+        } else {
+          throw error
+        }
+      })
+      .then(filterRelevantLines)
+      .then((lines: String[]) => {
+        const pairs = lines.map(extractPair)
+        return fromPairs(pairs)
+      })
   }
 
   setConfig(app: string, config: { [key: string]: string }): Promise<Array<string>> {
@@ -147,7 +156,7 @@ function extractStatus(report: string): AppStatus {
   return { name, status }
 }
 
-function extractPair(line: string) {
+function extractPair(line: string): [string, string] {
   const tokens = line.split(":")
   return [tokens[0], tokens.slice(1).join(":").trim()]
 }
