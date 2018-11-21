@@ -10,7 +10,7 @@
     "dock": "dist/main.js"
   },
   "scripts": {
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "npm run test && npm run build",
     "debug": "npm run prepublishOnly && node --inspect-brk dist/main.js",
     "start": "npm run prepublishOnly && node dist/main.js",
     "test": "npm run type-check && mocha -r ts-node/register test/**/*.ts",
