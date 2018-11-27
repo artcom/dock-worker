@@ -49,20 +49,19 @@ describe("Dokku", function() {
       this.mock.expects("sendCommand")
         .withArgs("ps:report")
         .returns(Promise.resolve(unindent(`
-      =====> some-app ps information
+      =====> running-app ps information
       Processes:                     1
       Deployed:                      true
       Running:                       true
       Restore:                       true
       Restart policy:                on-failure:10
       Status web.1:                  running    (CID: 2f818a9ee175)
-      =====> another-app ps information
+      =====> undeployed-app ps information
       Processes:                     1
-      Deployed:                      true
-      Running:                       true
+      Deployed:                      false
+      Running:                       false
       Restore:                       true
-      Restart policy:                on-failure:10
-      Status web.1:                  running    (CID: 144e2e87db76)
+      Restart policy:                
       =====> stopped-app ps information
       Processes:                     1
       Deployed:                      true
@@ -73,8 +72,8 @@ describe("Dokku", function() {
       `)))
 
       return expect(this.dokku.report()).to.eventually.deep.equal([
-        { name: "some-app", deployed: true, running: true },
-        { name: "another-app", deployed: true, running: true },
+        { name: "running-app", deployed: true, running: true },
+        { name: "undeployed-app", deployed: false, running: false },
         { name: "stopped-app", deployed: true, running: false }
       ])
     })
