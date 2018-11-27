@@ -12,6 +12,7 @@
   "scripts": {
     "prepublishOnly": "npm run test && npm run build",
     "debug": "npm run prepublishOnly && node --inspect-brk dist/main.js",
+    "lint": "eslint ./src/*/*.ts ./test/*.ts",
     "start": "npm run prepublishOnly && node dist/main.js",
     "test": "npm run type-check && mocha -r ts-node/register test/**/*.ts",
     "type-check": "tsc --noEmit",

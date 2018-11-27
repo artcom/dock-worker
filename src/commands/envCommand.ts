@@ -19,7 +19,7 @@ type Command = (
 ) => any
 
 export default function(callback: Command): EnvCommand {
-  return async function(dockfile, options) {
+  return async (dockfile, options) => {
     const environment = find(dockfile.environments, ["name", options["<environment>"]])
 
     if (!environment) {

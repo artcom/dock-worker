@@ -4,15 +4,15 @@ import path from "path"
 import tmp from "tmp"
 import url from "url"
 
-declare module 'util' {
+import { promisify } from "util"
+
+import RepoCache from "../src/repoCache"
+
+declare module "util" {
   export function promisify<T>(
     func: (data: any, cb: (err: NodeJS.ErrnoException, data?: T) => void,
   ) => void): (...input: any[]) => Promise<T>;
 }
-
-import { promisify } from "util"
-
-import RepoCache from "../src/repoCache"
 
 const execFileAsync = promisify(cp.execFile)
 const tmpDirAsync = promisify(tmp.dir)
