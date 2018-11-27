@@ -146,33 +146,28 @@ describe("Dokku", function() {
   describe("Docker Options", function() {
     it("should get docker options for all phases", function() {
       this.mock.expects("sendCommand")
-        .withArgs("docker-options app1")
+        .withArgs("docker-options:report app1")
         .returns(Promise.resolve(unindent(`
-          Build options:
-              -v=/var/local/data:/app/data
-          Deploy options:
-              -p=8080:8080
-              -v=/var/local/data:/app/data
-          Run options:
-              -v=/var/local/data:/app/data
+          Docker options build:          -v=/var/local/data:/app/data
+          Docker options deploy:         -p=8080:8080 -v=/var/local/data:/app/data
+          Docker options run:            --log-opt max-file=20 -v=/var/local/data:/app/data
           `
         )))
 
       return expect(this.dokku.dockerOptions("app1")).to.eventually.deep.equal({
         "-v=/var/local/data:/app/data": ["build", "deploy", "run"],
-        "-p=8080:8080": ["deploy"]
+        "-p=8080:8080": ["deploy"],
+        "--log-opt max-file=20": ["run"]
       })
     })
 
     it("should get docker options for some phases", function() {
       this.mock.expects("sendCommand")
-        .withArgs("docker-options app1")
+        .withArgs("docker-options:report app1")
         .returns(Promise.resolve(unindent(`
-          Deploy options:
-              -p=8080:8080
-              -v=/var/local/data:/app/data
-          Run options:
-              -v=/var/local/data:/app/data
+          Docker options build:
+          Docker options deploy:         -p=8080:8080 -v=/var/local/data:/app/data
+          Docker options run:            -v=/var/local/data:/app/data
           `
         )))
 
@@ -184,8 +179,13 @@ describe("Dokku", function() {
 
     it("should get empty docker options", function() {
       this.mock.expects("sendCommand")
-        .withArgs("docker-options app1")
-        .returns(Promise.resolve(""))
+        .withArgs("docker-options:report app1")
+        .returns(Promise.resolve(unindent(`
+          Docker options build:
+          Docker options deploy:
+          Docker options run:
+          `
+        )))
 
       return expect(this.dokku.dockerOptions("app1")).to.eventually.deep.equal({})
     })

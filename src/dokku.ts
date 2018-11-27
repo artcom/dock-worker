@@ -71,21 +71,9 @@ export default class {
   }
 
   dockerOptions(app: string): Promise<Options> {
-    return this.dokku("docker-options:report", app).then(filterRelevantLines).then(lines =>
-      lines.reduce(({ options, phase }, line) => {
-        const match = line.match(phaseLine)
-
-        if (match) {
-          return { options, phase: match[1].toLowerCase() }
-        } else {
-          const option = line.trim()
-          const phases = options[option] || []
-          options[option] = union(phases, [phase])
-
-          return { options, phase }
-        }
-      }, { options: {}, phase: null }).options
-    )
+    return this.dokku("docker-options:report", app)
+      .then(filterRelevantLines)
+      .then(extractDockerOptions)
   }
 
   addDockerOption(app: string, option: string, phases: Phase[]): Promise<string[]> {
@@ -160,4 +148,21 @@ function extractPair(line: string): [string, string] {
   return [tokens[0], tokens.slice(1).join(":").trim()]
 }
 
-const phaseLine = /^(Build|Deploy|Run) options/
+function extractDockerOptions(lines) {
+  const options = {};
+  ["build", "deploy", "run"].forEach((phase, index) => {
+    const phaseOptions = extractPhaseOptions(lines[index])
+    phaseOptions.forEach(option => {
+      const phases = options[option] || []
+      options[option] = union(phases, [phase])
+    })
+  })
+
+  return options
+}
+
+function extractPhaseOptions(line) {
+  const options = line.trim().split(" -")
+  options.shift()
+  return options.map(option => `-${option}`)
+}
