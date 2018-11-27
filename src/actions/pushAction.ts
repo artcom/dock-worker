@@ -1,14 +1,14 @@
 import Dokku from "../dokku"
 import RepoCache from "../repoCache"
 
-import { KnownAppData } from "../appData"
+import { AppData } from "../appData"
 import { AppDescription } from "../types"
 
-export function needsPushAction(app: KnownAppData): boolean {
+export function needsPushAction(app: AppData): boolean {
   return app.description.version !== app.actual.version
 }
 
-export function makePushAction(app: KnownAppData): PushAction {
+export function makePushAction(app: AppData): PushAction {
   return new PushAction(app)
 }
 
@@ -19,7 +19,7 @@ export function isPushAction(action: any) {
 class PushAction {
   description: AppDescription;
 
-  constructor(app: KnownAppData) {
+  constructor(app: AppData) {
     this.description = app.description
   }
 

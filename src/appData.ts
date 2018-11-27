@@ -12,22 +12,12 @@ import mapPromiseWithConcurrency from "./mapPromiseWithConcurrency"
 
 import { AppDescription, Options } from "./types"
 
-export type AppData = KnownAppData | UnknownAppData
-
-export type KnownAppData = {
+export interface AppData {
   name: string,
-  status: "missing" | "exists" | "deployed",
+  status: "missing" | "exists" | "deployed" | "unknown",
   deployed: Boolean,
   running: Boolean,
-  description: AppDescription,
-  actual: ActualConfig
-}
-
-export type UnknownAppData = {
-  name: string,
-  status: "unknown",
-  deployed: Boolean,
-  running: Boolean,
+  description?: AppDescription,
   actual: ActualConfig
 }
 
@@ -91,7 +81,7 @@ class Context {
     }
   }
 
-  async missingAppData(description: AppDescription): Promise<KnownAppData> {
+  async missingAppData(description: AppDescription): Promise<AppData> {
     return {
       name: description.name,
       status: "missing",
@@ -106,7 +96,7 @@ class Context {
     }
   }
 
-  async existingAppData(description: AppDescription): Promise<KnownAppData> {
+  async existingAppData(description: AppDescription): Promise<AppData> {
     const { deployed, running } = this.status.get(description.name)
 
     const [version, config, dockerOptions] = await Promise.all([
@@ -129,7 +119,7 @@ class Context {
     }
   }
 
-  async unknownAppData(name: string): Promise<UnknownAppData> {
+  async unknownAppData(name: string): Promise<AppData> {
     const { deployed, running } = this.status.get(name)
 
     const [version, config, dockerOptions] = await Promise.all([

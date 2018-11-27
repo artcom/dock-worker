@@ -6,7 +6,7 @@ import { isDockerOptionAction } from "../actions/dockerOptionAction"
 import { isPushAction } from "../actions/pushAction"
 
 import ansiTable from "../ansiTable"
-import { loadAppData, AppData, KnownAppData } from "../appData"
+import { loadAppData, AppData } from "../appData"
 import Dokku from "../dokku"
 import envCommand from "./envCommand"
 import RepoCache from "../repoCache"
@@ -42,7 +42,7 @@ function createRow(app: AppData) {
         actions.length === 0 ? chalk.green("✓") : chalk.red("✗"),
         state(app),
         version(app, actions),
-        deploymentStatus(app, actions)
+        deploymentStatus(actions)
       ]
     }
 
@@ -84,7 +84,7 @@ function version(app: AppData, actions: Array<Action>) {
   return color(app.actual.version)
 }
 
-function deploymentStatus(app: KnownAppData, actions: Array<Action>) {
+function deploymentStatus(actions: Array<Action>) {
   const status = []
 
   if (actions.some(isConfigAction)) {

@@ -3,14 +3,14 @@ import isEqual from "lodash/isEqual"
 import diffOptions, { Change } from "../diffOptions"
 import Dokku from "../dokku"
 
-import { KnownAppData } from "../appData"
+import { AppData } from "../appData"
 import { AppDescription } from "../types"
 
-export function needsDockerOptionAction(app: KnownAppData): boolean {
+export function needsDockerOptionAction(app: AppData): boolean {
   return !isEqual(app.description.dockerOptions, app.actual.dockerOptions)
 }
 
-export function makeDockerOptionAction(app: KnownAppData): DockerOptionAction {
+export function makeDockerOptionAction(app: AppData): DockerOptionAction {
   return new DockerOptionAction(app)
 }
 
@@ -22,7 +22,7 @@ class DockerOptionAction {
   changes: Array<Change>;
   description: AppDescription;
 
-  constructor(app: KnownAppData) {
+  constructor(app: AppData) {
     this.changes = diffOptions(app.description.dockerOptions, app.actual.dockerOptions)
     this.description = app.description
   }

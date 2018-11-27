@@ -5,14 +5,14 @@ import partition from "lodash/partition"
 import diffOptions, { Change } from "../diffOptions"
 import Dokku from "../dokku"
 
-import { KnownAppData } from "../appData"
+import { AppData } from "../appData"
 import { AppDescription } from "../types"
 
-export function needsConfigAction(app: KnownAppData): boolean {
+export function needsConfigAction(app: AppData): boolean {
   return computeChanges(app).length > 0
 }
 
-export function makeConfigAction(app: KnownAppData): ConfigAction {
+export function makeConfigAction(app: AppData): ConfigAction {
   return new ConfigAction(app)
 }
 
@@ -24,7 +24,7 @@ class ConfigAction {
   changes: Array<Change>;
   description: AppDescription;
 
-  constructor(app: KnownAppData) {
+  constructor(app: AppData) {
     this.changes = computeChanges(app)
     this.description = app.description
   }
@@ -41,7 +41,7 @@ class ConfigAction {
   }
 }
 
-function computeChanges(app: KnownAppData): Array<Change> {
+function computeChanges(app: AppData): Array<Change> {
   return diffOptions(app.description.config, app.actual.config).filter(change =>
     !(change.type === "remove" && isDokkuConfig(change.key))
   )
