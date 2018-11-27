@@ -4,9 +4,8 @@ import find from "lodash/find"
 import flatten from "lodash/flatten"
 import intersection from "lodash/intersection"
 import map from "lodash/map"
-import fromPairs from "lodash/fromPairs"
 
-import Dokku from "./dokku"
+import Dokku, { AppStatus } from "./dokku"
 import RepoCache from "./repoCache"
 import showMessageUntilSettled from "./showMessageUntilSettled"
 import mapPromiseWithConcurrency from "./mapPromiseWithConcurrency"
@@ -39,12 +38,12 @@ type ActualConfig = {
 }
 
 class Context {
-  descriptions: Array<AppDescription>
-  status: { [key: string]: string }
+  descriptions: AppDescription[]
+  status: Map<string, AppStatus>
 
-  missingApps: Array<string>
-  existingApps: Array<string>
-  unknownApps: Array<string>
+  missingApps: string[]
+  existingApps: string[]
+  unknownApps: string[]
 
   dokku: Dokku
   repoCache: RepoCache
@@ -56,18 +55,21 @@ class Context {
   }
 
   async initialize(): Promise<void> {
-    const list = await this.dokku.ls()
+    const list = await this.dokku.report()
     const available = map(list, "name")
     const defined = map(this.descriptions, "name")
 
-    this.status = fromPairs(list.map(({ name, status }) => [name, status]))
+    this.status = new Map()
+    list.forEach(appStatus => {
+      this.status.set(appStatus.name, appStatus)
+    })
 
     this.missingApps = difference(defined, available)
     this.existingApps = intersection(defined, available)
     this.unknownApps = difference(available, defined)
   }
 
-  listAppNames(): Array<string> {
+  listAppNames(): string[] {
     return flatten([
       this.missingApps,
       this.existingApps,
@@ -81,9 +83,9 @@ class Context {
       return this.missingAppData(config)
     } else if (this.existingApps.includes(name)) {
       const config = find(this.descriptions, { name })
-      return this.existingAppData(config, this.status[name])
+      return this.existingAppData(config)
     } else if (this.unknownApps.includes(name)) {
-      return this.unknownAppData(name, this.status[name])
+      return this.unknownAppData(name)
     } else {
       return Promise.reject()
     }
@@ -104,9 +106,8 @@ class Context {
     }
   }
 
-  async existingAppData(description: AppDescription, status: string): Promise<KnownAppData> {
-    const deployed = status !== "NOT_DEPLOYED"
-    const running = status === "running"
+  async existingAppData(description: AppDescription): Promise<KnownAppData> {
+    const { deployed, running } = this.status.get(description.name)
 
     const [version, config, dockerOptions] = await Promise.all([
       deployed ? this.actualVersion(description.name) : "",
@@ -128,9 +129,8 @@ class Context {
     }
   }
 
-  async unknownAppData(name: string, status: string): Promise<UnknownAppData> {
-    const deployed = status !== "NOT_DEPLOYED"
-    const running = status === "running"
+  async unknownAppData(name: string): Promise<UnknownAppData> {
+    const { deployed, running } = this.status.get(name)
 
     const [version, config, dockerOptions] = await Promise.all([
       deployed ? this.actualVersion(name) : "",
@@ -159,11 +159,11 @@ class Context {
 }
 
 export async function loadAppData(
-  descriptions: Array<AppDescription>,
+  descriptions: AppDescription[],
   dokku: Dokku,
   repoCache: RepoCache,
-  selectedApps: Array<string> = []
-): Promise<Array<AppData>> {
+  selectedApps: string[] = []
+): Promise<AppData[]> {
   const context = new Context(descriptions, dokku, repoCache)
   await initializeWithMessage(context)
 

@@ -9,7 +9,8 @@ import { Options } from "./types"
 export type Phase = "build" | "deploy" | "run"
 export type AppStatus = {
   name: string,
-  status: string
+  deployed: boolean,
+  running: boolean
 }
 
 export default class {
@@ -29,11 +30,11 @@ export default class {
     }
   }
 
-  apps(): Promise<Array<string>> {
+  apps(): Promise<string[]> {
     return this.dokku("apps:list").then(filterRelevantLines)
   }
 
-  async ls(): Promise<Array<AppStatus>> {
+  async report(): Promise<AppStatus[]> {
     const fullReport = await this.dokku("ps:report")
     const reports = extractReports(fullReport)
     const status = reports.map(extractStatus)
@@ -60,17 +61,17 @@ export default class {
       })
   }
 
-  setConfig(app: string, config: { [key: string]: string }): Promise<Array<string>> {
+  setConfig(app: string, config: { [key: string]: string }): Promise<string[]> {
     const params = map(config, (value, key) => `${key}="${value}"`)
     return this.dokku("config:set", app, ...params).then(filterRelevantLines)
   }
 
-  unsetConfig(app: string, ...keys: Array<string>): Promise<Array<string>> {
+  unsetConfig(app: string, ...keys: string[]): Promise<string[]> {
     return this.dokku("config:unset", app, ...keys).then(filterRelevantLines)
   }
 
   dockerOptions(app: string): Promise<Options> {
-    return this.dokku("docker-options", app).then(filterRelevantLines).then(lines =>
+    return this.dokku("docker-options:report", app).then(filterRelevantLines).then(lines =>
       lines.reduce(({ options, phase }, line) => {
         const match = line.match(phaseLine)
 
@@ -87,17 +88,17 @@ export default class {
     )
   }
 
-  addDockerOption(app: string, option: string, phases: Array<Phase>): Promise<Array<string>> {
+  addDockerOption(app: string, option: string, phases: Phase[]): Promise<string[]> {
     return this.dokku("docker-options:add", app, phases.join(","), option)
       .then(filterRelevantLines)
   }
 
-  removeDockerOption(app: string, option: string, phases: Array<Phase>): Promise<Array<string>> {
+  removeDockerOption(app: string, option: string, phases: Phase[]): Promise<string[]> {
     return this.dokku("docker-options:remove", app, phases.join(","), option)
       .then(filterRelevantLines)
   }
 
-  stop(app: string): Promise<Array<string> | void> {
+  stop(app: string): Promise<string[] | void> {
     return this.dokku("ps:stop", app).then(filterRelevantLines).catch(error => {
       if (!error.message.endsWith(`App ${app} has not been deployed\n`)) {
         throw error
@@ -105,17 +106,17 @@ export default class {
     })
   }
 
-  start(app: string): Promise<Array<string>> {
+  start(app: string): Promise<string[]> {
     return this.dokku("ps:start", app).then(filterRelevantLines)
   }
 
-  restart(app: string): Promise<Array<string>> {
+  restart(app: string): Promise<string[]> {
     return this.dokku("ps:restart", app).then(filterRelevantLines)
   }
 
   // PRIVATE
 
-  dokku(...params: Array<string>): Promise<string> {
+  dokku(...params: string[]): Promise<string> {
     return this.sendCommand(params.join(" "))
   }
 
@@ -128,7 +129,7 @@ export default class {
   }
 }
 
-function filterRelevantLines(stdout: string): Array<string> {
+function filterRelevantLines(stdout: string): string[] {
   const lines = stdout.split("\n")
   return lines.filter(isRelevantLine)
 }
@@ -137,23 +138,21 @@ function isRelevantLine(line: string) {
   return line !== "" && !line.startsWith("=====>") && !line.startsWith("----->")
 }
 
-function extractReports(reportList: string): Array<string> {
+function extractReports(reportList: string): string[] {
   return reportList
     .split("=====>")
     .filter(report => report !== "")
 }
 
 function extractStatus(report: string): AppStatus {
-  const lines = report
-    .split("\n")
-    .filter(report => report !== "")
-    .map(line => line.trim())
+  const nameRegEx = /\S+/
+  const deployedRegEx = /Deployed:\s+(\S+)/
+  const runningRegEx = /Running:\s+(\S+)/
 
-  const nameRegEx = /^\S+/
-
-  const name = nameRegEx.exec(lines[0])[0]
-  const status = lines[lines.length - 1].split(/\s+/)[2]
-  return { name, status }
+  const name = nameRegEx.exec(report)[0]
+  const deployed = deployedRegEx.exec(report)[1] === "true"
+  const running = runningRegEx.exec(report)[1] === "true"
+  return { name, deployed, running }
 }
 
 function extractPair(line: string): [string, string] {

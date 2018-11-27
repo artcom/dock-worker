@@ -62,20 +62,20 @@ describe("Dokku", function() {
       Running:                       true
       Restore:                       true
       Restart policy:                on-failure:10
-      Status web.1:                  NOT_DEPLOYED    (CID: 144e2e87db76)
+      Status web.1:                  running    (CID: 144e2e87db76)
       =====> stopped-app ps information
       Processes:                     1
       Deployed:                      true
-      Running:                       true
-      Restore:                       true
+      Running:                       false
+      Restore:                       false
       Restart policy:                on-failure:10
-      Status web.1:                  stopped    (CID: 4aecce531f56)
+      Status web.1:                  exited    (CID: 4aecce531f56)
       `)))
 
-      return expect(this.dokku.ls()).to.eventually.deep.equal([
-        { name: "some-app", status: "running" },
-        { name: "another-app", status: "NOT_DEPLOYED" },
-        { name: "stopped-app", status: "stopped" }
+      return expect(this.dokku.report()).to.eventually.deep.equal([
+        { name: "some-app", deployed: true, running: true },
+        { name: "another-app", deployed: true, running: true },
+        { name: "stopped-app", deployed: true, running: false }
       ])
     })
   })
