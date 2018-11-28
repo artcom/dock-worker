@@ -19,17 +19,14 @@ ssh public key authetication works via `ssh-agent`. Make sure your identitiy is 
 ## Usage
 
 ```bash
-// list available commands
-$ dock
+  Usage:
+    dock <environment> status [options]                     list app and status information
+    dock <environment> deploy [--yes] [<app>...] [options]  deploy apps and configuration
+    dock environments [options]                             list available environments
+    dock version                                            show dock-worker version
 
-// list available environments
-$ dock environments
-
-// list app and status information
-$ dock <environment> status
-
-// deploy apps and configuration
-$ dock <environment> deploy
+  Options:
+    -f FILE --file=FILE                                     Dockfile path [default: Dockfile.json]
 ```
 
 ## App Definition
