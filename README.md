@@ -18,7 +18,7 @@ ssh public key authetication works via `ssh-agent`. Make sure your identitiy is 
 
 Make sure you are able to clone from the git server that hosts the service repos. (first clone from github.com, etc.)
 
-The authenticity of host (<git-host>) can't be established.
+The authenticity of host _git-host_ can't be established.
 ECDSA key fingerprint is SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.
 
 ## Usage
