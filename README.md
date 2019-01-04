@@ -14,7 +14,12 @@ Both tools need to be able to access the source repos and the Dokku host, e.g. u
 * SSH public key authentication or
 * a Git [credential helper](https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage).
 
-ssh public key authetication works via `ssh-agent`. Make sure your identitiy is added and `ssh-agent` is running.  
+ssh public key authetication works via `ssh-agent`. Make sure your identitiy is added and `ssh-agent` is running.
+
+Make sure you are able to clone from the git server that hosts the service repos. (first clone from github.com, etc.)
+
+The authenticity of host (<git-host>) can't be established.
+ECDSA key fingerprint is SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.
 
 ## Usage
 
