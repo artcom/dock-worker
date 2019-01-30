@@ -48,7 +48,7 @@ function computeChanges(app: AppData): Array<Change> {
 }
 
 function isDokkuConfig(key) {
-  return key === "NO_VHOST" || key.startsWith("DOKKU_")
+  return key === "NO_VHOST" || key.startsWith("DOKKU_") || key.startsWith("GIT_REV")
 }
 
 function describeChange(change: Change): string {
