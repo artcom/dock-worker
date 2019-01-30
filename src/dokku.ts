@@ -164,5 +164,11 @@ function extractDockerOptions(lines) {
 function extractPhaseOptions(line) {
   const options = line.trim().split(" -")
   options.shift()
-  return options.map(option => `-${option}`)
+  return options
+    .map(option => `-${option}`)
+    .filter(ignoreDefaultDockerOptions)
+}
+
+function ignoreDefaultDockerOptions(option) {
+  return option !== "--restart=on-failure:10"
 }
