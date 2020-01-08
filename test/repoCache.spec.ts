@@ -9,12 +9,12 @@ import RepoCache from "../src/repoCache"
 
 describe("Repo Cache", () => {
   beforeEach(async () => {
-    this.repoDir = await tmp.dirSync({ unsafeCleanup: true })
+    this.repoDir = tmp.dirSync({ unsafeCleanup: true }).name
     spawnSync("bash", [path.resolve(__dirname, "createRepos.sh"), this.repoDir])
 
-    const dirResult = await tmp.dirSync({ unsafeCleanup: true })
+    const tmpDir = tmp.dirSync({ unsafeCleanup: true }).name
     const remoteUrl = url.format({ protocol: "file", host: this.repoDir })
-    this.cache = new RepoCache(remoteUrl, { cacheDir: dirResult.name })
+    this.cache = new RepoCache(remoteUrl, { cacheDir: tmpDir })
   })
 
   it("should set environment remote", async () => {
