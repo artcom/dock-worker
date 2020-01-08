@@ -7,7 +7,7 @@ import omitBy from "lodash/omitBy"
 import Dokku from "../dokku"
 import RepoCache from "../repoCache"
 
-import { AppDescription, Options, Dockfile } from "../types"
+import { AppDescription, Environment, Options, Dockfile } from "../types"
 
 export type EnvCommand = (dockfile: Dockfile, options: any) => any
 
@@ -18,31 +18,29 @@ type Command = (
   options: any
 ) => any
 
-export default function(callback: Command): EnvCommand {
-  return async (dockfile, options) => {
-    const environment = find(dockfile.environments, ["name", options["<environment>"]])
+export default (callback: Command): EnvCommand => async (dockfile, options) => {
+  const environment = find(dockfile.environments, ["name", options["<environment>"]])
 
-    if (!environment) {
-      throw new Error(`Environment "${options["<environment>"]}" not found in Dockfile.json`)
-    }
+  if (!environment) {
+    throw new Error(`Environment "${options["<environment>"]}" not found in Dockfile.json`)
+  }
 
-    const descriptions = dockfile.apps
-      .filter(app => shouldBeDeployed(app, environment.name))
-      .map(app => configureAppForEnvironment(app, environment.name))
+  const descriptions = dockfile.apps
+    .filter(app => shouldBeDeployed(app, environment.name))
+    .map(app => configureAppForEnvironment(app, environment))
 
-    const dokku = new Dokku(environment.host)
-    const repoCache = new RepoCache(url.format({
-      slashes: true,
-      protocol: "ssh",
-      auth: "dokku",
-      host: environment.host
-    }))
+  const dokku = new Dokku(environment.host)
+  const repoCache = new RepoCache(url.format({
+    slashes: true,
+    protocol: "ssh",
+    auth: "dokku",
+    host: environment.host
+  }))
 
-    try {
-      await callback(descriptions, dokku, repoCache, options)
-    } finally {
-      dokku.disconnect()
-    }
+  try {
+    await callback(descriptions, dokku, repoCache, options)
+  } finally {
+    dokku.disconnect()
   }
 }
 
@@ -54,21 +52,25 @@ function shouldBeDeployed(description: AppDescription, environment: string) {
   }
 }
 
-function configureAppForEnvironment(description: AppDescription, environment: string) {
+function configureAppForEnvironment(description: AppDescription, environment: Environment) {
   return Object.assign({}, description, {
     config: selectEnvironmentOptions(description.config, environment),
     dockerOptions: selectEnvironmentOptions(description.dockerOptions, environment)
   })
 }
 
-function selectEnvironmentOptions(options: Options, environment: string): Options {
+function selectEnvironmentOptions(options: Options, environment: Environment): Options {
   const envOptions = mapValues(options, value => {
-    if (isPlainObject(value)) {
-      return value[environment]
+    if (typeof value === "string") {
+      return resolveHost(value, environment.host)
     } else {
-      return value
+      return resolveHost(value[environment.name], environment.host)
     }
   })
 
   return omitBy(envOptions, option => option === undefined)
+}
+
+function resolveHost(value: string, host): string {
+  return value.replace(/\${host}/g, host)
 }

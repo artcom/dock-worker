@@ -1,6 +1,6 @@
 import { Dictionary } from "lodash"
 
-export type Options = Dictionary<{}>
+export type Options = Dictionary<{} | string>
 
 export type AppDescription = {
   name: string,
@@ -13,11 +13,11 @@ export type AppDescription = {
 }
 
 export type Dockfile = {
-  environments: [environment],
+  environments: [Environment],
   apps: [AppDescription]
 }
 
-export type environment = {
+export type Environment = {
   name: string,
   host: string
 }
