@@ -1,7 +1,7 @@
 import chalk from "chalk"
-import find from "lodash/find"
 import read from "read-promise"
 import yn from "yn"
+import find from "lodash/find"
 
 import { deriveActions, Action } from "../actions"
 import { loadAppData } from "../appData"

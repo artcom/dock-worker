@@ -1,8 +1,8 @@
+import url from "url"
 import find from "lodash/find"
 import isPlainObject from "lodash/isPlainObject"
 import mapValues from "lodash/mapValues"
 import omitBy from "lodash/omitBy"
-import url from "url"
 
 import Dokku from "../dokku"
 import RepoCache from "../repoCache"

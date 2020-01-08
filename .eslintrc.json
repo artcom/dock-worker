@@ -1,6 +1,6 @@
 {
   "extends": "artcom",
-  "parser": "typescript-eslint-parser",
+  "parser": "@typescript-eslint/parser",
   "plugins": ["import", "typescript"],
   "rules": {
     "typescript/no-unused-vars": 0,

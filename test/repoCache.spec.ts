@@ -1,33 +1,23 @@
-import cp from "child_process"
-import { expect } from "chai"
+import { spawnSync } from "child_process"
 import path from "path"
-import tmp from "tmp"
 import url from "url"
 
-import { promisify } from "util"
+import tmp from "tmp"
+import { expect } from "chai"
 
 import RepoCache from "../src/repoCache"
 
-declare module "util" {
-  export function promisify<T>(
-    func: (data: any, cb: (err: NodeJS.ErrnoException, data?: T) => void,
-  ) => void): (...input: any[]) => Promise<T>;
-}
+describe("Repo Cache", () => {
+  beforeEach(async () => {
+    this.repoDir = await tmp.dirSync({ unsafeCleanup: true })
+    spawnSync("bash", [path.resolve(__dirname, "createRepos.sh"), this.repoDir])
 
-const execFileAsync = promisify(cp.execFile)
-const tmpDirAsync = promisify(tmp.dir)
-
-describe("Repo Cache", function() {
-  beforeEach(async function() {
-    this.repoDir = await tmpDirAsync({ unsafeCleanup: true })
-    await execFileAsync("bash", [path.resolve(__dirname, "createRepos.sh"), this.repoDir])
-
-    const cacheDir = await tmpDirAsync({ unsafeCleanup: true })
+    const dirResult = await tmp.dirSync({ unsafeCleanup: true })
     const remoteUrl = url.format({ protocol: "file", host: this.repoDir })
-    this.cache = new RepoCache(remoteUrl, { cacheDir })
+    this.cache = new RepoCache(remoteUrl, { cacheDir: dirResult.name })
   })
 
-  it("should set environment remote", async function() {
+  it("should set environment remote", async () => {
     const repo = await this.cache.getRepo("app1")
     const remotes = await repo.remotes()
 

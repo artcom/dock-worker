@@ -1,9 +1,10 @@
 #! /usr/bin/env node
+
 import chalk from "chalk"
-import { docopt } from "docopt"
-import find from "lodash/find"
 import fs from "fs"
 import { promisify } from "util"
+import { docopt } from "docopt"
+import find from "lodash/find"
 
 import status from "./commands/status"
 import deploy from "./commands/deploy"

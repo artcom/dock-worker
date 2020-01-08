@@ -85,15 +85,15 @@ function version(app: AppData, actions: Array<Action>) {
 }
 
 function deploymentStatus(actions: Array<Action>) {
-  const status = []
+  const result = []
 
   if (actions.some(isConfigAction)) {
-    status.push("config")
+    result.push("config")
   }
 
   if (actions.some(isDockerOptionAction)) {
-    status.push("docker-options")
+    result.push("docker-options")
   }
 
-  return chalk.red(status.join(", "))
+  return chalk.red(result.join(", "))
 }
