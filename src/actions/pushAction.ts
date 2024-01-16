@@ -17,7 +17,7 @@ export function isPushAction(action: any) {
 }
 
 class PushAction {
-  description: AppDescription;
+  description: AppDescription
 
   constructor(app: AppData) {
     this.description = app.description
@@ -37,6 +37,6 @@ class PushAction {
     const repo = await repoCache.getRepo(this.description.name)
     await repo.ensureRemote(ORIGIN_REMOTE, this.description.repo)
     await repo.fetch(ORIGIN_REMOTE)
-    await repo.push(DOKKU_REMOTE, `${this.description.version}:refs/heads/master`)
+    await repo.push(DOKKU_REMOTE, `${this.description.version}:refs/heads/main`)
   }
 }
