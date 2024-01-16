@@ -27,7 +27,7 @@
     "lodash": "^4.17.15",
     "log-update": "^3.3.0",
     "read-promise": "^1.0.2",
-    "ssh2": "^0.8.7",
+    "ssh2": "^1.15.0",
     "strip-ansi": "^6.0.0",
     "text-table": "^0.2.0",
     "yn": "^4.0.0"
