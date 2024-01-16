@@ -1,6 +1,6 @@
 {
   "name": "dock-worker",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Automated Dokku Deployment",
   "repository": "artcom/dock-worker",
   "files": [
