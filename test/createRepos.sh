@@ -16,7 +16,7 @@ createRepos () {
 
   git init --bare "$DIRECTORY/app1"
   git remote add dokku "$DIRECTORY/app1"
-  git push dokku master
+  git push dokku main
 
   echo "Hello World Example" > README.md
   git add README.md

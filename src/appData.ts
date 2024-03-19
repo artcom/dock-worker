@@ -13,17 +13,17 @@ import mapPromiseWithConcurrency from "./mapPromiseWithConcurrency"
 import { AppDescription, Options } from "./types"
 
 export interface AppData {
-  name: string,
-  status: "missing" | "exists" | "deployed" | "unknown",
-  deployed: Boolean,
-  running: Boolean,
-  description?: AppDescription,
+  name: string
+  status: "missing" | "exists" | "deployed" | "unknown"
+  deployed: Boolean
+  running: Boolean
+  description?: AppDescription
   actual: ActualConfig
 }
 
 type ActualConfig = {
-  version: string,
-  config: Options,
+  version: string
+  config: Options
   dockerOptions: Options
 }
 
@@ -50,7 +50,7 @@ class Context {
     const defined = map(this.descriptions, "name")
 
     this.status = new Map()
-    list.forEach(appStatus => {
+    list.forEach((appStatus) => {
       this.status.set(appStatus.name, appStatus)
     })
 
@@ -63,7 +63,7 @@ class Context {
     return flatten([
       this.missingApps,
       this.existingApps,
-      this.unknownApps
+      this.unknownApps,
     ]).sort()
   }
 
@@ -91,8 +91,8 @@ class Context {
       actual: {
         version: "",
         config: {},
-        dockerOptions: {}
-      }
+        dockerOptions: {},
+      },
     }
   }
 
@@ -102,7 +102,7 @@ class Context {
     const [version, config, dockerOptions] = await Promise.all([
       deployed ? this.actualVersion(description.name) : "",
       this.dokku.config(description.name),
-      this.dokku.dockerOptions(description.name)
+      this.dokku.dockerOptions(description.name),
     ])
 
     return {
@@ -114,8 +114,8 @@ class Context {
       actual: {
         version,
         config,
-        dockerOptions
-      }
+        dockerOptions,
+      },
     }
   }
 
@@ -125,7 +125,7 @@ class Context {
     const [version, config, dockerOptions] = await Promise.all([
       deployed ? this.actualVersion(name) : "",
       this.dokku.config(name),
-      this.dokku.dockerOptions(name)
+      this.dokku.dockerOptions(name),
     ])
 
     return {
@@ -136,15 +136,17 @@ class Context {
       actual: {
         version,
         config,
-        dockerOptions
-      }
+        dockerOptions,
+      },
     }
   }
 
   async actualVersion(name: string): Promise<string> {
     const repo = await this.repoCache.getRepo(name)
     await repo.fetch(this.repoCache.DOKKU_REMOTE)
-    return await repo.showRef(`refs/remotes/${this.repoCache.DOKKU_REMOTE}/master`)
+    return await repo.showRef(
+      `refs/remotes/${this.repoCache.DOKKU_REMOTE}/main`
+    )
   }
 }
 
@@ -157,14 +159,17 @@ export async function loadAppData(
   const context = new Context(descriptions, dokku, repoCache)
   await initializeWithMessage(context)
 
-  const appNames = context.listAppNames()
-    .filter(appName => selectedApps.length === 0 || selectedApps.includes(appName))
+  const appNames = context
+    .listAppNames()
+    .filter(
+      (appName) => selectedApps.length === 0 || selectedApps.includes(appName)
+    )
 
   return await loadAppDataWithMessage(context, appNames)
 }
 
 function initializeWithMessage(context) {
-  const message = spinner => chalk.gray(`loading service list ${spinner}`)
+  const message = (spinner) => chalk.gray(`loading service list ${spinner}`)
   return showMessageUntilSettled(message, context.initialize())
 }
 
@@ -172,16 +177,16 @@ function loadAppDataWithMessage(context, appNames) {
   const inProgress = new Set()
   let completed = 0
 
-  const message = spinner => {
-    const services = Array
-      .from(inProgress)
-      .map(appName => `${chalk.bold(appName)} ${spinner}`)
+  const message = (spinner) => {
+    const services = Array.from(inProgress).map(
+      (appName) => `${chalk.bold(appName)} ${spinner}`
+    )
 
     const count = `(${completed}/${appNames.length})`
     return chalk.gray([`loading service data ${count}`, ...services].join("\n"))
   }
 
-  const loadAppData = async appName => {
+  const loadAppData = async (appName) => {
     inProgress.add(appName)
     const appData = await context.loadAppData(appName)
     inProgress.delete(appName)
@@ -189,5 +194,8 @@ function loadAppDataWithMessage(context, appNames) {
     return appData
   }
 
-  return showMessageUntilSettled(message, mapPromiseWithConcurrency(appNames, loadAppData, 5))
+  return showMessageUntilSettled(
+    message,
+    mapPromiseWithConcurrency(appNames, loadAppData, 5)
+  )
 }
