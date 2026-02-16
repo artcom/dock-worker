@@ -43,11 +43,13 @@ _Dock Worker_ will look for a configuration file named `Dockfile.json` in the cu
   "environments": [
     {
       "name": "staging",
-      "host": "dokku@staging.example.com"
+      "host": "dokku@staging.example.com",
+      "composeHost": "staging.example.com"
     },
     {
       "name": "production",
-      "host": "dokku@production.example.com"
+      "host": "dokku@production.example.com",
+      "composeHost": "production.example.com"
     }
   ],
   "apps": [
@@ -66,7 +68,9 @@ _Dock Worker_ will look for a configuration file named `Dockfile.json` in the cu
         "RETRIEVE_FROM": {
           "staging": "http://staging-db.example.com",
           "production": "http://db.example.com"
-        }
+        },
+        "DATABASE_URL": "postgresql://user:pass@${host}:5432/db",
+        "COMPOSE_HOST": "${composeHost}"
       },
       "dockerOptions": {
         "-p=8000:8000": ["deploy", "run"]
@@ -76,3 +80,12 @@ _Dock Worker_ will look for a configuration file named `Dockfile.json` in the cu
   ]
 }
 ```
+
+### Environment Variable Placeholders
+
+Config values support placeholder replacement for environment-specific values:
+
+* `${host}` - Replaced with the environment's `host` value
+* `${composeHost}` - Replaced with the environment's `composeHost` value
+
+These placeholders are resolved at deployment time based on the target environment. In the example above, deploying to staging would replace `${host}` with `dokku@staging.example.com` and `${composeHost}` with `staging.example.com`.

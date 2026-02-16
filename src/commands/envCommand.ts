@@ -52,9 +52,9 @@ function shouldBeDeployed(description: AppDescription, environment: string) {
   }
 }
 
-function configureAppForEnvironment(description: AppDescription, { host, name }: Environment) {
+function configureAppForEnvironment(description: AppDescription, { host, composeHost, name }: Environment) {
   return Object.assign({}, description, {
-    config: resolveHost(selectEnvironmentOptions(description.config, name), host),
+    config: resolveHost(selectEnvironmentOptions(description.config, name), host, composeHost),
     dockerOptions: selectEnvironmentOptions(description.dockerOptions, name)
   })
 }
@@ -64,6 +64,8 @@ function selectEnvironmentOptions(options: Options, environment: string): Option
   return omitBy(envOptions, option => option === undefined)
 }
 
-function resolveHost(options: Options, host): Options {
-  return mapValues(options, (value: string) => value.replace(/\${host}/g, host))
+function resolveHost(options: Options, host: string, composeHost: string): Options {
+  return mapValues(options, (value: string) => value
+    .replace(/\${host}/g, host)
+    .replace(/\${composeHost}/g, composeHost))
 }

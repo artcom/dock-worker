@@ -19,5 +19,6 @@ export type Dockfile = {
 
 export type Environment = {
   name: string,
-  host: string
+  host: string,
+  composeHost: string
 }
