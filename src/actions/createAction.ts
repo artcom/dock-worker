@@ -15,9 +15,9 @@ export function isCreateAction(action: any): boolean {
 }
 
 class CreateAction {
-  name: string;
+  name: string
 
-  constructor({ name }: {name: string}) {
+  constructor({ name }: { name: string }) {
     this.name = name
   }
 

@@ -15,7 +15,11 @@ import { AppDescription } from "../types"
 
 export default envCommand(status)
 
-async function status(descriptions: Array<AppDescription>, dokku: Dokku, repoCache: RepoCache) {
+async function status(
+  descriptions: Array<AppDescription>,
+  dokku: Dokku,
+  repoCache: RepoCache,
+) {
   const apps = await loadAppData(descriptions, dokku, repoCache)
   console.log(createTable(apps))
 }
@@ -28,11 +32,7 @@ function createTable(apps) {
 function createRow(app: AppData) {
   switch (app.status) {
     case "missing":
-      return [
-        name(app.name),
-        chalk.red("✗"),
-        chalk.red("missing")
-      ]
+      return [name(app.name), chalk.red("✗"), chalk.red("missing")]
 
     case "exists": {
       const actions = deriveActions(app)
@@ -42,7 +42,7 @@ function createRow(app: AppData) {
         actions.length === 0 ? chalk.green("✓") : chalk.red("✗"),
         state(app),
         version(app, actions),
-        deploymentStatus(actions)
+        deploymentStatus(actions),
       ]
     }
 
@@ -51,7 +51,7 @@ function createRow(app: AppData) {
         name(app.name),
         chalk.gray("·"),
         state(app, chalk.gray),
-        chalk.gray(app.actual.version)
+        chalk.gray(app.actual.version),
       ]
 
     default:

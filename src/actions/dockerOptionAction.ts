@@ -19,11 +19,14 @@ export function isDockerOptionAction(action: any): boolean {
 }
 
 class DockerOptionAction {
-  changes: Array<Change>;
-  description: AppDescription;
+  changes: Array<Change>
+  description: AppDescription
 
   constructor(app: AppData) {
-    this.changes = diffOptions(app.description.dockerOptions, app.actual.dockerOptions)
+    this.changes = diffOptions(
+      app.description.dockerOptions,
+      app.actual.dockerOptions,
+    )
     this.description = app.description
   }
 
@@ -59,7 +62,11 @@ function describeChange(change: Change): string {
   }
 }
 
-async function applyChange(dokku: Dokku, appName: string, change: Change): Promise<void> {
+async function applyChange(
+  dokku: Dokku,
+  appName: string,
+  change: Change,
+): Promise<void> {
   switch (change.type) {
     case "add": {
       const { key, value } = change

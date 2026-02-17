@@ -21,8 +21,8 @@ export function isConfigAction(action: any): boolean {
 }
 
 class ConfigAction {
-  changes: Array<Change>;
-  description: AppDescription;
+  changes: Array<Change>
+  description: AppDescription
 
   constructor(app: AppData) {
     this.changes = computeChanges(app)
@@ -34,7 +34,10 @@ class ConfigAction {
   }
 
   async run(dokku: Dokku): Promise<void> {
-    const [unset, set] = partition(this.changes, change => change.type === "remove")
+    const [unset, set] = partition(
+      this.changes,
+      (change) => change.type === "remove",
+    )
 
     await setConfig(dokku, this.description, set)
     await unsetConfig(dokku, this.description, unset)
@@ -42,13 +45,15 @@ class ConfigAction {
 }
 
 function computeChanges(app: AppData): Array<Change> {
-  return diffOptions(app.description.config, app.actual.config).filter(change =>
-    !(change.type === "remove" && isDokkuConfig(change.key))
+  return diffOptions(app.description.config, app.actual.config).filter(
+    (change) => !(change.type === "remove" && isDokkuConfig(change.key)),
   )
 }
 
 function isDokkuConfig(key) {
-  return key === "NO_VHOST" || key.startsWith("DOKKU_") || key.startsWith("GIT_REV")
+  return (
+    key === "NO_VHOST" || key.startsWith("DOKKU_") || key.startsWith("GIT_REV")
+  )
 }
 
 function describeChange(change: Change): string {

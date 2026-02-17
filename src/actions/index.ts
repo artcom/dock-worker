@@ -1,6 +1,9 @@
 import { needsConfigAction, makeConfigAction } from "./configAction"
 import { needsCreateAction, makeCreateAction } from "./createAction"
-import { needsDockerOptionAction, makeDockerOptionAction } from "./dockerOptionAction"
+import {
+  needsDockerOptionAction,
+  makeDockerOptionAction,
+} from "./dockerOptionAction"
 import { needsPushAction, makePushAction } from "./pushAction"
 import { needsStartAction, makeStartAction } from "./startAction"
 
@@ -9,7 +12,7 @@ import Dokku from "../dokku"
 import RepoCache from "../repoCache"
 
 export type Action = {
-  describe: () => Array<string>,
+  describe: () => Array<string>
   run: (dokku: Dokku, repoCache: RepoCache) => Promise<void>
 }
 

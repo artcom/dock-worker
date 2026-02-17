@@ -15,7 +15,7 @@ export function isStartAction(action: any): boolean {
 }
 
 class StartAction {
-  name: string;
+  name: string
 
   constructor({ name }: AppData) {
     this.name = name

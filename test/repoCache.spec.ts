@@ -7,8 +7,8 @@ import { expect } from "chai"
 
 import RepoCache from "../src/repoCache"
 
-describe("Repo Cache", () => {
-  beforeEach(async () => {
+describe("Repo Cache", function () {
+  beforeEach(async function () {
     this.repoDir = tmp.dirSync({ unsafeCleanup: true }).name
     spawnSync("bash", [path.resolve(__dirname, "createRepos.sh"), this.repoDir])
 
@@ -17,15 +17,15 @@ describe("Repo Cache", () => {
     this.cache = new RepoCache(remoteUrl, { cacheDir: tmpDir })
   })
 
-  it("should set environment remote", async () => {
+  it("should set environment remote", async function () {
     const repo = await this.cache.getRepo("app1")
     const remotes = await repo.remotes()
 
     expect(remotes).to.deep.equal({
       dokku: {
         fetch: `file://${this.repoDir}/app1`,
-        push: `file://${this.repoDir}/app1`
-      }
+        push: `file://${this.repoDir}/app1`,
+      },
     })
   })
 })
