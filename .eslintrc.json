@@ -1,9 +1,9 @@
 {
   "extends": ["artcom", "prettier"],
   "parser": "@typescript-eslint/parser",
-  "plugins": ["import", "typescript", "prettier"],
+  "plugins": ["import", "@typescript-eslint", "prettier"],
   "rules": {
-    "typescript/no-unused-vars": "off",
+    "@typescript-eslint/no-unused-vars": "off",
     "no-unused-vars": "off",
     "no-console": "off",
     "no-use-before-define": "off",

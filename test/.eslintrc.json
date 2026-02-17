@@ -1,9 +1,11 @@
 {
-  "extends": "artcom/mocha",
+  "extends": ["artcom/mocha", "prettier"],
   "parser": "@typescript-eslint/parser",
-  "plugins": ["import", "typescript"],
+  "plugins": ["import", "@typescript-eslint", "prettier"],
   "rules": {
-    "typescript/no-unused-vars": 0,
-    "no-unused-vars": 0
+    "@typescript-eslint/no-unused-vars": "off",
+    "no-unused-vars": "off",
+    "prettier/prettier": "error",
+    "space-before-function-paren": "off"
   }
 }
