@@ -27,7 +27,7 @@ ECDSA key fingerprint is SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.
   Usage:
     dock <environment> status [options]                     list app and status information
     dock <environment> deploy [--yes] [<app>...] [options]  deploy apps and configuration
-    dock <environment> outdated [options]                   list apps behind main branch
+    dock <environment> outdated [options]                   list apps behind main/master branch
     dock environments [options]                             list available environments
     dock version                                            show dock-worker version
 
