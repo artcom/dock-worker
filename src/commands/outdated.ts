@@ -5,6 +5,7 @@ import read from "read-promise"
 import yn from "yn"
 
 import envCommand, { EnvCommandContext } from "./envCommand"
+import { AppData, loadAppData } from "../appData"
 import { AppDescription, Dockfile } from "../types"
 import { logBetween, lsRemote } from "../git"
 
@@ -23,17 +24,23 @@ type AppWithMainRef = {
 type OutdatedApp = AppWithMainRef & {
   commits: string[]
   warning?: string
+  currentVersion: string
+  deployed: boolean
+  running: boolean
 }
 
 export default envCommand(outdated)
 
 async function outdated(
   descriptions: Array<AppDescription>,
-  _dokku,
-  _repoCache,
+  dokku,
+  repoCache,
   _options,
   context: EnvCommandContext,
 ) {
+  const apps = await loadAppData(descriptions, dokku, repoCache)
+  const appDataByName = new Map(apps.map((app) => [app.name, app]))
+
   const appVersions = await Promise.all(descriptions.map(loadMainVersion))
 
   const outdatedApps = appVersions.filter(
@@ -41,7 +48,9 @@ async function outdated(
   )
 
   const outdatedWithCommits = await Promise.all(
-    outdatedApps.map(loadOutdatedAppWithCommits),
+    outdatedApps.map((app) =>
+      loadOutdatedAppWithCommits(app, appDataByName.get(app.appName)),
+    ),
   )
 
   if (outdatedWithCommits.length === 0) {
@@ -51,12 +60,16 @@ async function outdated(
     return
   }
 
-  console.log(chalk.red("services with outdated Dockfile commit:"))
+  console.log(chalk.red.bold("services with outdated Dockfile commit:"))
 
   outdatedWithCommits.forEach((app) => {
-    console.log(chalk.bold(app.appName))
-    console.log(`  dockfile: ${app.dockfileVersion}`)
-    console.log(`  ${app.defaultBranchName}:     ${app.defaultBranchVersion}`)
+    console.log("")
+    console.log(chalk.bold.white(app.appName))
+    console.log(`  dockfile: ${chalk.yellow(app.dockfileVersion)}`)
+    console.log(
+      `  latest ${app.defaultBranchName}: ${chalk.green(app.defaultBranchVersion)}`,
+    )
+    console.log(`  running: ${printCurrentVersion(app)}`)
 
     if (app.warning) {
       console.log(chalk.yellow(`  warning: ${app.warning}`))
@@ -67,11 +80,13 @@ async function outdated(
       return
     }
 
-    console.log(`  commits: ${app.commits.length}`)
+    console.log(`  commits: ${chalk.cyan(app.commits.length.toString())}`)
     app.commits.forEach((commit) => {
-      console.log(`    - ${commit}`)
+      console.log(`    - ${colorizeCommit(commit)}`)
     })
   })
+
+  console.log("")
 
   const shouldApply = await askForApplyConfirmation()
 
@@ -79,9 +94,10 @@ async function outdated(
     return
   }
 
-  const updates = Object.fromEntries(
-    outdatedWithCommits.map((app) => [app.appName, app.defaultBranchVersion]),
-  )
+  const updates: { [appName: string]: string } = {}
+  outdatedWithCommits.forEach((app) => {
+    updates[app.appName] = app.defaultBranchVersion
+  })
 
   const { dockfile, updatedServices } = applyLatestVersions(
     context.dockfile,
@@ -129,6 +145,7 @@ async function loadMainVersion(app: AppDescription): Promise<AppWithMainRef> {
 
 async function loadOutdatedAppWithCommits(
   app: AppWithMainRef,
+  appData: AppData,
 ): Promise<OutdatedApp> {
   const logResult = await logBetween(
     app.repo,
@@ -140,7 +157,33 @@ async function loadOutdatedAppWithCommits(
     ...app,
     commits: logResult.commits,
     warning: logResult.warning,
+    currentVersion: appData?.actual.version || "",
+    deployed: Boolean(appData?.deployed),
+    running: Boolean(appData?.running),
   }
+}
+
+function printCurrentVersion(app: OutdatedApp): string {
+  if (app.running && app.currentVersion) {
+    return chalk.green(app.currentVersion)
+  }
+
+  if (app.deployed && app.currentVersion) {
+    return chalk.yellow(`${app.currentVersion} (stopped)`)
+  }
+
+  return chalk.gray("not deployed")
+}
+
+function colorizeCommit(commit: string): string {
+  const match = commit.match(/^(\w+)\s+(.*)$/)
+
+  if (!match) {
+    return chalk.gray(commit)
+  }
+
+  const [, hash, subject] = match
+  return `${chalk.magenta(hash)} ${chalk.gray(subject)}`
 }
 
 async function askForApplyConfirmation(): Promise<boolean> {
@@ -154,27 +197,20 @@ function applyLatestVersions(
   dockfile: Dockfile,
   updates: { [appName: string]: string },
 ): { dockfile: Dockfile; updatedServices: number } {
+  const updatedDockfile = JSON.parse(JSON.stringify(dockfile)) as Dockfile
   let updatedServices = 0
 
-  const apps = dockfile.apps.map((app) => {
+  for (const app of updatedDockfile.apps) {
     const latestVersion = updates[app.name]
 
     if (latestVersion && app.version !== latestVersion) {
       updatedServices++
-      return {
-        ...app,
-        version: latestVersion,
-      }
+      app.version = latestVersion
     }
-
-    return app
-  })
+  }
 
   return {
-    dockfile: {
-      ...dockfile,
-      apps,
-    },
+    dockfile: updatedDockfile,
     updatedServices,
   }
 }
