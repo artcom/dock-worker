@@ -1,11 +1,18 @@
 import { execFile } from "child_process"
 import { promisify } from "util"
 import fs from "fs"
+import os from "os"
 import path from "path"
 import set from "lodash/set"
 
 const execFileAsync = promisify(execFile)
 const statAsync = promisify(fs.stat)
+const mkdtempAsync = promisify(fs.mkdtemp)
+
+type LogBetweenResult = {
+  commits: string[]
+  warning?: string
+}
 
 type RepoOptions = {
   bare?: boolean
@@ -68,6 +75,20 @@ class Repo {
 
   showRef(ref: string) {
     return this.git("show-ref", ref).then((lines) => lines[0].split(" ")[0])
+  }
+
+  log(fromRef: string, toRef: string): Promise<string[]> {
+    return this.git("log", "--pretty=format:%h %s", `${fromRef}..${toRef}`)
+  }
+
+  logRef(ref: string): Promise<string[]> {
+    return this.git("log", "--pretty=format:%h %s", ref)
+  }
+
+  hasCommit(ref: string): Promise<boolean> {
+    return this.git("rev-parse", "--verify", "--quiet", `${ref}^{commit}`)
+      .then(() => true)
+      .catch(() => false)
   }
 
   // PRIVATE
@@ -133,6 +154,47 @@ export function lsRemote(repo: string, ref: string): Promise<string | null> {
 
     return lines[0].split("\t")[0]
   })
+}
+
+export async function logBetween(
+  repoUrl: string,
+  fromRef: string,
+  toRef: string,
+): Promise<LogBetweenResult> {
+  const tempDir = await mkdtempAsync(path.join(os.tmpdir(), "dock-worker-"))
+  const localPath = path.join(tempDir, "repo.git")
+
+  try {
+    const clonedRepo = await clone(repoUrl, localPath, { bare: true })
+    const hasToRef = await clonedRepo.hasCommit(toRef)
+
+    if (!hasToRef) {
+      throw new Error(`Could not find commit ${toRef} in ${repoUrl}`)
+    }
+
+    const hasFromRef = await clonedRepo.hasCommit(fromRef)
+
+    if (!hasFromRef) {
+      return {
+        commits: await clonedRepo.logRef(toRef),
+        warning: `Dockfile commit ${fromRef} was not found in the repository history. Showing full ${toRef} history instead.`,
+      }
+    }
+
+    return {
+      commits: await clonedRepo.log(fromRef, toRef),
+    }
+  } catch (error) {
+    throw new Error(
+      `Could not read commits between ${fromRef} and ${toRef} from ${repoUrl}: ${error.message}`,
+    )
+  } finally {
+    await removeDirectoryRecursive(tempDir)
+  }
+}
+
+async function removeDirectoryRecursive(directory: string): Promise<void> {
+  await execFileAsync("rm", ["-rf", directory])
 }
 
 function git(...params: Array<string>): Promise<Array<string>> {
