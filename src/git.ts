@@ -11,13 +11,15 @@ type RepoOptions = {
   bare?: boolean
 }
 
-type Remotes = {[key: string]: {
-  fetch: string,
-  push: string
-}}
+type Remotes = {
+  [key: string]: {
+    fetch: string
+    push: string
+  }
+}
 
 class Repo {
-  directory: string;
+  directory: string
 
   constructor(directory: string, bare: boolean = false) {
     this.directory = bare ? directory : path.join(directory, ".git")
@@ -32,7 +34,7 @@ class Repo {
   }
 
   ensureRemote(remote: string, url: string) {
-    return this.remotes().then(remotes => {
+    return this.remotes().then((remotes) => {
       if (remotes[remote]) {
         return this.setRemoteUrl(remote, url)
       } else {
@@ -42,7 +44,7 @@ class Repo {
   }
 
   remotes(): Promise<Remotes> {
-    return this.git("remote", "--verbose").then(lines =>
+    return this.git("remote", "--verbose").then((lines) =>
       lines.reduce((remotes, line) => {
         const match = line.match(remoteLine)
 
@@ -52,7 +54,7 @@ class Repo {
         }
 
         return remotes
-      }, {})
+      }, {}),
     )
   }
 
@@ -65,7 +67,7 @@ class Repo {
   }
 
   showRef(ref: string) {
-    return this.git("show-ref", ref).then(lines => lines[0].split(" ")[0])
+    return this.git("show-ref", ref).then((lines) => lines[0].split(" ")[0])
   }
 
   // PRIVATE
@@ -77,9 +79,12 @@ class Repo {
 
 export type RepoType = Repo
 
-export function repo(directory: string, options: RepoOptions = {}): Promise<Repo> {
+export function repo(
+  directory: string,
+  options: RepoOptions = {},
+): Promise<Repo> {
   if (options.bare) {
-    return statAsync(path.join(directory, "HEAD")).then(stats => {
+    return statAsync(path.join(directory, "HEAD")).then((stats) => {
       if (stats.isFile()) {
         return new Repo(directory, true)
       } else {
@@ -87,7 +92,7 @@ export function repo(directory: string, options: RepoOptions = {}): Promise<Repo
       }
     })
   } else {
-    return statAsync(path.join(directory, ".git")).then(stats => {
+    return statAsync(path.join(directory, ".git")).then((stats) => {
       if (stats.isDirectory()) {
         return new Repo(path.join(directory))
       } else {
@@ -97,7 +102,10 @@ export function repo(directory: string, options: RepoOptions = {}): Promise<Repo
   }
 }
 
-export function init(directory: string, options: RepoOptions = {}): Promise<Repo> {
+export function init(
+  directory: string,
+  options: RepoOptions = {},
+): Promise<Repo> {
   const command = options.bare
     ? git("init", "--bare", directory)
     : git("init", directory)
@@ -105,7 +113,11 @@ export function init(directory: string, options: RepoOptions = {}): Promise<Repo
   return command.then(() => new Repo(directory, options.bare))
 }
 
-export function clone(repo: string, directory: string, options: RepoOptions = {}): Promise<Repo> {
+export function clone(
+  repo: string,
+  directory: string,
+  options: RepoOptions = {},
+): Promise<Repo> {
   const command = options.bare
     ? git("clone", "--bare", repo, directory)
     : git("clone", repo, directory)
@@ -113,11 +125,23 @@ export function clone(repo: string, directory: string, options: RepoOptions = {}
   return command.then(() => new Repo(directory, options.bare))
 }
 
-function git(...params: Array<string>): Promise<Array<string>> {
-  return execFileAsync("git", params, { maxBuffer: 2048 * 1024 }).then(({ stdout }) => {
-    const lines = stdout.split("\n")
-    return lines.filter(line => line.length > 0)
+export function lsRemote(repo: string, ref: string): Promise<string | null> {
+  return git("ls-remote", repo, ref).then((lines) => {
+    if (lines.length === 0) {
+      return null
+    }
+
+    return lines[0].split("\t")[0]
   })
+}
+
+function git(...params: Array<string>): Promise<Array<string>> {
+  return execFileAsync("git", params, { maxBuffer: 2048 * 1024 }).then(
+    ({ stdout }) => {
+      const lines = stdout.split("\n")
+      return lines.filter((line) => line.length > 0)
+    },
+  )
 }
 
 const remoteLine = /^(\w+)\s+(.*)\s+\((fetch|push)\)$/

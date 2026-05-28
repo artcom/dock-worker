@@ -9,6 +9,7 @@ import find from "lodash/find"
 import status from "./commands/status"
 import deploy from "./commands/deploy"
 import environments from "./commands/environments"
+import outdated from "./commands/outdated"
 import version from "./commands/version"
 
 import { EnvCommand } from "./commands/envCommand"
@@ -17,22 +18,27 @@ import { Dockfile } from "./types"
 
 const readFileAsync = promisify(fs.readFile)
 
-const options = docopt(`
+const options = docopt(
+  `
   Usage:
     dock <environment> status [options]
     dock <environment> deploy [--yes] [<app>...] [options]
+    dock <environment> outdated [options]
     dock environments [options]
     dock version
 
   Options:
     -f FILE --file=FILE     Dockfile path [default: Dockfile.json]
-`, {})
+`,
+  {},
+)
 
 const commands = {
   status,
   deploy,
+  outdated,
   environments,
-  version
+  version,
 }
 
 main()
@@ -40,7 +46,10 @@ main()
 async function main() {
   try {
     const dockfile: Dockfile = await readDockfile(options["--file"])
-    const command: EnvCommand = find(commands, (command, name) => options[name] === true)
+    const command: EnvCommand = find(
+      commands,
+      (command, name) => options[name] === true,
+    )
     await command(dockfile, options)
   } catch (error) {
     console.error(chalk.red("ERROR: ") + error.message)

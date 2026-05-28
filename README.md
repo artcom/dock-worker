@@ -6,13 +6,13 @@ Automated Dokku Deployment
 
 The following tools need to be installed:
 
-* `git`
-* `ssh`
+- `git`
+- `ssh`
 
 Both tools need to be able to access the source repos and the Dokku host, e.g. using
 
-* SSH public key authentication or
-* a Git [credential helper](https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage).
+- SSH public key authentication or
+- a Git [credential helper](https://git-scm.com/book/en/v2/Git-Tools-Credential-Storage).
 
 The ssh public key authentication works via `ssh-agent`. Make sure your identitiy is [added](https://www.ssh.com/ssh/add) via `ssh-add` and the `ssh-agent` is running.
 
@@ -27,6 +27,7 @@ ECDSA key fingerprint is SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.
   Usage:
     dock <environment> status [options]                     list app and status information
     dock <environment> deploy [--yes] [<app>...] [options]  deploy apps and configuration
+    dock <environment> outdated [options]                   list apps behind main branch
     dock environments [options]                             list available environments
     dock version                                            show dock-worker version
 
@@ -85,7 +86,7 @@ _Dock Worker_ will look for a configuration file named `Dockfile.json` in the cu
 
 Config values support placeholder replacement for environment-specific values:
 
-* `${host}` - Replaced with the environment's `host` value
-* `${composeHost}` - Replaced with the environment's `composeHost` value
+- `${host}` - Replaced with the environment's `host` value
+- `${composeHost}` - Replaced with the environment's `composeHost` value
 
 These placeholders are resolved at deployment time based on the target environment. In the example above, deploying to staging would replace `${host}` with `dokku@staging.example.com` and `${composeHost}` with `staging.example.com`.

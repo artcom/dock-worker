@@ -8,15 +8,15 @@ import { Options } from "./types"
 
 export type Phase = "build" | "deploy" | "run"
 export type AppStatus = {
-  name: string,
-  deployed: boolean,
+  name: string
+  deployed: boolean
   running: boolean
 }
 
 export default class {
-  connection: SshConnection;
-  host: string;
-  username: string;
+  connection: SshConnection
+  host: string
+  username: string
 
   constructor(host: string, username: string = "dokku") {
     this.host = host
@@ -34,8 +34,8 @@ export default class {
     return this.dokku("apps:list").then(filterRelevantLines)
   }
 
-  async report(): Promise<AppStatus[]> {
-    const fullReport = await this.dokku("ps:report")
+  async report(...apps: string[]): Promise<AppStatus[]> {
+    const fullReport = await this.dokku("ps:report", ...apps)
     const reports = extractReports(fullReport)
     const status = reports.map(extractStatus)
     return status
@@ -47,7 +47,7 @@ export default class {
 
   config(app: string): Promise<Options> {
     return this.dokku("config", app)
-      .catch(error => {
+      .catch((error) => {
         if (error.message.endsWith(`app ${app} does not exist: <nil>`)) {
           return ""
         } else {
@@ -76,22 +76,37 @@ export default class {
       .then(extractDockerOptions)
   }
 
-  addDockerOption(app: string, option: string, phases: Phase[]): Promise<string[]> {
-    return this.dokku("docker-options:add", app, phases.join(","), option)
-      .then(filterRelevantLines)
+  addDockerOption(
+    app: string,
+    option: string,
+    phases: Phase[],
+  ): Promise<string[]> {
+    return this.dokku("docker-options:add", app, phases.join(","), option).then(
+      filterRelevantLines,
+    )
   }
 
-  removeDockerOption(app: string, option: string, phases: Phase[]): Promise<string[]> {
-    return this.dokku("docker-options:remove", app, phases.join(","), option)
-      .then(filterRelevantLines)
+  removeDockerOption(
+    app: string,
+    option: string,
+    phases: Phase[],
+  ): Promise<string[]> {
+    return this.dokku(
+      "docker-options:remove",
+      app,
+      phases.join(","),
+      option,
+    ).then(filterRelevantLines)
   }
 
   stop(app: string): Promise<string[] | void> {
-    return this.dokku("ps:stop", app).then(filterRelevantLines).catch(error => {
-      if (!error.message.endsWith(`App ${app} has not been deployed\n`)) {
-        throw error
-      }
-    })
+    return this.dokku("ps:stop", app)
+      .then(filterRelevantLines)
+      .catch((error) => {
+        if (!error.message.endsWith(`App ${app} has not been deployed\n`)) {
+          throw error
+        }
+      })
   }
 
   start(app: string): Promise<string[]> {
@@ -127,9 +142,7 @@ function isRelevantLine(line: string) {
 }
 
 function extractReports(reportList: string): string[] {
-  return reportList
-    .split("=====>")
-    .filter(report => report !== "")
+  return reportList.split("=====>").filter((report) => report !== "")
 }
 
 function extractStatus(report: string): AppStatus {
@@ -149,10 +162,10 @@ function extractPair(line: string): [string, string] {
 }
 
 function extractDockerOptions(lines) {
-  const options = {};
-  ["build", "deploy", "run"].forEach((phase, index) => {
+  const options = {}
+  ;["build", "deploy", "run"].forEach((phase, index) => {
     const phaseOptions = extractPhaseOptions(lines[index])
-    phaseOptions.forEach(option => {
+    phaseOptions.forEach((option) => {
       const phases = options[option] || []
       options[option] = union(phases, [phase])
     })
@@ -165,7 +178,7 @@ function extractPhaseOptions(line) {
   const options = line.trim().split(" -")
   options.shift()
   return options
-    .map(option => `-${option}`)
+    .map((option) => `-${option}`)
     .filter(ignoreDefaultDockerOptions)
 }
 

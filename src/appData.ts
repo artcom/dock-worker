@@ -59,6 +59,31 @@ class Context {
     this.unknownApps = difference(available, defined)
   }
 
+  async initializeForApps(appNames: string[]): Promise<void> {
+    this.status = new Map()
+    this.missingApps = []
+    this.existingApps = []
+    this.unknownApps = []
+
+    const results = await Promise.all(
+      appNames.map((name) =>
+        this.dokku
+          .report(name)
+          .then(([appStatus]) => ({ name, appStatus }))
+          .catch(() => ({ name, appStatus: null })),
+      ),
+    )
+
+    for (const { name, appStatus } of results) {
+      if (appStatus) {
+        this.status.set(name, appStatus)
+        this.existingApps.push(name)
+      } else {
+        this.missingApps.push(name)
+      }
+    }
+  }
+
   listAppNames(): string[] {
     return flatten([
       this.missingApps,
@@ -145,7 +170,7 @@ class Context {
     const repo = await this.repoCache.getRepo(name)
     await repo.fetch(this.repoCache.DOKKU_REMOTE)
     return await repo.showRef(
-      `refs/remotes/${this.repoCache.DOKKU_REMOTE}/main`
+      `refs/remotes/${this.repoCache.DOKKU_REMOTE}/main`,
     )
   }
 }
@@ -154,15 +179,20 @@ export async function loadAppData(
   descriptions: AppDescription[],
   dokku: Dokku,
   repoCache: RepoCache,
-  selectedApps: string[] = []
+  selectedApps: string[] = [],
 ): Promise<AppData[]> {
   const context = new Context(descriptions, dokku, repoCache)
-  await initializeWithMessage(context)
+
+  if (selectedApps.length === 0) {
+    await initializeWithMessage(context)
+  } else {
+    await context.initializeForApps(selectedApps)
+  }
 
   const appNames = context
     .listAppNames()
     .filter(
-      (appName) => selectedApps.length === 0 || selectedApps.includes(appName)
+      (appName) => selectedApps.length === 0 || selectedApps.includes(appName),
     )
 
   return await loadAppDataWithMessage(context, appNames)
@@ -179,14 +209,14 @@ function loadAppDataWithMessage(context, appNames) {
 
   const message = (spinner) => {
     const services = Array.from(inProgress).map(
-      (appName) => `${chalk.bold(appName)} ${spinner}`
+      (appName) => `${chalk.bold(appName)} ${spinner}`,
     )
 
     const count = `(${completed}/${appNames.length})`
     return chalk.gray([`loading service data ${count}`, ...services].join("\n"))
   }
 
-  const loadAppData = async (appName) => {
+  const loadData = async (appName) => {
     inProgress.add(appName)
     const appData = await context.loadAppData(appName)
     inProgress.delete(appName)
@@ -196,6 +226,6 @@ function loadAppDataWithMessage(context, appNames) {
 
   return showMessageUntilSettled(
     message,
-    mapPromiseWithConcurrency(appNames, loadAppData, 5)
+    mapPromiseWithConcurrency(appNames, loadData, 5),
   )
 }
