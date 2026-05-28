@@ -11,11 +11,18 @@ import { AppDescription, Environment, Options, Dockfile } from "../types"
 
 export type EnvCommand = (dockfile: Dockfile, options: any) => any
 
+export type EnvCommandContext = {
+  dockfile: Dockfile
+  dockfilePath: string
+  environment: Environment
+}
+
 type Command = (
   descriptions: Array<AppDescription>,
   dokku: Dokku,
   repoCache: RepoCache,
   options: any,
+  context: EnvCommandContext,
 ) => any
 
 export default (callback: Command): EnvCommand =>
@@ -46,7 +53,11 @@ export default (callback: Command): EnvCommand =>
     )
 
     try {
-      await callback(descriptions, dokku, repoCache, options)
+      await callback(descriptions, dokku, repoCache, options, {
+        dockfile,
+        dockfilePath: options["--file"],
+        environment,
+      })
     } finally {
       dokku.disconnect()
     }
