@@ -5,7 +5,11 @@ import read from "read-promise"
 import yn from "yn"
 
 import envCommand, { EnvCommandContext } from "./envCommand"
+import { Action, deriveActions } from "../actions"
 import { AppData, loadAppData } from "../appData"
+import Dokku from "../dokku"
+import RepoCache from "../repoCache"
+import showMessageUntilSettled from "../showMessageUntilSettled"
 import { AppDescription, Dockfile } from "../types"
 import { logBetween, lsRemote } from "../git"
 
@@ -33,8 +37,8 @@ export default envCommand(outdated)
 
 async function outdated(
   descriptions: Array<AppDescription>,
-  dokku,
-  repoCache,
+  dokku: Dokku,
+  repoCache: RepoCache,
   _options,
   context: EnvCommandContext,
 ) {
@@ -99,10 +103,8 @@ async function outdated(
     updates[app.appName] = app.defaultBranchVersion
   })
 
-  const { dockfile, updatedServices } = applyLatestVersions(
-    context.dockfile,
-    updates,
-  )
+  const { dockfile, updatedServices, updatedServiceNames } =
+    applyLatestVersions(context.dockfile, updates)
 
   await writeDockfile(context.dockfilePath, dockfile)
 
@@ -110,6 +112,39 @@ async function outdated(
     chalk.green(
       `updated ${updatedServices} service(s) in ${context.dockfilePath}`,
     ),
+  )
+
+  if (updatedServiceNames.length === 0) {
+    return
+  }
+
+  console.log(chalk.green("updated services:"))
+  updatedServiceNames.forEach((service) => {
+    console.log(`  - ${chalk.bold(service)}`)
+  })
+
+  if (!(await askForDeployConfirmation())) {
+    return
+  }
+
+  const updatedDescriptions = descriptions.map((description) => {
+    const latestVersion = updates[description.name]
+
+    if (!latestVersion) {
+      return description
+    }
+
+    return {
+      ...description,
+      version: latestVersion,
+    }
+  })
+
+  await deployUpdatedServices(
+    updatedDescriptions,
+    updatedServiceNames,
+    dokku,
+    repoCache,
   )
 }
 
@@ -196,15 +231,21 @@ async function askForApplyConfirmation(): Promise<boolean> {
 function applyLatestVersions(
   dockfile: Dockfile,
   updates: { [appName: string]: string },
-): { dockfile: Dockfile; updatedServices: number } {
+): {
+  dockfile: Dockfile
+  updatedServices: number
+  updatedServiceNames: string[]
+} {
   const updatedDockfile = JSON.parse(JSON.stringify(dockfile)) as Dockfile
   let updatedServices = 0
+  const updatedServiceNames: string[] = []
 
   for (const app of updatedDockfile.apps) {
     const latestVersion = updates[app.name]
 
     if (latestVersion && app.version !== latestVersion) {
       updatedServices++
+      updatedServiceNames.push(app.name)
       app.version = latestVersion
     }
   }
@@ -212,6 +253,7 @@ function applyLatestVersions(
   return {
     dockfile: updatedDockfile,
     updatedServices,
+    updatedServiceNames,
   }
 }
 
@@ -220,4 +262,48 @@ async function writeDockfile(
   dockfile: Dockfile,
 ): Promise<void> {
   await writeFileAsync(filePath, `${JSON.stringify(dockfile, null, 2)}\n`)
+}
+
+async function askForDeployConfirmation(): Promise<boolean> {
+  const answer = await read({
+    prompt: "deploy updated services now (y/N)?",
+  })
+  return yn(answer)
+}
+
+async function deployUpdatedServices(
+  descriptions: Array<AppDescription>,
+  selectedApps: string[],
+  dokku: Dokku,
+  repoCache: RepoCache,
+): Promise<void> {
+  const apps = await loadAppData(descriptions, dokku, repoCache, selectedApps)
+  const appActions = apps
+    .map((app) => ({ appName: app.name, actions: deriveActions(app) }))
+    .filter(({ actions }) => actions.length > 0)
+
+  if (appActions.length === 0) {
+    console.log(chalk.yellow("nothing to deploy for updated services"))
+    return
+  }
+
+  console.log(chalk.cyan("deploying updated services:"))
+
+  for (const { appName, actions } of appActions) {
+    console.log(chalk.bold(appName))
+
+    for (const action of actions) {
+      const message = (spinner) =>
+        chalk.gray(`${printAction(action)} ${spinner}`)
+      await showMessageUntilSettled(message, action.run(dokku, repoCache))
+      console.log(chalk.cyan(printAction(action)))
+    }
+  }
+}
+
+function printAction(action: Action): string {
+  return action
+    .describe()
+    .map((description) => `  ${description}`)
+    .join("\n")
 }
