@@ -1,9 +1,9 @@
-import Dokku from "../dokku"
-import envCommand from "./envCommand"
-import { parseLogLine } from "../logLine"
-import { DockError, EXIT_USAGE, printJson } from "../output"
+import Dokku from "../dokku.js"
+import envCommand from "./envCommand.js"
+import { parseLogLine } from "../logLine.js"
+import { DockError, EXIT_USAGE, printJson } from "../output.js"
 
-import { AppDescription } from "../types"
+import { AppDescription } from "../types.js"
 
 export default envCommand(logs)
 

@@ -4,19 +4,19 @@ import chalk from "chalk"
 import fs from "fs"
 import { promisify } from "util"
 import { docopt } from "docopt"
-import find from "lodash/find"
+import find from "lodash/find.js"
 
-import status from "./commands/status"
-import deploy from "./commands/deploy"
-import environments from "./commands/environments"
-import logs from "./commands/logs"
-import outdated from "./commands/outdated"
-import version from "./commands/version"
+import status from "./commands/status.js"
+import deploy from "./commands/deploy.js"
+import environments from "./commands/environments.js"
+import logs from "./commands/logs.js"
+import outdated from "./commands/outdated.js"
+import version from "./commands/version.js"
 
-import { EnvCommand } from "./commands/envCommand"
-import { DockError, EXIT_ENVIRONMENT } from "./output"
+import { EnvCommand } from "./commands/envCommand.js"
+import { DockError, EXIT_ENVIRONMENT } from "./output.js"
 
-import { Dockfile } from "./types"
+import { Dockfile } from "./types.js"
 
 const readFileAsync = promisify(fs.readFile)
 
@@ -55,7 +55,7 @@ async function main() {
     const dockfile: Dockfile = await readDockfile(options["--file"])
     const command: EnvCommand = find(
       commands,
-      (command, name) => options[name] === true,
+      (_, name) => options[name] === true,
     )
     await command(dockfile, options)
   } catch (error) {

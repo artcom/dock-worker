@@ -1,8 +1,8 @@
-import Dokku from "../dokku"
-import RepoCache from "../repoCache"
+import Dokku from "../dokku.js"
+import RepoCache from "../repoCache.js"
 
-import { AppData } from "../appData"
-import { AppDescription } from "../types"
+import { AppData } from "../appData.js"
+import { AppDescription } from "../types.js"
 
 export function needsPushAction(app: AppData): boolean {
   return app.description.version !== app.actual.version

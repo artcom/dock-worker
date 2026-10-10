@@ -1,11 +1,11 @@
 import sinon from "sinon"
 
-import { makeConfigAction } from "../src/actions/configAction"
-import { makeCreateAction } from "../src/actions/createAction"
-import { makeDockerOptionAction } from "../src/actions/dockerOptionAction"
-import Dokku from "../src/dokku"
+import { makeConfigAction } from "../src/actions/configAction.js"
+import { makeCreateAction } from "../src/actions/createAction.js"
+import { makeDockerOptionAction } from "../src/actions/dockerOptionAction.js"
+import Dokku from "../src/dokku.js"
 
-import { AppData } from "../src/appData"
+import { AppData } from "../src/appData.js"
 
 describe("Actions", function () {
   beforeEach(function () {

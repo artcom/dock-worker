@@ -1,11 +1,11 @@
-import chai, { expect } from "chai"
+import { expect, use } from "chai"
 
-import { deriveActions } from "../src/actions"
-import { isConfigAction } from "../src/actions/configAction"
-import { isCreateAction } from "../src/actions/createAction"
-import { isDockerOptionAction } from "../src/actions/dockerOptionAction"
-import { isPushAction } from "../src/actions/pushAction"
-import { isStartAction } from "../src/actions/startAction"
+import { deriveActions } from "../src/actions/index.js"
+import { isConfigAction } from "../src/actions/configAction.js"
+import { isCreateAction } from "../src/actions/createAction.js"
+import { isDockerOptionAction } from "../src/actions/dockerOptionAction.js"
+import { isPushAction } from "../src/actions/pushAction.js"
+import { isStartAction } from "../src/actions/startAction.js"
 
 declare global {
   export namespace Chai {
@@ -15,9 +15,8 @@ declare global {
   }
 }
 
-chai.use(function ({ Assertion }) {
+use(function ({ Assertion }) {
   Assertion.addMethod("matchActionTypes", function (types) {
-    // eslint-disable-next-line no-underscore-dangle
     const actions = this._obj
     new Assertion(actions).have.length(types.length, "wrong number of actions")
     actions.forEach((action, i) => new Assertion(types[i](action)).is.true)

@@ -5,7 +5,7 @@ import url from "url"
 import tmp from "tmp"
 import { expect } from "chai"
 
-import RepoCache from "../src/repoCache"
+import RepoCache from "../src/repoCache.js"
 
 describe("Repo Cache", function () {
   beforeEach(async function () {

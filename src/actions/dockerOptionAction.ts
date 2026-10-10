@@ -1,10 +1,10 @@
-import isEqual from "lodash/isEqual"
+import isEqual from "lodash/isEqual.js"
 
-import diffOptions, { Change } from "../diffOptions"
-import Dokku from "../dokku"
+import diffOptions, { Change } from "../diffOptions.js"
+import Dokku from "../dokku.js"
 
-import { AppData } from "../appData"
-import { AppDescription } from "../types"
+import { AppData } from "../appData.js"
+import { AppDescription } from "../types.js"
 
 export function needsDockerOptionAction(app: AppData): boolean {
   return !isEqual(app.description.dockerOptions, app.actual.dockerOptions)

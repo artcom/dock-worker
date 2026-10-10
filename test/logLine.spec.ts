@@ -1,8 +1,8 @@
 import { expect } from "chai"
 import sinon from "sinon"
 
-import Dokku from "../src/dokku"
-import { parseLogLine } from "../src/logLine"
+import Dokku from "../src/dokku.js"
+import { parseLogLine } from "../src/logLine.js"
 
 describe("Log Lines", function () {
   it("should parse JSON payloads", function () {

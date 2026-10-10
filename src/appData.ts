@@ -1,22 +1,22 @@
 import chalk from "chalk"
-import difference from "lodash/difference"
-import find from "lodash/find"
-import flatten from "lodash/flatten"
-import intersection from "lodash/intersection"
-import map from "lodash/map"
+import difference from "lodash/difference.js"
+import find from "lodash/find.js"
+import flatten from "lodash/flatten.js"
+import intersection from "lodash/intersection.js"
+import map from "lodash/map.js"
 
-import Dokku, { AppStatus } from "./dokku"
-import RepoCache from "./repoCache"
-import showMessageUntilSettled from "./showMessageUntilSettled"
-import mapPromiseWithConcurrency from "./mapPromiseWithConcurrency"
+import Dokku, { AppStatus } from "./dokku.js"
+import RepoCache from "./repoCache.js"
+import showMessageUntilSettled from "./showMessageUntilSettled.js"
+import mapPromiseWithConcurrency from "./mapPromiseWithConcurrency.js"
 
-import { AppDescription, Options } from "./types"
+import { AppDescription, Options } from "./types.js"
 
 export interface AppData {
   name: string
   status: "missing" | "exists" | "deployed" | "unknown"
-  deployed: Boolean
-  running: Boolean
+  deployed: boolean
+  running: boolean
   description?: AppDescription
   actual: ActualConfig
 }

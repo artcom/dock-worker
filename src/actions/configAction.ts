@@ -1,12 +1,12 @@
-import fromPairs from "lodash/fromPairs"
-import map from "lodash/map"
-import partition from "lodash/partition"
+import fromPairs from "lodash/fromPairs.js"
+import map from "lodash/map.js"
+import partition from "lodash/partition.js"
 
-import diffOptions, { Change } from "../diffOptions"
-import Dokku from "../dokku"
+import diffOptions, { Change } from "../diffOptions.js"
+import Dokku from "../dokku.js"
 
-import { AppData } from "../appData"
-import { AppDescription } from "../types"
+import { AppData } from "../appData.js"
+import { AppDescription } from "../types.js"
 
 export function needsConfigAction(app: AppData): boolean {
   return computeChanges(app).length > 0

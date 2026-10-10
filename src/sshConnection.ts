@@ -1,30 +1,33 @@
 import { Client } from "ssh2"
 import BufferList from "bl"
 
-import { DockError, EXIT_ENVIRONMENT } from "./output"
+import { DockError, EXIT_ENVIRONMENT } from "./output.js"
 
 export default class SshConnection {
-  client: Client;
-  connect: Promise<void | Error>;
+  client: Client
+  connect: Promise<void | Error>
 
   constructor(username: string, host: string) {
     this.client = new Client()
 
     this.connect = new Promise((resolve, reject) => {
-      this.client.on("ready", () => {
-        resolve()
-      }).on("error", error => {
-        reject(new DockError(error.message, EXIT_ENVIRONMENT))
-      }).connect({
-        host,
-        username,
-        agent: process.env.SSH_AUTH_SOCK,
-        readyTimeout: 30000
-      })
+      this.client
+        .on("ready", () => {
+          resolve()
+        })
+        .on("error", (error) => {
+          reject(new DockError(error.message, EXIT_ENVIRONMENT))
+        })
+        .connect({
+          host,
+          username,
+          agent: process.env.SSH_AUTH_SOCK,
+          readyTimeout: 30000,
+        })
     })
   }
 
-  async exec(command: string): Promise<String | any> {
+  async exec(command: string): Promise<string | any> {
     await this.connect
 
     return new Promise((resolve, reject) => {
@@ -39,7 +42,7 @@ export default class SshConnection {
         stream.pipe(stdout)
         stream.stderr.pipe(stderr)
 
-        stream.on("close", code => {
+        stream.on("close", (code) => {
           if (code === 0) {
             resolve(stdout.toString())
           } else {

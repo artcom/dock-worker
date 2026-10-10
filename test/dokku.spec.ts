@@ -1,10 +1,10 @@
-import chai, { expect } from "chai"
+import { expect, use } from "chai"
 import chaiAsPromised from "chai-as-promised"
 import sinon from "sinon"
 
-import Dokku from "../src/dokku"
+import Dokku from "../src/dokku.js"
 
-chai.use(chaiAsPromised)
+use(chaiAsPromised)
 
 describe("Dokku", function () {
   beforeEach(function () {

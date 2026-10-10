@@ -1,6 +1,6 @@
-import Dokku from "../dokku"
+import Dokku from "../dokku.js"
 
-import { AppData } from "../appData"
+import { AppData } from "../appData.js"
 
 export function needsCreateAction(app: AppData): boolean {
   return app.status === "missing"
@@ -25,7 +25,7 @@ class CreateAction {
     return [`create ${this.name}`]
   }
 
-  run(dokku: Dokku): Promise<Array<String>> {
+  run(dokku: Dokku): Promise<Array<string>> {
     return dokku.create(this.name)
   }
 }

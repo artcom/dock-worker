@@ -1,14 +1,14 @@
 import url from "url"
-import find from "lodash/find"
-import isPlainObject from "lodash/isPlainObject"
-import mapValues from "lodash/mapValues"
-import omitBy from "lodash/omitBy"
+import find from "lodash/find.js"
+import isPlainObject from "lodash/isPlainObject.js"
+import mapValues from "lodash/mapValues.js"
+import omitBy from "lodash/omitBy.js"
 
-import Dokku from "../dokku"
-import RepoCache from "../repoCache"
-import { DockError, EXIT_ENVIRONMENT } from "../output"
+import Dokku from "../dokku.js"
+import RepoCache from "../repoCache.js"
+import { DockError, EXIT_ENVIRONMENT } from "../output.js"
 
-import { AppDescription, Environment, Options, Dockfile } from "../types"
+import { AppDescription, Environment, Options, Dockfile } from "../types.js"
 
 export type EnvCommand = (dockfile: Dockfile, options: any) => any
 

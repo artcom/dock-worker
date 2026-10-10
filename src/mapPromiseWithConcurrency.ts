@@ -1,4 +1,8 @@
-export default (params: Array<any>, runner: (arg1: any) => Promise<any>, concurrency: number) =>
+export default (
+  params: Array<any>,
+  runner: (arg1: any) => Promise<any>,
+  concurrency: number,
+) =>
   new Promise((resolve, reject) => {
     const queue = params.concat()
     const results = []
@@ -8,9 +12,7 @@ export default (params: Array<any>, runner: (arg1: any) => Promise<any>, concurr
       while (queue.length > 0 && running < concurrency) {
         const param = queue.shift()
         running++
-        runner(param)
-          .then(onResolve)
-          .catch(onReject)
+        runner(param).then(onResolve).catch(onReject)
       }
 
       if (queue.length === 0 && running === 0) {

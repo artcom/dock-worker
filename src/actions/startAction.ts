@@ -1,6 +1,6 @@
-import Dokku from "../dokku"
+import Dokku from "../dokku.js"
 
-import { AppData } from "../appData"
+import { AppData } from "../appData.js"
 
 export function needsStartAction(app: AppData, actions: Array<any>): boolean {
   return !app.running && actions.length === 0
@@ -25,7 +25,7 @@ class StartAction {
     return [`start ${this.name}`]
   }
 
-  run(dokku: Dokku): Promise<Array<String>> {
+  run(dokku: Dokku): Promise<Array<string>> {
     return dokku.start(this.name)
   }
 }

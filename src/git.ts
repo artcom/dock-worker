@@ -3,7 +3,7 @@ import { promisify } from "util"
 import fs from "fs"
 import os from "os"
 import path from "path"
-import set from "lodash/set"
+import set from "lodash/set.js"
 
 const execFileAsync = promisify(execFile)
 const statAsync = promisify(fs.stat)
@@ -135,19 +135,19 @@ export function init(
 }
 
 export function clone(
-  repo: string,
+  repoUrl: string,
   directory: string,
   options: RepoOptions = {},
 ): Promise<Repo> {
   const command = options.bare
-    ? git("clone", "--bare", repo, directory)
-    : git("clone", repo, directory)
+    ? git("clone", "--bare", repoUrl, directory)
+    : git("clone", repoUrl, directory)
 
   return command.then(() => new Repo(directory, options.bare))
 }
 
-export function lsRemote(repo: string, ref: string): Promise<string | null> {
-  return git("ls-remote", repo, ref).then((lines) => {
+export function lsRemote(repoUrl: string, ref: string): Promise<string | null> {
+  return git("ls-remote", repoUrl, ref).then((lines) => {
     if (lines.length === 0) {
       return null
     }
@@ -187,6 +187,7 @@ export async function logBetween(
   } catch (error) {
     throw new Error(
       `Could not read commits between ${fromRef} and ${toRef} from ${repoUrl}: ${error.message}`,
+      { cause: error },
     )
   } finally {
     await removeDirectoryRecursive(tempDir)

@@ -1,10 +1,8 @@
 import elegantSpinner from "elegant-spinner"
-import logUpdate from "log-update"
-
-// progress goes to stderr and only to a terminal, so stdout stays parseable
-const logToStderr = logUpdate.create(process.stderr)
+import { logUpdateStderr } from "log-update"
 
 export default async function (message, promise) {
+  // progress goes to stderr and only to a terminal, so stdout stays parseable
   if (!process.stderr.isTTY) {
     return await promise
   }
@@ -12,13 +10,13 @@ export default async function (message, promise) {
   const spinner = elegantSpinner()
 
   const interval = setInterval(() => {
-    logToStderr(message(spinner()))
+    logUpdateStderr(message(spinner()))
   }, 66)
 
   try {
     return await promise
   } finally {
     clearInterval(interval)
-    logToStderr.clear()
+    logUpdateStderr.clear()
   }
 }

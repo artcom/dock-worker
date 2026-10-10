@@ -6,6 +6,7 @@ Automated Dokku Deployment
 
 The following tools need to be installed:
 
+- Node.js 24 (LTS, see `.nvmrc`)
 - `git`
 - `ssh`
 

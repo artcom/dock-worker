@@ -1,18 +1,18 @@
 import chalk from "chalk"
 
-import { deriveActions, actionKind, Action } from "../actions"
-import { isConfigAction } from "../actions/configAction"
-import { isDockerOptionAction } from "../actions/dockerOptionAction"
-import { isPushAction } from "../actions/pushAction"
+import { deriveActions, actionKind, Action } from "../actions/index.js"
+import { isConfigAction } from "../actions/configAction.js"
+import { isDockerOptionAction } from "../actions/dockerOptionAction.js"
+import { isPushAction } from "../actions/pushAction.js"
 
-import ansiTable from "../ansiTable"
-import { loadAppData, AppData } from "../appData"
-import Dokku from "../dokku"
-import envCommand from "./envCommand"
-import RepoCache from "../repoCache"
-import { printJson } from "../output"
+import ansiTable from "../ansiTable.js"
+import { loadAppData, AppData } from "../appData.js"
+import Dokku from "../dokku.js"
+import envCommand from "./envCommand.js"
+import RepoCache from "../repoCache.js"
+import { printJson } from "../output.js"
 
-import { AppDescription } from "../types"
+import { AppDescription } from "../types.js"
 
 export default envCommand(status)
 

@@ -1,13 +1,13 @@
 import path from "path"
 
-import * as git from "./git"
+import * as git from "./git.js"
 
 export default class RepoCache {
-  ORIGIN_REMOTE: string;
-  DOKKU_REMOTE: string;
+  ORIGIN_REMOTE: string
+  DOKKU_REMOTE: string
 
-  cacheDir: string;
-  remoteUrl: string;
+  cacheDir: string
+  remoteUrl: string
 
   constructor(remoteUrl: string, options: { cacheDir?: string } = {}) {
     this.ORIGIN_REMOTE = "origin"
@@ -20,8 +20,11 @@ export default class RepoCache {
   getRepo(name: string): Promise<git.RepoType> {
     const localPath = path.resolve(this.cacheDir, name)
 
-    return git.repo(localPath, { bare: true })
+    return git
+      .repo(localPath, { bare: true })
       .catch(() => git.init(localPath, { bare: true }))
-      .then(repo => repo.ensureRemote(this.DOKKU_REMOTE, `${this.remoteUrl}/${name}`))
+      .then((repo) =>
+        repo.ensureRemote(this.DOKKU_REMOTE, `${this.remoteUrl}/${name}`),
+      )
   }
 }

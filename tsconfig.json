@@ -1,13 +1,17 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "es2024",
+    "lib": ["es2024"],
+    "types": ["node"],
+    "rootDir": "./src",
     "outDir": "./dist",
     "declaration": true,
     "sourceMap": true,
     "esModuleInterop": true,
-    "target": "es2018"
+    "skipLibCheck": true,
+    "strict": false
   },
-  "include": [
-    "./src/**/*"
-  ]
+  "include": ["./src/**/*"]
 }

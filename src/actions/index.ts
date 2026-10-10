@@ -2,23 +2,27 @@ import {
   needsConfigAction,
   makeConfigAction,
   isConfigAction,
-} from "./configAction"
+} from "./configAction.js"
 import {
   needsCreateAction,
   makeCreateAction,
   isCreateAction,
-} from "./createAction"
+} from "./createAction.js"
 import {
   needsDockerOptionAction,
   makeDockerOptionAction,
   isDockerOptionAction,
-} from "./dockerOptionAction"
-import { needsPushAction, makePushAction, isPushAction } from "./pushAction"
-import { needsStartAction, makeStartAction, isStartAction } from "./startAction"
+} from "./dockerOptionAction.js"
+import { needsPushAction, makePushAction, isPushAction } from "./pushAction.js"
+import {
+  needsStartAction,
+  makeStartAction,
+  isStartAction,
+} from "./startAction.js"
 
-import { AppData } from "../appData"
-import Dokku from "../dokku"
-import RepoCache from "../repoCache"
+import { AppData } from "../appData.js"
+import Dokku from "../dokku.js"
+import RepoCache from "../repoCache.js"
 
 export type Action = {
   describe: () => Array<string>
@@ -56,11 +60,7 @@ export function deriveActions(app: AppData): Array<Action> {
 }
 
 export type ActionKind =
-  | "create"
-  | "config"
-  | "docker-options"
-  | "push"
-  | "start"
+  "create" | "config" | "docker-options" | "push" | "start"
 
 export function actionKind(action: Action): ActionKind {
   if (isCreateAction(action)) return "create"

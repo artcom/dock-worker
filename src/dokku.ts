@@ -1,10 +1,10 @@
-import fromPairs from "lodash/fromPairs"
-import map from "lodash/map"
-import union from "lodash/union"
+import fromPairs from "lodash/fromPairs.js"
+import map from "lodash/map.js"
+import union from "lodash/union.js"
 
-import SshConnection from "./sshConnection"
+import SshConnection from "./sshConnection.js"
 
-import { Options } from "./types"
+import { Options } from "./types.js"
 
 export type Phase = "build" | "deploy" | "run"
 export type AppStatus = {
@@ -41,7 +41,7 @@ export default class {
     return status
   }
 
-  create(app: string): Promise<String[]> {
+  create(app: string): Promise<string[]> {
     return this.dokku("apps:create", app).then(filterRelevantLines)
   }
 
@@ -55,7 +55,7 @@ export default class {
         }
       })
       .then(filterRelevantLines)
-      .then((lines: String[]) => {
+      .then((lines: string[]) => {
         const pairs = lines.map(extractPair)
         return fromPairs(pairs)
       })

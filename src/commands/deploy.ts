@@ -1,17 +1,17 @@
 import chalk from "chalk"
 import read from "read-promise"
 import yn from "yn"
-import find from "lodash/find"
+import find from "lodash/find.js"
 
-import { deriveActions, serializeAction, Action } from "../actions"
-import { loadAppData } from "../appData"
-import Dokku from "../dokku"
-import envCommand from "./envCommand"
-import RepoCache from "../repoCache"
-import showMessageUntilSettled from "../showMessageUntilSettled"
-import { DockError, EXIT_USAGE, printJson } from "../output"
+import { deriveActions, serializeAction, Action } from "../actions/index.js"
+import { loadAppData } from "../appData.js"
+import Dokku from "../dokku.js"
+import envCommand from "./envCommand.js"
+import RepoCache from "../repoCache.js"
+import showMessageUntilSettled from "../showMessageUntilSettled.js"
+import { DockError, EXIT_USAGE, printJson } from "../output.js"
 
-import { AppDescription } from "../types"
+import { AppDescription } from "../types.js"
 
 type AppActions = {
   appName: string

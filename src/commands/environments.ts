@@ -1,6 +1,6 @@
 import chalk from "chalk"
 
-import ansiTable from "../ansiTable"
+import ansiTable from "../ansiTable.js"
 
 export default function environments(dockfile) {
   const rows = dockfile.environments.map((environment) => [
