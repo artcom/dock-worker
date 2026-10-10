@@ -117,6 +117,10 @@ export default class {
     return this.dokku("ps:restart", app).then(filterRelevantLines)
   }
 
+  logs(app: string, num: number): Promise<string> {
+    return this.dokku("logs", app, "--num", String(num))
+  }
+
   // PRIVATE
 
   dokku(...params: string[]): Promise<string> {

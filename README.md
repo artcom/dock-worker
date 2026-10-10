@@ -25,15 +25,51 @@ ECDSA key fingerprint is SHA256:xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.
 
 ```bash
   Usage:
-    dock <environment> status [options]                     list app and status information
-    dock <environment> deploy [--yes] [<app>...] [options]  deploy apps and configuration
+    dock <environment> status [--json] [options]            list app and status information
+    dock <environment> deploy [--yes] [--dry-run] [--json] [<app>...] [options]
+                                                            deploy apps and configuration
+    dock <environment> logs <app> [--num=N] [--json] [options]
+                                                            show recent app logs
     dock <environment> outdated [options]                   list apps behind main/master branch
     dock environments [options]                             list available environments
     dock version                                            show dock-worker version
 
   Options:
     -f FILE --file=FILE                                     Dockfile path [default: Dockfile.json]
+    -n N --num=N                                            number of log lines [default: 100]
+    --json                                                  print one JSON object per line to stdout
+    --dry-run                                               show what deploy would do without changing anything
 ```
+
+### Machine-Readable Output
+
+With `--json`, results are written to stdout as one JSON object per line. Progress spinners go to stderr and are only shown when stderr is a terminal, so the output can be piped into tools like `jq`.
+
+```bash
+# apps that differ from the Dockfile
+dock production status --json | jq -c 'select(.inSync | not) | {app, pending}'
+
+# what a deployment would change, without changing anything
+dock staging deploy --dry-run --json
+
+# error log lines of an app
+dock production logs ai-assistant -n 500 --json | jq -c 'select(.data.level == "error")'
+```
+
+`status --json` prints `{app, environment, status, deployed, running, inSync, version: {expected, actual}, pending}`, where `pending` lists the action kinds a deployment would run (`create`, `config`, `docker-options`, `push`, `start`).
+
+`deploy --json` prints `{app, state, actions}` per app, with `state` being `planned` (dry run), `pending` or `deployed`. Since it cannot prompt for confirmation, `--json` requires `--dry-run` or `--yes`.
+
+`logs --json` prints `{timestamp, process, data}` for lines with a JSON payload and `{timestamp, process, message}` otherwise.
+
+### Exit Codes
+
+| Code | Meaning                                                 |
+| ---- | ------------------------------------------------------- |
+| 0    | success                                                 |
+| 1    | command failed                                          |
+| 2    | usage error, e.g. unknown app or invalid option        |
+| 3    | environment error, e.g. unreadable Dockfile or host unreachable |
 
 ## App Definition
 

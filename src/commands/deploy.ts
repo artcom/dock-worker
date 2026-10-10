@@ -3,12 +3,13 @@ import read from "read-promise"
 import yn from "yn"
 import find from "lodash/find"
 
-import { deriveActions, Action } from "../actions"
+import { deriveActions, serializeAction, Action } from "../actions"
 import { loadAppData } from "../appData"
 import Dokku from "../dokku"
 import envCommand from "./envCommand"
 import RepoCache from "../repoCache"
 import showMessageUntilSettled from "../showMessageUntilSettled"
+import { DockError, EXIT_USAGE, printJson } from "../output"
 
 import { AppDescription } from "../types"
 
@@ -26,14 +27,46 @@ async function deploy(
   options: any,
 ) {
   const selectedApps = options["<app>"]
+  const json = options["--json"]
+  const dryRun = options["--dry-run"]
   validateSelectedApps(descriptions, selectedApps)
+
+  if (json && !dryRun && !options["--yes"]) {
+    throw new DockError(
+      "--json cannot prompt for confirmation, use --dry-run or --yes",
+      EXIT_USAGE,
+    )
+  }
 
   const apps = await loadAppData(descriptions, dokku, repoCache, selectedApps)
   const appActions = apps
     .map((app) => ({ appName: app.name, actions: deriveActions(app) }))
     .filter(({ actions }) => actions.length > 0)
 
-  await applyAppActions(appActions, dokku, repoCache, options["--yes"])
+  if (json) {
+    appActions.forEach((entry) =>
+      printJson(serializeAppActions(entry, dryRun ? "planned" : "pending")),
+    )
+  }
+
+  if (dryRun) {
+    if (!json) {
+      console.log(
+        appActions.length === 0 ? "nothing to deploy" : printList(appActions),
+      )
+    }
+    return
+  }
+
+  if (json) {
+    await runActions(appActions, dokku, repoCache, json)
+  } else {
+    await applyAppActions(appActions, dokku, repoCache, options["--yes"])
+  }
+}
+
+function serializeAppActions({ appName, actions }: AppActions, state: string) {
+  return { app: appName, state, actions: actions.map(serializeAction) }
 }
 
 function validateSelectedApps(
@@ -42,7 +75,7 @@ function validateSelectedApps(
 ): void {
   selectedApps.forEach((appName) => {
     if (!find(descriptions, ["name", appName])) {
-      throw new Error(`Unknown app "${appName}"`)
+      throw new DockError(`Unknown app "${appName}"`, EXIT_USAGE)
     }
   })
 }
@@ -64,15 +97,24 @@ async function askForConfirmation() {
   return yn(input)
 }
 
-async function runActions(appActionsList, dokku, repoCache) {
-  for (const { appName, actions } of appActionsList) {
-    console.log(printName(appName))
+async function runActions(appActionsList, dokku, repoCache, json = false) {
+  for (const appActions of appActionsList) {
+    const { appName, actions } = appActions
+    if (!json) {
+      console.log(printName(appName))
+    }
 
     for (const action of actions) {
       const message = (spinner) =>
         chalk.gray(`${printAction(action)} ${spinner}`)
       await showMessageUntilSettled(message, action.run(dokku, repoCache))
-      console.log(chalk.cyan(printAction(action)))
+      if (!json) {
+        console.log(chalk.cyan(printAction(action)))
+      }
+    }
+
+    if (json) {
+      printJson(serializeAppActions(appActions, "deployed"))
     }
   }
 }

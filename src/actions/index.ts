@@ -1,11 +1,20 @@
-import { needsConfigAction, makeConfigAction } from "./configAction"
-import { needsCreateAction, makeCreateAction } from "./createAction"
+import {
+  needsConfigAction,
+  makeConfigAction,
+  isConfigAction,
+} from "./configAction"
+import {
+  needsCreateAction,
+  makeCreateAction,
+  isCreateAction,
+} from "./createAction"
 import {
   needsDockerOptionAction,
   makeDockerOptionAction,
+  isDockerOptionAction,
 } from "./dockerOptionAction"
-import { needsPushAction, makePushAction } from "./pushAction"
-import { needsStartAction, makeStartAction } from "./startAction"
+import { needsPushAction, makePushAction, isPushAction } from "./pushAction"
+import { needsStartAction, makeStartAction, isStartAction } from "./startAction"
 
 import { AppData } from "../appData"
 import Dokku from "../dokku"
@@ -44,4 +53,24 @@ export function deriveActions(app: AppData): Array<Action> {
   }
 
   return actions
+}
+
+export type ActionKind =
+  | "create"
+  | "config"
+  | "docker-options"
+  | "push"
+  | "start"
+
+export function actionKind(action: Action): ActionKind {
+  if (isCreateAction(action)) return "create"
+  if (isConfigAction(action)) return "config"
+  if (isDockerOptionAction(action)) return "docker-options"
+  if (isPushAction(action)) return "push"
+  if (isStartAction(action)) return "start"
+  throw new Error("Unknown action")
+}
+
+export function serializeAction(action: Action) {
+  return { kind: actionKind(action), changes: action.describe() }
 }

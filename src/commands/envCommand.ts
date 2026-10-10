@@ -6,6 +6,7 @@ import omitBy from "lodash/omitBy"
 
 import Dokku from "../dokku"
 import RepoCache from "../repoCache"
+import { DockError, EXIT_ENVIRONMENT } from "../output"
 
 import { AppDescription, Environment, Options, Dockfile } from "../types"
 
@@ -33,8 +34,9 @@ export default (callback: Command): EnvCommand =>
     ])
 
     if (!environment) {
-      throw new Error(
+      throw new DockError(
         `Environment "${options["<environment>"]}" not found in Dockfile.json`,
+        EXIT_ENVIRONMENT,
       )
     }
 

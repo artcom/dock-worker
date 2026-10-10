@@ -1,6 +1,6 @@
 import chalk from "chalk"
 
-import { deriveActions, Action } from "../actions"
+import { deriveActions, actionKind, Action } from "../actions"
 import { isConfigAction } from "../actions/configAction"
 import { isDockerOptionAction } from "../actions/dockerOptionAction"
 import { isPushAction } from "../actions/pushAction"
@@ -10,6 +10,7 @@ import { loadAppData, AppData } from "../appData"
 import Dokku from "../dokku"
 import envCommand from "./envCommand"
 import RepoCache from "../repoCache"
+import { printJson } from "../output"
 
 import { AppDescription } from "../types"
 
@@ -19,9 +20,34 @@ async function status(
   descriptions: Array<AppDescription>,
   dokku: Dokku,
   repoCache: RepoCache,
+  options: any,
+  { environment },
 ) {
   const apps = await loadAppData(descriptions, dokku, repoCache)
-  console.log(createTable(apps))
+
+  if (options["--json"]) {
+    apps.forEach((app) => printJson(serializeApp(app, environment.name)))
+  } else {
+    console.log(createTable(apps))
+  }
+}
+
+function serializeApp(app: AppData, environment: string) {
+  const actions = deriveActions(app)
+
+  return {
+    app: app.name,
+    environment,
+    status: app.status,
+    deployed: app.deployed,
+    running: app.running,
+    inSync: app.status !== "unknown" && actions.length === 0,
+    version: {
+      expected: app.description ? app.description.version : null,
+      actual: app.actual.version || null,
+    },
+    pending: actions.map(actionKind),
+  }
 }
 
 function createTable(apps) {

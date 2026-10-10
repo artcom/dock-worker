@@ -1,6 +1,8 @@
 import { Client } from "ssh2"
 import BufferList from "bl"
 
+import { DockError, EXIT_ENVIRONMENT } from "./output"
+
 export default class SshConnection {
   client: Client;
   connect: Promise<void | Error>;
@@ -12,7 +14,7 @@ export default class SshConnection {
       this.client.on("ready", () => {
         resolve()
       }).on("error", error => {
-        reject(error)
+        reject(new DockError(error.message, EXIT_ENVIRONMENT))
       }).connect({
         host,
         username,
