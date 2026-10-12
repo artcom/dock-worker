@@ -16,6 +16,17 @@ describe("Log Lines", function () {
     })
   })
 
+  it("should parse lines with a colored prefix", function () {
+    const line =
+      '\u001b[36m2026-10-09T10:56:33.601667000Z app[web.1]:\u001b[0m {"level":"info","message":"Session Stopped"}'
+
+    expect(parseLogLine(line)).to.deep.equal({
+      timestamp: "2026-10-09T10:56:33.601667000Z",
+      process: "web.1",
+      data: { level: "info", message: "Session Stopped" },
+    })
+  })
+
   it("should keep plain text payloads as message", function () {
     const line = "2026-10-01T13:04:42.123Z app[web.1]: listening on 5000"
 
